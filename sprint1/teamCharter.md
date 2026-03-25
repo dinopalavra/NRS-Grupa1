@@ -1,2 +1,2 @@
-\# Team Charter
+# Team Charter
 
