@@ -92,3 +92,22 @@ ignorisati timske obaveze, prisvajati tuđi rad, prikrivati neizvršene zadatke 
 informacije o vlastitom doprinosu.
 Tim projektni rad posmatra kao simulaciju profesionalnog razvojnog okruženja i prihvata obavezu
 ozbiljnog, transparentnog i odgovornog rada tokom cijelog semestra.
+
+##13. Upravljanje verzijama
+Sve izmjene na dokumentima i programskom kodu moraju biti evidentirane kroz sistem za verzionisanje. Svaka izmjena treba sadržavati jasan, precizan i informativan opis (commit message) koji omogućava jednostavno praćenje razvoja projekta, razumijevanje uvedenih promjena te eventualno vraćanje na prethodne stabilne verzije.
+
+
+##14. Standardi imenovanja
+Svi fajlovi, direktoriji, dokumenti i grane u repozitoriju moraju biti imenovani u skladu sa unaprijed definisanim standardima. Imena trebaju biti konzistentna, deskriptivna i razumljiva svim članovima tima, kako bi se osigurala preglednost projekta i smanjila mogućnost nesporazuma.
+
+
+##15. Kontrola kvaliteta
+Svaki artefakt prije finalne predaje prolazi kroz proces interne kontrole kvaliteta. Ovaj proces uključuje pregled od strane najmanje jednog člana tima koji nije autor, s ciljem identifikacije grešaka, poboljšanja sadržaja i osiguravanja usklađenosti sa projektnim zahtjevima i standardima.
+
+
+##16. Upravljanje vremenom
+Članovi tima su odgovorni za efikasno upravljanje vlastitim vremenom i izvršavanje zadataka u okviru definisanih rokova. Preporučuje se završavanje zadataka prije krajnjih rokova kako bi se ostavio prostor za dodatne izmjene, testiranje i unapređenja.
+
+
+##17. Prioriteti zadataka
+U slučaju većeg broja zadataka, tim definiše prioritete na osnovu njihove važnosti za ostvarenje sprint cilja, međuzavisnosti i rokova. Zadaci višeg prioriteta imaju prednost u realizaciji kako bi se osigurao kontinuitet rada i stabilan napredak projekta.
