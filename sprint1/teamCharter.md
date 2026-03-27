@@ -93,21 +93,77 @@ informacije o vlastitom doprinosu.
 Tim projektni rad posmatra kao simulaciju profesionalnog razvojnog okruženja i prihvata obavezu
 ozbiljnog, transparentnog i odgovornog rada tokom cijelog semestra.
 
+
+
 ##13. Upravljanje verzijama
 Sve izmjene na dokumentima i programskom kodu moraju biti evidentirane kroz sistem za verzionisanje. Svaka izmjena treba sadržavati jasan, precizan i informativan opis (commit message) koji omogućava jednostavno praćenje razvoja projekta, razumijevanje uvedenih promjena te eventualno vraćanje na prethodne stabilne verzije.
+
 
 
 ##14. Standardi imenovanja
 Svi fajlovi, direktoriji, dokumenti i grane u repozitoriju moraju biti imenovani u skladu sa unaprijed definisanim standardima. Imena trebaju biti konzistentna, deskriptivna i razumljiva svim članovima tima, kako bi se osigurala preglednost projekta i smanjila mogućnost nesporazuma.
 
 
+
 ##15. Kontrola kvaliteta
 Svaki artefakt prije finalne predaje prolazi kroz proces interne kontrole kvaliteta. Ovaj proces uključuje pregled od strane najmanje jednog člana tima koji nije autor, s ciljem identifikacije grešaka, poboljšanja sadržaja i osiguravanja usklađenosti sa projektnim zahtjevima i standardima.
+
 
 
 ##16. Upravljanje vremenom
 Članovi tima su odgovorni za efikasno upravljanje vlastitim vremenom i izvršavanje zadataka u okviru definisanih rokova. Preporučuje se završavanje zadataka prije krajnjih rokova kako bi se ostavio prostor za dodatne izmjene, testiranje i unapređenja.
 
 
+
+
 ##17. Prioriteti zadataka
 U slučaju većeg broja zadataka, tim definiše prioritete na osnovu njihove važnosti za ostvarenje sprint cilja, međuzavisnosti i rokova. Zadaci višeg prioriteta imaju prednost u realizaciji kako bi se osigurao kontinuitet rada i stabilan napredak projekta.
+
+
+##18. Transparentnost rada
+Svi članovi tima obavezni su redovno ažurirati status svojih zadataka i transparentno komunicirati o
+napretku. Ovakav pristup omogućava pravovremeno prepoznavanje problema, lakšu koordinaciju i
+bolju organizaciju timskog rada.
+
+
+
+##19. Dijeljenje znanja
+Tim podstiče kontinuirano dijeljenje znanja, iskustava i resursa među članovima. U slučaju tehničkih
+ili organizacionih izazova, očekuje se aktivna međusobna podrška kako bi se osigurao ravnomjeran
+napredak i kvalitet realizacije zadataka.
+
+
+
+##20. Upravljanje rizicima
+Tim aktivno identifikuje, analizira i prati potencijalne rizike koji mogu uticati na realizaciju projekta. Za
+svaki identificirani rizik definišu se odgovarajuće preventivne i korektivne mjere s ciljem minimiziranja
+negativnog uticaja na projektne aktivnosti.
+
+
+
+##21. Dostupnost članova tima
+Članovi tima su dužni blagovremeno informisati ostale o planiranoj nedostupnosti ili smanjenoj
+aktivnosti. Na osnovu tih informacija tim može pravovremeno reagovati i izvršiti potrebnu
+preraspodjelu zadataka.
+
+
+
+##22. Korištenje alata
+Svi članovi tima obavezni su koristiti unaprijed dogovorene alate za komunikaciju, upravljanje
+zadacima i verzionisanje. Dosljedna upotreba alata omogućava centralizaciju informacija, bolju
+organizaciju i efikasniju saradnju.
+
+
+
+
+##23. Evaluacija sprinta
+Na kraju svakog sprinta tim provodi evaluaciju ostvarenih rezultata kroz analizu uspješno završenih
+zadataka, identificiranih problema i mogućnosti za unapređenje. Zaključci evaluacije koriste se za
+optimizaciju rada u narednim sprintovima.
+
+
+
+##24. Motivacija i timska kultura
+Tim njeguje profesionalnu, odgovornu i pozitivnu radnu atmosferu zasnovanu na međusobnom
+poštovanju i povjerenju. Održavanje zdrave timske kulture doprinosi većoj motivaciji članova, boljoj
+komunikaciji i kvalitetnijim rezultatima projekta.
