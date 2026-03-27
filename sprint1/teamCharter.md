@@ -33,4 +33,20 @@ Tim radi u skladu sa sedmičnim sprintovima i zadaci se raspoređuju na početku
 
 Ključni artefakti i važne odluke pregledaju se zajednički prije finalizacije. Time se osiguravaju konzistentnost dokumentacije, kvalitet sadržaja i zajedničko razumijevanje projekta.
 
+## 5. Alati i načini rada
+
+Tim koristi zajednički repozitorij kao centralno mjesto za čuvanje projektne dokumentacije i kasnije implementacije. Dokumenti trebaju biti jasno imenovani, pregledno organizovani i dostupni svim članovima tima.
+
+Za praćenje zadataka koristi se jednostavna evidencija zadataka sa osnovnim podacima o odgovornim osobama, statusu i napomenama. Na ovaj način tim nastoji osigurati preglednost rada i vidljivost individualnog doprinosa.
+
+## 6. Dogovaranje i praćenje zadataka
+
+Na početku sprinta tim definiše sprint cilj i raspoređuje konkretne zadatke među članovima. Tokom sedmice prati se realizacija zadataka, a po potrebi se vrši prilagodba plana rada.
+
+Prije sedmičnog sastanka priprema se pregled planiranih i realizovanih aktivnosti, nezavršenih zadataka, uočenih problema i prijedloga za naredni sprint. Član tima koji kasni sa zadatkom dužan je to prijaviti na vrijeme.
+
+## 7. Dokumentovanje odluka
+
+Važne organizacione i projektne odluke dokumentuju se kroz zajedničke bilješke, komentare uz zadatke i projektne artefakte. Na taj način tim osigurava preglednost procesa rada i mogućnost naknadnog praćenja ključnih odluka.
+
 
