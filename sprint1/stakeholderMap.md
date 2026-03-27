@@ -8,3 +8,9 @@
 | Igrač | Učesnik u timu koji koristi sistem za pregled informacija | Tačne i pravovremene informacije o terminima i rezultatima | Pregled termina, rasporeda utakmica, rezultata i tabele | Srednji – koristi sistem ali ne utiče direktno na zahtjeve | Srednji |
 | Sudija ili zapisničar | Unosi i potvrđuje rezultate utakmica u sistemu | Tačna i pouzdana evidencija rezultata utakmica | Jednostavan unos i ažuriranje rezultata bez grešaka | Srednji – utiče na tačnost podataka i rezultate u sistemu | Srednji |
 | Menadžment / objekat | Nadzire korištenje termina i resursa sportskog objekta | Pregled zauzeća i efikasno upravljanje resursima | Jasna evidencija termina i korištenja resursa | Srednji – utiče na organizaciju termina i raspoloživost resursa | Srednji |
+
+Najvažniji stakeholderi za MVP verziju sistema su organizator lige, administrator sistema i kapiten tima, jer direktno utiču na definisanje ključnih funkcionalnosti i način rada sistema.
+
+Ovi stakeholderi imaju najveći uticaj na zahtjeve, prioritete i osnovni scope projekta, te je njihovo zadovoljstvo ključno za uspješnu implementaciju sistema.
+
+Ostali stakeholderi, poput igrača, sudije ili zapisničara i menadžmenta objekta, imaju manji uticaj u početnoj fazi, ali su važni za svakodnevno korištenje sistema i tačnost podataka.
