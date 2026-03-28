@@ -13,7 +13,7 @@
 5. Harun Muhić
 6. Dino Palavra
 7. Miralem Pupalović
-8. Ernad Praško
+8. Ernad Prasko
 
 ## 2. Način komunikacije
 
@@ -49,121 +49,37 @@ Prije sedmičnog sastanka priprema se pregled planiranih i realizovanih aktivnos
 
 Važne organizacione i projektne odluke dokumentuju se kroz zajedničke bilješke, komentare uz zadatke i projektne artefakte. Na taj način tim osigurava preglednost procesa rada i mogućnost naknadnog praćenja ključnih odluka.
 
-
 ## 8. Rješavanje neslaganja
-U slučaju neslaganja unutar tima, problem se prvo pokušava riješiti internim razgovorom, uz
-profesionalnu i argumentovanu komunikaciju. Odluke se donose na osnovu potreba projekta,
-kvaliteta rješenja i realnih mogućnosti tima.
-Ako neslaganje nije moguće riješiti internim putem ili ako utiče na kontinuitet rada, situacija se
-evidentira i po potrebi prijavljuje nastavnom osoblju.
 
+Ako dođe do neslaganja unutar tima, problem se prvo pokušava riješiti internim razgovorom i dogovorom. Odluke se donose na osnovu potreba projekta, kvaliteta rješenja i realnih mogućnosti tima.
+
+Ako se problem ne može riješiti unutar tima ili počne uticati na rad i rokove, situacija se evidentira i po potrebi prijavljuje nastavnom osoblju.
 
 ## 9. Početne odgovornosti
-Početne odgovornosti u Sprintu 1 raspoređene su na sljedeći način:
-- Amel Divovic i Harun Muhic — izrada Team Charter dokumenta i koordinacija timskog rada
-- Bakir Hadzialic i Miralem Pupalovic — izrada Product Vision dokumenta
-- Tarik Avdovic i Ernad — izrada Stakeholder Map dokumenta
-- Harun Hodzic i Dino Palavra — izrada početnog Product Backloga
-Dodatno, Amel Divovic koordinira završno usklađivanje artefakata, dok Dino Palavra vodi računa o
-preglednosti repozitorija i organizaciji verzija dokumenata.
 
+Početne odgovornosti u Sprintu 1 raspoređene su na sljedeći način:
+
+- Amel Divović i Harun Muhić — izrada Team Charter dokumenta i koordinacija timskog rada
+- Bakir Hadžialić i Miralem Pupalović — izrada Product Vision dokumenta
+- Tarik Avdović i Ernad Prasko — izrada Stakeholder Map dokumenta
+- Harun Hodžić i Dino Palavra — izrada početnog Product Backloga
+
+Dodatno, Amel Divović koordinira završno usklađivanje artefakata, dok Dino Palavra vodi računa o preglednosti repozitorija i organizaciji verzija dokumenata.
 
 ## 10. Očekivanja od članova tima
-Od svakog člana tima očekuje se redovno prisustvo sastancima, izvršavanje dogovorenih zadataka u
-predviđenim rokovima, aktivna komunikacija i spremnost da objasni vlastiti doprinos.
-Svaki član tima treba razumjeti osnovnu svrhu projekta, glavne korisnike, MVP opseg i dio rada za
-koji preuzima odgovornost. Timski rad ne oslobađa pojedinca odgovornosti za vlastito razumijevanje
-projekta.
 
+Od svakog člana tima očekuje se redovno prisustvo sastancima, izvršavanje dogovorenih zadataka u predviđenim rokovima, aktivna komunikacija i spremnost da objasni vlastiti doprinos.
 
+Svaki član treba razumjeti osnovnu svrhu projekta, glavne korisnike i dio rada za koji je zadužen. Timski rad ne oslobađa pojedinca odgovornosti za vlastito razumijevanje projekta.
 
 ## 11. Neispunjavanje obaveza
-Ako član tima ne izvršava svoje obaveze, problem se prvo rješava internim upozorenjem i
-razgovorom. Nakon toga se, prema potrebi, definiše novi rok, pruža podrška ili vrši preraspodjela
-zadataka.
-U slučaju ponavljanja problema, situacija se evidentira i, ako je potrebno, prijavljuje nastavnom
-osoblju uz konkretne primjere i opis prethodno poduzetih koraka.
 
+Ako član tima ne izvršava svoje obaveze, problem se prvo rješava internim razgovorom i upozorenjem. Nakon toga se po potrebi definiše novi rok, pruža pomoć ili vrši preraspodjela zadatka.
 
+Ako se isti problem ponavlja, situacija se evidentira i po potrebi prijavljuje nastavnom osoblju uz konkretan opis problema i prethodno poduzetih koraka.
 
 ## 12. Profesionalno ponašanje
-Članovi tima obavezni su komunicirati profesionalno, odgovorno i korektno. Nije prihvatljivo
-ignorisati timske obaveze, prisvajati tuđi rad, prikrivati neizvršene zadatke ili davati netačne
-informacije o vlastitom doprinosu.
-Tim projektni rad posmatra kao simulaciju profesionalnog razvojnog okruženja i prihvata obavezu
-ozbiljnog, transparentnog i odgovornog rada tokom cijelog semestra.
 
+Članovi tima su dužni komunicirati korektno, odgovorno i profesionalno. Nije prihvatljivo ignorisati timske obaveze, prisvajati tuđi rad, prikrivati neizvršene zadatke ili davati netačne informacije o vlastitom doprinosu.
 
-
-##13. Upravljanje verzijama
-Sve izmjene na dokumentima i programskom kodu moraju biti evidentirane kroz sistem za verzionisanje. Svaka izmjena treba sadržavati jasan, precizan i informativan opis (commit message) koji omogućava jednostavno praćenje razvoja projekta, razumijevanje uvedenih promjena te eventualno vraćanje na prethodne stabilne verzije.
-
-
-
-##14. Standardi imenovanja
-Svi fajlovi, direktoriji, dokumenti i grane u repozitoriju moraju biti imenovani u skladu sa unaprijed definisanim standardima. Imena trebaju biti konzistentna, deskriptivna i razumljiva svim članovima tima, kako bi se osigurala preglednost projekta i smanjila mogućnost nesporazuma.
-
-
-
-##15. Kontrola kvaliteta
-Svaki artefakt prije finalne predaje prolazi kroz proces interne kontrole kvaliteta. Ovaj proces uključuje pregled od strane najmanje jednog člana tima koji nije autor, s ciljem identifikacije grešaka, poboljšanja sadržaja i osiguravanja usklađenosti sa projektnim zahtjevima i standardima.
-
-
-
-##16. Upravljanje vremenom
-Članovi tima su odgovorni za efikasno upravljanje vlastitim vremenom i izvršavanje zadataka u okviru definisanih rokova. Preporučuje se završavanje zadataka prije krajnjih rokova kako bi se ostavio prostor za dodatne izmjene, testiranje i unapređenja.
-
-
-
-
-##17. Prioriteti zadataka
-U slučaju većeg broja zadataka, tim definiše prioritete na osnovu njihove važnosti za ostvarenje sprint cilja, međuzavisnosti i rokova. Zadaci višeg prioriteta imaju prednost u realizaciji kako bi se osigurao kontinuitet rada i stabilan napredak projekta.
-
-
-##18. Transparentnost rada
-Svi članovi tima obavezni su redovno ažurirati status svojih zadataka i transparentno komunicirati o
-napretku. Ovakav pristup omogućava pravovremeno prepoznavanje problema, lakšu koordinaciju i
-bolju organizaciju timskog rada.
-
-
-
-##19. Dijeljenje znanja
-Tim podstiče kontinuirano dijeljenje znanja, iskustava i resursa među članovima. U slučaju tehničkih
-ili organizacionih izazova, očekuje se aktivna međusobna podrška kako bi se osigurao ravnomjeran
-napredak i kvalitet realizacije zadataka.
-
-
-
-##20. Upravljanje rizicima
-Tim aktivno identifikuje, analizira i prati potencijalne rizike koji mogu uticati na realizaciju projekta. Za
-svaki identificirani rizik definišu se odgovarajuće preventivne i korektivne mjere s ciljem minimiziranja
-negativnog uticaja na projektne aktivnosti.
-
-
-
-##21. Dostupnost članova tima
-Članovi tima su dužni blagovremeno informisati ostale o planiranoj nedostupnosti ili smanjenoj
-aktivnosti. Na osnovu tih informacija tim može pravovremeno reagovati i izvršiti potrebnu
-preraspodjelu zadataka.
-
-
-
-##22. Korištenje alata
-Svi članovi tima obavezni su koristiti unaprijed dogovorene alate za komunikaciju, upravljanje
-zadacima i verzionisanje. Dosljedna upotreba alata omogućava centralizaciju informacija, bolju
-organizaciju i efikasniju saradnju.
-
-
-
-
-##23. Evaluacija sprinta
-Na kraju svakog sprinta tim provodi evaluaciju ostvarenih rezultata kroz analizu uspješno završenih
-zadataka, identificiranih problema i mogućnosti za unapređenje. Zaključci evaluacije koriste se za
-optimizaciju rada u narednim sprintovima.
-
-
-
-##24. Motivacija i timska kultura
-Tim njeguje profesionalnu, odgovornu i pozitivnu radnu atmosferu zasnovanu na međusobnom
-poštovanju i povjerenju. Održavanje zdrave timske kulture doprinosi većoj motivaciji članova, boljoj
-komunikaciji i kvalitetnijim rezultatima projekta.
+Tim projektni rad posmatra kao zajedničku odgovornost i obavezuje se na ozbiljan, transparentan i uredan rad tokom semestra.
