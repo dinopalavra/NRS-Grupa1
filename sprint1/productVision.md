@@ -14,13 +14,14 @@ Sistem omogućava centralizovano upravljanje terminima, timovima i rezultatima, 
 - Organizatori lige ili termina
 - Kapiteni timova
 - Igrači ili učesnici
-- Po potrebi sudije ili osobe koje evidentiraju rezultate
+- Sudije ili osobe koje evidentiraju rezultate
+- Menadžment sportskog objekta ili resursa
   
 ## Scope MVP verzije
 - Registracija i prijava korisnika
 - Kreiranje timova
 - Pregled dostupnih termina
-- Rezervacija termina
+- Rezervacija termina bez konflikta
 - Kreiranje lige
 - Unos rezultata
 - Automatsko ažuriranje tabele
@@ -34,7 +35,8 @@ Sistem omogućava centralizovano upravljanje terminima, timovima i rezultatima, 
 - Integracije sa drugim sistemima
 
 ## Ključna ograničenja i pretpostavke
-- MVP mora biti dovoljno mali da se može razvijati kroz sprintove.
-- Pravila lige mogu se razlikovati i bit će dodatno definisana u saradnji sa Product Ownerom.
-- Nisu svi detalji zahtjeva unaprijed poznati i dio će se razjasniti tokom razvoja.
+- MVP mora biti dovoljno mali da se može razvijati kroz sprintove i demonstrirati kroz inkremente.
+- Pravila lige i rezervacija mogu se razlikovati i bit će dodatno definisana u saradnji sa Product Ownerom.
+- Nisu svi detalji zahtjeva unaprijed poznati i dio će se razjasniti tokom razvoja projekta.
 - Sistem će se koristiti u okruženju sa stabilnom internet konekcijom.
+- Fokus projekta je na osnovnim funkcionalnostima upravljanja terminima i ligama, a ne na naprednim analitičkim ili dodatnim komercijalnim mogućnostima.
