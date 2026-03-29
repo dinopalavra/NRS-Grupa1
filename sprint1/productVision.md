@@ -4,10 +4,10 @@
 Sistem za upravljanje sportskim terminima i ligama
 
 ## Problem koji sistem rješava
-Organizacija sportskih termina i liga često se vrši preko poruka ili ručno vođenih evidencija, što dovodi do preklapanja termina, nejasnih informacija, problema u komunikaciji i grešaka pri unosu rezultata.
+Organizacija sportskih termina i liga često se vrši preko poruka, tableta ili ručno vođenih evidencija, što dovodi do preklapanja termina, nejasnih informacija, problema u komunikaciji i grešaka pri unosu rezultata.
 
 ## Vrijednost sistema
-Sistem omogućava centralizovano upravljanje terminima, timovima i rezultatima, čime se smanjuju greške i poboljšava preglednost i organizacija.
+Sistem omogućava centralizovano upravljanje terminima, timovima, ligama i rezultatima, čime se smanjuju greške, poboljšava preglednost i olakšava organizacija sportskih aktivnosti.
 
 ## Ciljni korisnici
 - Administratori sistema
@@ -30,7 +30,8 @@ Sistem omogućava centralizovano upravljanje terminima, timovima i rezultatima, 
 
 ## Šta ne ulazi u MVP
 - Online plaćanja
-- Napredna statistika
+- Napredna statistika igrača i timova
+- Notifikacije o promjenama termina i rezultata
 - Mobilna aplikacija
 - Integracije sa drugim sistemima
 
