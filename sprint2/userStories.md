@@ -52,11 +52,20 @@ Povezano sa registracijom, prijavom i svim funkcionalnostima kojima se pristupa 
 
 ## 4 Kreiranje tima
 
-- Sistem mora omogućiti kapitenu tima ili administratoru kreiranje novog tima.
-- Prilikom kreiranja tima mora biti unesen najmanje naziv tima.
-- Sistem ne smije dozvoliti kreiranje tima bez obaveznih podataka.
-- Sistem treba prikazati poruku o uspješnom kreiranju tima.
-- Nakon uspješnog kreiranja tim mora biti evidentiran u sistemu i dostupan za daljnje upravljanje.
+**Opis**  
+Kao kapiten tima ili administrator, želim kreirati tim, kako bih mogao organizovati učesnike i pripremiti tim za rezervacije termina i učešće u ligi.
+
+**Poslovna vrijednost**  
+Tim je osnovna organizaciona jedinica sistema i bez njega nije moguće dalje upravljati članovima, rezervacijama i takmičenjem.
+
+**Prioritet**  
+Visok
+
+**Pretpostavke i otvorena pitanja**  
+Pretpostavlja se da tim ima naziv i odgovornu osobu. Potrebno je dodatno razjasniti da li jedan korisnik može kreirati više timova.
+
+**Veze sa drugim storyjima ili zavisnostima**  
+Povezano sa upravljanjem članovima tima, rezervacijom termina i dodavanjem timova u ligu.
 
 ## Upravljanje članovima tima
 
