@@ -40,3 +40,15 @@
 - Korisnik treba vidjeti osnovne informacije o terminu (vrijeme, lokacija)
 - Nakon promjene, lista termina treba biti ažurirana
 - Prikaz termina treba biti jednostavan i pregledan za korisnika
+
+## Rezervacija termina
+
+- Sistem mora omogućiti korisniku rezervaciju dostupnog termina
+- Sistem mora spriječiti rezervaciju već zauzetog termina
+- Korisnik mora moći odabrati termin iz liste dostupnih termina
+- Nakon uspješne rezervacije, termin se označava kao zauzet
+- Sistem mora prikazati potvrdu o uspješnoj rezervaciji
+- Korisnik mora imati mogućnost otkazivanja rezervacije
+- Nakon otkazivanja, termin ponovo postaje dostupan
+- Sistem mora ažurirati listu termina nakon svake promjene
+- Sistem mora spriječiti rezervaciju bez prijavljenog korisnika
