@@ -14,3 +14,7 @@ Kao administrator, želim imati mogućnost upravljanjanja korisničkim ulogama k
 ## Upravljanje članovima tima
 
 Kao kapiten tima, želim upravljati članovima tima (dodavati i uklanjati članove) kako bih mogao efikasno organizovati sastav tima.
+
+## Pregled dostupnih termina
+
+Kao korisnik, želim pregledati dostupne termine kako bih mogao odabrati termin koji mi najviše odgovara.
