@@ -18,3 +18,7 @@ Kao kapiten tima, želim upravljati članovima tima (dodavati i uklanjati člano
 ## Pregled dostupnih termina
 
 Kao korisnik, želim pregledati dostupne termine kako bih mogao odabrati termin koji mi najviše odgovara.
+
+## Rezervacija termina
+
+Kao korisnik, želim rezervisati dostupni termin kako bih osigurao svoje mjesto u željenom vremenu.
