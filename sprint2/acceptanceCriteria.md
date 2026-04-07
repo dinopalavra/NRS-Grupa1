@@ -24,7 +24,7 @@
 - Sistem sprječava neovlaštene korisnike da mijenjaju ulogu
 - Promjena uloga se odmah primjenjuju u sitemu
 
-  ## 4 Kreiranje tima
+## 4 Kreiranje tima
 
 - Sistem mora omogućiti kapitenu tima ili administratoru kreiranje novog tima.
 - Prilikom kreiranja tima mora biti unesen najmanje naziv tima.
