@@ -1,11 +1,37 @@
 # User stories
-## Registracija korisnika
+## 1 Registracija korisnika
 
-Kao novi korisnik, želim kreirati korisnički račun, kako bi mogao pristupiti sistemu i koristiti njegove funkcionalnosti.
+**Opis**  
+Kao novi korisnik, želim kreirati korisnički račun, kako bih mogao pristupiti sistemu i koristiti njegove osnovne funkcionalnosti.
 
-## Prijava korisnika
+**Poslovna vrijednost**  
+Registracija je osnovni preduslov za korištenje sistema i omogućava identifikaciju korisnika i povezivanje njegovih aktivnosti sa nalogom.
 
-Kao registrovani korisnik, želim se prijaviti u sistem koristeći svoj email i lozinku, kako bih pristupio svom nalogu i funkcijama sistema.
+**Prioritet**  
+Visok
+
+**Pretpostavke i otvorena pitanja**  
+Pretpostavlja se da korisnik prilikom registracije unosi osnovne podatke kao što su korisničko ime, email adresa i lozinka. Dodatno treba razjasniti da li je potrebna potvrda email adrese nakon registracije.
+
+**Veze sa drugim storyjima ili zavisnostima**  
+Povezano sa prijavom korisnika i upravljanjem korisničkim ulogama.
+
+## 2 Prijava korisnika
+
+**Opis**  
+Kao registrovani korisnik, želim se prijaviti u sistem koristeći email adresu i lozinku, kako bih mogao pristupiti svom nalogu i funkcionalnostima sistema.
+
+**Poslovna vrijednost**  
+Prijava omogućava sigurnu autentifikaciju korisnika i pristup funkcionalnostima u skladu sa njegovom ulogom.
+
+**Prioritet**  
+Visok
+
+**Pretpostavke i otvorena pitanja**  
+Pretpostavlja se da korisnik ima prethodno kreiran račun. Potrebno je dodatno razjasniti kako sistem reaguje nakon više neuspjelih pokušaja prijave.
+
+**Veze sa drugim storyjima ili zavisnostima**  
+Povezano sa registracijom korisnika i upravljanjem korisničkim ulogama.
 
 ## Upravljanje korisničkim ulogama 
 
