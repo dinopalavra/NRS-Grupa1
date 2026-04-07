@@ -24,3 +24,10 @@
 - Sistem sprječava neovlaštene korisnike da mijenjaju ulogu
 - Promjena uloga se odmah primjenjuju u sitemu
   
+## Upravljanje članovima tima
+- Sistem mora omogućiti dodavanje člana tima
+- Sistem mora omogućiti uklanjanje člana tima
+- Sistem ne smije dozvoliti dodavanje istog člana više puta
+- Nakon izmjene, lista članova mora biti ažurirana
+- Sistem mora omogućiti pregled liste članova tima
+- Sistem mora prikazati poruku o uspješnoj izmjeni sastava tima
