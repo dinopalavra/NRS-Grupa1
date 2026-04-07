@@ -11,6 +11,6 @@ Kao registrovani korisnik, želim se prijaviti u sistem koristeći svoj email i 
 
 Kao administrator, želim imati mogućnost upravljanjanja korisničkim ulogama kako bih osigurao pravilnu kontrolu pristupa i sigurnost sistema.
 
-### Upravljanje članovima tima
+## Upravljanje članovima tima
 
 Kao kapiten tima, želim upravljati članovima tima (dodavati i uklanjati članove) kako bih mogao efikasno organizovati sastav tima.
