@@ -14,3 +14,13 @@
 - Sistem mora prikazati poruku o grešci u slučaju neuspješne prijave
 - Sistem mora ograničiti broj neuspjelih prijava
 - Nakon uspješne prijave korisnik treba biti preusmjeren na početnu stranicu sistema
+
+## Upravljanje korisničkim ulogama
+- Samo korisnik sa administratorskom ulogom može pristupiti upravljanju ulogama
+- Administrator može vidjeti listu svih korisnika i njihovih trenutnih uloga
+- Administrator može dodijeliti novu ulogu korisniku
+- Administrator može promijeniti postojeću ulogu korisniku
+- Administrator može ukloniti ulogu korisniku
+- Sistem sprječava neovlaštene korisnike da mijenjaju ulogu
+- Promjena uloga se odmah primjenjuju u sitemu
+  
