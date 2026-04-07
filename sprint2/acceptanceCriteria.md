@@ -1,5 +1,5 @@
 # Acceptance criteria
-## Registracija korisnika
+## 1 Registracija korisnika
 
 - Sistem mora omogućiti unos korisničkog imena, email adrese i lozinke
 - Sistem mora provjeriti ispravnost unesenih podataka (format emaila, minimalna dužina lozinke [8])
@@ -7,7 +7,7 @@
 - Sistem mora prikazati poruku o grešci u slučaju neispravnih podataka
 - Nakon uspješne registracije sistem treba potvrditi kreiranje korisničkog računa
 
-## Prijava korisnika
+## 2 Prijava korisnika
 - Sistem mora omogućiti unos email adrese i lozinke
 - Sistem mora provjeriti ispravnost unesenog emaila i lozinke
 - Sistem ne smije dozvoliti prijavu s pogrešnim podacima
@@ -15,7 +15,7 @@
 - Sistem mora ograničiti broj neuspjelih prijava
 - Nakon uspješne prijave korisnik treba biti preusmjeren na početnu stranicu sistema
 
-## Upravljanje korisničkim ulogama
+## 3 Upravljanje korisničkim ulogama
 - Samo korisnik sa administratorskom ulogom može pristupiti upravljanju ulogama
 - Administrator može vidjeti listu svih korisnika i njihovih trenutnih uloga
 - Administrator može dodijeliti novu ulogu korisniku
@@ -24,7 +24,7 @@
 - Sistem sprječava neovlaštene korisnike da mijenjaju ulogu
 - Promjena uloga se odmah primjenjuju u sitemu
   
-## Upravljanje članovima tima
+## 4 Upravljanje članovima tima
 - Sistem mora omogućiti dodavanje člana tima
 - Sistem mora omogućiti uklanjanje člana tima
 - Sistem ne smije dozvoliti dodavanje istog člana više puta
@@ -32,7 +32,7 @@
 - Sistem mora omogućiti pregled liste članova tima
 - Sistem mora prikazati poruku o uspješnoj izmjeni sastava tima
 
-## Pregled dostupnih termina
+## 5 Pregled dostupnih termina
 
 - Prikazati listu svih dostupnih termina
 - Sistem treba jasno razlikovati slobodne i zauzete termine
@@ -41,7 +41,7 @@
 - Nakon promjene, lista termina treba biti ažurirana
 - Prikaz termina treba biti jednostavan i pregledan za korisnika
 
-## Rezervacija termina
+## 6 Rezervacija termina
 
 - Sistem mora omogućiti korisniku rezervaciju dostupnog termina
 - Sistem mora spriječiti rezervaciju već zauzetog termina
