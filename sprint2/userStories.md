@@ -33,9 +33,22 @@ Pretpostavlja se da korisnik ima prethodno kreiran račun. Potrebno je dodatno r
 **Veze sa drugim storyjima ili zavisnostima**  
 Povezano sa registracijom korisnika i upravljanjem korisničkim ulogama.
 
-## Upravljanje korisničkim ulogama 
+## US-3 Upravljanje korisničkim ulogama
 
-Kao administrator, želim imati mogućnost upravljanjanja korisničkim ulogama kako bih osigurao pravilnu kontrolu pristupa i sigurnost sistema.
+**Opis**  
+Kao administrator sistema, želim upravljati korisničkim ulogama, kako bih mogao kontrolisati pristup funkcionalnostima sistema.
+
+**Poslovna vrijednost**  
+Ova funkcionalnost omogućava pravilnu raspodjelu ovlasti i sigurnije korištenje sistema od strane različitih tipova korisnika.
+
+**Prioritet**  
+Visok
+
+**Pretpostavke i otvorena pitanja**  
+Pretpostavlja se da sistem podržava najmanje uloge administratora, kapitena, igrača i sudije/zapisničara. Potrebno je razjasniti da li jedan korisnik može imati više uloga istovremeno.
+
+**Veze sa drugim storyjima ili zavisnostima**  
+Povezano sa registracijom, prijavom i svim funkcionalnostima kojima se pristupa prema ulozi korisnika.
 
 ## Upravljanje članovima tima
 
