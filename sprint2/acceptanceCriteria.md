@@ -31,3 +31,12 @@
 - Nakon izmjene, lista članova mora biti ažurirana
 - Sistem mora omogućiti pregled liste članova tima
 - Sistem mora prikazati poruku o uspješnoj izmjeni sastava tima
+
+## Pregled dostupnih termina
+
+- Prikazati listu svih dostupnih termina
+- Sistem treba jasno razlikovati slobodne i zauzete termine
+- Omogućiti filtriranje termina po datumu ili vremenu
+- Korisnik treba vidjeti osnovne informacije o terminu (vrijeme, lokacija)
+- Nakon promjene, lista termina treba biti ažurirana
+- Prikaz termina treba biti jednostavan i pregledan za korisnika
