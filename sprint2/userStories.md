@@ -33,7 +33,7 @@ Pretpostavlja se da korisnik ima prethodno kreiran račun. Potrebno je dodatno r
 **Veze sa drugim storyjima ili zavisnostima**  
 Povezano sa registracijom korisnika i upravljanjem korisničkim ulogama.
 
-## US-3 Upravljanje korisničkim ulogama
+## 3 Upravljanje korisničkim ulogama
 
 **Opis**  
 Kao administrator sistema, želim upravljati korisničkim ulogama, kako bih mogao kontrolisati pristup funkcionalnostima sistema.
