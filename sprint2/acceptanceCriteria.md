@@ -52,3 +52,11 @@
 - Nakon otkazivanja, termin ponovo postaje dostupan
 - Sistem mora ažurirati listu termina nakon svake promjene
 - Sistem mora spriječiti rezervaciju bez prijavljenog korisnika
+
+## 7 Pregled rezervacija
+- Sistem mora prikazati listu svih rezervacija koje su povezane sa korisnikom ili njegovim timom.
+- Lista mora sadržavati ključne detalje: datum, vrijeme, teren i status rezervacije (npr. Aktivna, Otkazana, Završena).
+- Sistem treba hronološki sortirati rezervacije tako da se predstojeći termini vide prvi.
+- Korisnik mora imati mogućnost filtriranja rezervacija po statusu (npr. samo predstojeće).
+- Rezervacije u pregledu moraju se automatski ažurirati ukoliko dođe do otkazivanja od strane administratora ili korisnika.
+- Korisnici sa ulogom igrača smiju vidjeti samo rezervacije svog tima, dok kapiteni mogu vidjeti sve rezervacije koje su oni lično napravili.
