@@ -61,3 +61,20 @@ Kao korisnik, želim pregledati dostupne termine kako bih mogao odabrati termin 
 ## Rezervacija termina
 
 Kao korisnik, želim rezervisati dostupni termin kako bih osigurao svoje mjesto u željenom vremenu.
+
+## 8 Pregled rezervacija
+
+**Opis**  
+Kao kapiten tima, administrator ili organizator, želim pregledati postojeće rezervacije, kako bih imao uvid u raspored zauzeća i planirane aktivnosti.
+
+**Poslovna vrijednost**  
+Pregled rezervacija omogućava bolju kontrolu rasporeda, smanjuje nesporazume i pomaže korisnicima da lakše planiraju naredne aktivnosti.
+
+**Prioritet**  
+Srednji
+
+**Pretpostavke i otvorena pitanja**  
+Pretpostavlja se da rezervacije mogu biti pregledane po timu ili terminu. Potrebno je razjasniti da li korisnici vide sve rezervacije ili samo one za koje imaju ovlaštenje.
+
+**Veze sa drugim storyjima ili zavisnostima**  
+Povezano sa pregledom dostupnih termina i rezervacijom termina.
