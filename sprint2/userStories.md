@@ -50,6 +50,14 @@ Pretpostavlja se da sistem podržava najmanje uloge administratora, kapitena, ig
 **Veze sa drugim storyjima ili zavisnostima**  
 Povezano sa registracijom, prijavom i svim funkcionalnostima kojima se pristupa prema ulozi korisnika.
 
+## 4 Kreiranje tima
+
+- Sistem mora omogućiti kapitenu tima ili administratoru kreiranje novog tima.
+- Prilikom kreiranja tima mora biti unesen najmanje naziv tima.
+- Sistem ne smije dozvoliti kreiranje tima bez obaveznih podataka.
+- Sistem treba prikazati poruku o uspješnom kreiranju tima.
+- Nakon uspješnog kreiranja tim mora biti evidentiran u sistemu i dostupan za daljnje upravljanje.
+
 ## Upravljanje članovima tima
 
 Kao kapiten tima, želim upravljati članovima tima (dodavati i uklanjati članove) kako bih mogao efikasno organizovati sastav tima.
