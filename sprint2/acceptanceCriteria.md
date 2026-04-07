@@ -23,8 +23,15 @@
 - Administrator može ukloniti ulogu korisniku
 - Sistem sprječava neovlaštene korisnike da mijenjaju ulogu
 - Promjena uloga se odmah primjenjuju u sitemu
-  
-## 4 Upravljanje članovima tima
+
+  ## 4 Kreiranje tima
+
+- Sistem mora omogućiti kapitenu tima ili administratoru kreiranje novog tima.
+- Prilikom kreiranja tima mora biti unesen najmanje naziv tima.
+- Sistem ne smije dozvoliti kreiranje tima bez obaveznih podataka.
+- Sistem treba prikazati poruku o uspješnom kreiranju tima.
+- Nakon uspješnog kreiranja tim mora biti evidentiran u sistemu i dostupan za daljnje upravljanje.
+## 5 Upravljanje članovima tima
 - Sistem mora omogućiti dodavanje člana tima
 - Sistem mora omogućiti uklanjanje člana tima
 - Sistem ne smije dozvoliti dodavanje istog člana više puta
@@ -32,7 +39,7 @@
 - Sistem mora omogućiti pregled liste članova tima
 - Sistem mora prikazati poruku o uspješnoj izmjeni sastava tima
 
-## 5 Pregled dostupnih termina
+## 6 Pregled dostupnih termina
 
 - Prikazati listu svih dostupnih termina
 - Sistem treba jasno razlikovati slobodne i zauzete termine
@@ -41,7 +48,7 @@
 - Nakon promjene, lista termina treba biti ažurirana
 - Prikaz termina treba biti jednostavan i pregledan za korisnika
 
-## 6 Rezervacija termina
+## 7 Rezervacija termina
 
 - Sistem mora omogućiti korisniku rezervaciju dostupnog termina
 - Sistem mora spriječiti rezervaciju već zauzetog termina
@@ -53,7 +60,7 @@
 - Sistem mora ažurirati listu termina nakon svake promjene
 - Sistem mora spriječiti rezervaciju bez prijavljenog korisnika
 
-## 7 Pregled rezervacija
+## 8 Pregled rezervacija
 - Sistem mora prikazati listu svih rezervacija koje su povezane sa korisnikom ili njegovim timom.
 - Lista mora sadržavati ključne detalje: datum, vrijeme, teren i status rezervacije (npr. Aktivna, Otkazana, Završena).
 - Sistem treba hronološki sortirati rezervacije tako da se predstojeći termini vide prvi.
