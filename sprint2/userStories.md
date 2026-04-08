@@ -86,7 +86,20 @@ Povezano sa kreiranjem tima, rezervacijom termina i ligama.
 
 ## Pregled dostupnih termina
 
-Kao korisnik, želim pregledati dostupne termine kako bih mogao odabrati termin koji mi najviše odgovara.
+**Opis**  
+Kao korisnik sistema, želim pregledati dostupne termine, kako bih mogao odabrati termin koji odgovara mom timu ili aktivnosti.
+
+**Poslovna vrijednost**  
+Pregled termina omogućava korisnicima da na jednostavan način vide raspoloživost resursa i planiraju svoje aktivnosti bez konflikta.
+
+**Prioritet**  
+Visok
+
+**Pretpostavke i otvorena pitanja**  
+Pretpostavlja se da termin sadrži osnovne informacije kao što su datum, vrijeme i lokacija. Potrebno je razjasniti da li korisnik vidi samo slobodne termine ili i zauzete termine sa statusom.
+
+**Veze sa drugim storyjima ili zavisnostima**  
+Povezano sa rezervacijom termina i pregledom rezervacija.
 
 ## Rezervacija termina
 
