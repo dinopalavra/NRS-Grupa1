@@ -69,7 +69,20 @@ Povezano sa upravljanjem članovima tima, rezervacijom termina i dodavanjem timo
 
 ## Upravljanje članovima tima
 
-Kao kapiten tima, želim upravljati članovima tima (dodavati i uklanjati članove) kako bih mogao efikasno organizovati sastav tima.
+**Opis**  
+Kao kapiten tima, želim dodavati i uklanjati članove tima, kako bih mogao održavati tačan i ažuran sastav tima.
+
+**Poslovna vrijednost**  
+Ažuran sastav tima omogućava bolju organizaciju učesnika i tačnije upravljanje rezervacijama i takmičenjem.
+
+**Prioritet**  
+Visok
+
+**Pretpostavke i otvorena pitanja**  
+Pretpostavlja se da samo ovlaštena osoba može mijenjati sastav tima. Potrebno je razjasniti da li igrač može biti član više timova istovremeno.
+
+**Veze sa drugim storyjima ili zavisnostima**  
+Povezano sa kreiranjem tima, rezervacijom termina i ligama.
 
 ## Pregled dostupnih termina
 
