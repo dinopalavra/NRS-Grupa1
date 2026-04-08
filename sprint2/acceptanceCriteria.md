@@ -22,7 +22,7 @@
 - Administrator može promijeniti postojeću ulogu korisniku
 - Administrator može ukloniti ulogu korisniku
 - Sistem sprječava neovlaštene korisnike da mijenjaju ulogu
-- Promjena uloga se odmah primjenjuju u sitemu
+- Promjena uloga se odmah primjenjuju u sistemu
 
 ## 4 Kreiranje tima
 
