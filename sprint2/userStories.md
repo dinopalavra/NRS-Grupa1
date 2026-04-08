@@ -103,7 +103,20 @@ Povezano sa rezervacijom termina i pregledom rezervacija.
 
 ## Rezervacija termina
 
-Kao korisnik, želim rezervisati dostupni termin kako bih osigurao svoje mjesto u željenom vremenu.
+**Opis**  
+Kao kapiten tima ili ovlašteni korisnik, želim rezervisati slobodan termin, kako bih osigurao termin za svoj tim bez preklapanja sa postojećim rezervacijama.
+
+**Poslovna vrijednost**  
+Rezervacija termina je jedna od ključnih funkcionalnosti sistema jer direktno rješava problem ručnog i nepreglednog upravljanja zauzećem resursa.
+
+**Prioritet**  
+Visok
+
+**Pretpostavke i otvorena pitanja**  
+Pretpostavlja se da se može rezervisati samo slobodan termin. Potrebno je dodatno razjasniti pravila otkazivanja i izmjene već kreirane rezervacije.
+
+**Veze sa drugim storyjima ili zavisnostima**  
+Povezano sa pregledom dostupnih termina, pregledom rezervacija i upravljanjem timovima.
 
 ## 8 Pregled rezervacija
 
