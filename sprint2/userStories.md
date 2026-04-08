@@ -134,3 +134,27 @@ Pretpostavlja se da rezervacije mogu biti pregledane po timu ili terminu. Potreb
 
 **Veze sa drugim storyjima ili zavisnostima**  
 Povezano sa pregledom dostupnih termina i rezervacijom termina.
+
+## 9 Otkazivanje rezervacije
+
+**Opis** Kao kapiten tima ili administrator, želim imati mogućnost da otkažem već napravljenu rezervaciju, kako bi se termin oslobodio za druge timove u slučaju promjene plana.
+
+**Poslovna vrijednost** Otkazivanje omogućava bolju iskorištenost termina i sprečava da resursi ostanu rezervisani, a neiskorišteni.
+
+**Prioritet** Visok
+
+**Pretpostavke i otvorena pitanja** Pretpostavlja se da se otkazivanje može izvršiti samo do određenog vremena prije početka termina. Potrebno je definisati vremenski rok (npr. 24 sata ranije) nakon kojeg otkazivanje više nije moguće.
+
+**Veze sa drugim storyjima ili zavisnostima** Povezano sa rezervacijom termina i pregledom rezervacija.
+
+## 10 Potvrda učešća člana tima
+
+**Opis** Kao član tima (igrač), želim potvrditi svoj dolazak na rezervisani termin, kako bi kapiten imao uvid u to koliko igrača dolazi i da li imamo dovoljan broj za termin.
+
+**Poslovna vrijednost** Ovo poboljšava unutrašnju organizaciju tima i smanjuje potrebu za vanjskom komunikacijom (npr. WhatsApp ili Viber) oko sastava za termin.
+
+**Prioritet** Srednji
+
+**Pretpostavke i otvorena pitanja** Pretpostavlja se da igrač vidi listu rezervacija svog tima. Potrebno je razjasniti da li kapiten može postaviti minimalan broj igrača potreban za potvrdu termina.
+
+**Veze sa drugim storyjima ili zavisnostima** Povezano sa upravljanjem članovima tima i pregledom rezervacija.
