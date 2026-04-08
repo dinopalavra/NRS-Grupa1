@@ -67,7 +67,7 @@ Pretpostavlja se da tim ima naziv i odgovornu osobu. Potrebno je dodatno razjasn
 **Veze sa drugim storyjima ili zavisnostima**  
 Povezano sa upravljanjem članovima tima, rezervacijom termina i dodavanjem timova u ligu.
 
-## Upravljanje članovima tima
+## 5 Upravljanje članovima tima
 
 **Opis**  
 Kao kapiten tima, želim dodavati i uklanjati članove tima, kako bih mogao održavati tačan i ažuran sastav tima.
@@ -84,7 +84,7 @@ Pretpostavlja se da samo ovlaštena osoba može mijenjati sastav tima. Potrebno 
 **Veze sa drugim storyjima ili zavisnostima**  
 Povezano sa kreiranjem tima, rezervacijom termina i ligama.
 
-## Pregled dostupnih termina
+## 6 Pregled dostupnih termina
 
 **Opis**  
 Kao korisnik sistema, želim pregledati dostupne termine, kako bih mogao odabrati termin koji odgovara mom timu ili aktivnosti.
