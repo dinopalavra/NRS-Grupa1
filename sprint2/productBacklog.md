@@ -12,9 +12,9 @@ Tokom ovog sprinta tim želi detaljnije definisati osnovni tok korištenja siste
 | 2 | Product Vision | Definisati problem, vrijednost sistema, ciljne korisnike i MVP opseg. | Documentation | Visok | 3 | Završeno | Sprint 1 | Osnov za dalje planiranje projekta. |
 | 3 | Stakeholder Map | Identifikovati ključne stakeholdere, njihove interese, očekivanja i uticaj na sistem. | Documentation | Visok | 3 | Završeno | Sprint 1 | Pomaže razumijevanju korisnika i prioriteta. |
 | 4 | Početni Product Backlog | Definisati početne backlog stavke i okvirni plan razvoja sistema. | Documentation | Visok | 3 | Završeno | Sprint 1 | Početna verzija backloga. |
-| 5 | Prioritetne User Stories | Razraditi najvažnije funkcionalnosti kroz user stories. | Documentation | Visok | 5 | U toku | Sprint 2 | Obuhvata razradu odabranih prioritetnih funkcionalnosti. |
-| 6 | Acceptance Criteria | Definisati mjerljive i provjerljive kriterije prihvatanja za prioritetne storyje. | Documentation | Visok | 5 | U toku | Sprint 2 | Povezano sa user stories za odabrane funkcionalnosti. |
-| 7 | Početni NFR zahtjevi | Definisati osnovne nefunkcionalne zahtjeve sistema. | Documentation | Srednji | 3 | U toku | Sprint 2 | Fokus na sigurnost, pouzdanost i upotrebljivost. |
+| 5 | Prioritetne User Stories | Razraditi najvažnije funkcionalnosti kroz user stories. | Documentation | Visok | 5 | Završeno | Sprint 2 | Obuhvata razradu odabranih prioritetnih funkcionalnosti. |
+| 6 | Acceptance Criteria | Definisati mjerljive i provjerljive kriterije prihvatanja za prioritetne storyje. | Documentation | Visok | 5 | Završeno | Sprint 2 | Povezano sa user stories za odabrane funkcionalnosti. |
+| 7 | Početni NFR zahtjevi | Definisati osnovne nefunkcionalne zahtjeve sistema. | Documentation | Srednji | 3 | Završeno | Sprint 2 | Fokus na sigurnost, pouzdanost i upotrebljivost. |
 | 8 | Model baze podataka | Definisati osnovne entitete i veze za korisnike, timove, termine, lige, utakmice i rezultate. | Technical Task | Visok | 5 | To Do | Sprint 3 | Temelj za kasniju implementaciju. |
 | 9 | Architecture Overview | Definisati osnovni arhitektonski pristup i organizaciju sistema. | Technical Task | Visok | 3 | To Do | Sprint 3 | Povezano sa tehničkim odlukama. |
 | 10 | Domain / Use Case model | Modelirati osnovne procese rezervacije termina, upravljanja timovima i unosa rezultata. | Documentation | Srednji | 5 | To Do | Sprint 3 | Podrška razumijevanju sistema. |
