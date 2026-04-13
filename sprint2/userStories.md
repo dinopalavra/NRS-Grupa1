@@ -206,3 +206,106 @@ Srednji
 - Povezano sa pregledom dostupnih termina i rezervacijom termina.
 
 ---
+
+## Sprint 7 goal
+
+Omogućiti osnovni modul lige kroz kreiranje lige, dodavanje timova u ligu, unos rezultata utakmica i automatsko ažuriranje tabele.
+
+---
+
+### ID storyja
+US-9
+
+### Naziv storyja
+Kreiranje lige
+
+**Opis**  
+Kao organizator ili administrator, želim kreirati novu ligu ili takmičenje, kako bih mogao organizovati takmičarski dio sistema.
+
+**Poslovna vrijednost**  
+Ova funkcionalnost predstavlja osnovu modula takmičenja i omogućava da se u sistem kasnije povežu timovi, utakmice, rezultati i tabela.
+
+**Prioritet**  
+Visok
+
+### Pretpostavke i otvorena pitanja
+- Pretpostavlja se da liga mora imati osnovne identifikacione podatke prije kreiranja.
+- Potrebno je razjasniti ko sve može kreirati ligu i koje informacije su obavezne pri unosu.
+
+### Veze sa drugim storyjima ili zavisnostima
+- Povezano sa dodavanjem timova u ligu, unosom rezultata utakmica i automatskim ažuriranjem tabele.
+
+---
+
+### ID storyja
+US-10
+
+### Naziv storyja
+Dodavanje timova u ligu
+
+**Opis**  
+Kao organizator ili administrator, želim dodavati timove u odabranu ligu, kako bih mogao formirati učesnike takmičenja.
+
+**Poslovna vrijednost**  
+Ova funkcionalnost je važna jer bez povezivanja timova sa ligom nije moguće organizovati takmičenje niti kasnije evidentirati rezultate.
+
+**Prioritet**  
+Visok
+
+### Pretpostavke i otvorena pitanja
+- Pretpostavlja se da timovi već postoje u sistemu prije dodavanja u ligu.
+- Potrebno je razjasniti da li jedan tim može učestvovati u više liga i da li postoje ograničenja broja timova po ligi.
+
+### Veze sa drugim storyjima ili zavisnostima
+- Zavisi od kreiranja lige i kreiranja timova.
+- Povezano je sa unosom rezultata utakmica i automatskim ažuriranjem tabele.
+
+---
+
+### ID storyja
+US-11
+
+### Naziv storyja
+Unos rezultata utakmica
+
+**Opis**  
+Kao ovlaštena osoba, želim unositi i ažurirati rezultate utakmica, kako bi sistem imao tačne podatke o odigranim mečevima.
+
+**Poslovna vrijednost**  
+Unos rezultata je ključan jer direktno utiče na tabelu i tok takmičenja.
+
+**Prioritet**  
+Visok
+
+### Pretpostavke i otvorena pitanja
+- Pretpostavlja se da je utakmica već definisana u okviru odgovarajuće lige.
+- Potrebno je razjasniti ko tačno ima pravo unosa i izmjene rezultata te da li se svaka izmjena posebno evidentira.
+
+### Veze sa drugim storyjima ili zavisnostima
+- Zavisi od kreiranja lige i dodavanja timova u ligu.
+- Povezano je sa automatskim ažuriranjem tabele.
+
+---
+
+### ID storyja
+US-12
+
+### Naziv storyja
+Automatsko ažuriranje tabele
+
+**Opis**  
+Kao korisnik sistema, želim da se tabela automatski ažurira na osnovu unesenih rezultata, kako bih uvijek imao tačan pregled bodova i poretka.
+
+**Poslovna vrijednost**  
+Ova funkcionalnost je važna jer automatizuje obračun bodova i poretka te smanjuje mogućnost greške pri praćenju stanja lige.
+
+**Prioritet**  
+Visok
+
+### Pretpostavke i otvorena pitanja
+- Pretpostavlja se da sistem ima definisana pravila obračuna bodova i poretka.
+- Potrebno je razjasniti po kojim pravilima se rješavaju situacije kada timovi imaju isti broj bodova.
+
+### Veze sa drugim storyjima ili zavisnostima
+- Zavisi od unosa rezultata utakmica.
+- Povezano je sa kreiranjem lige i dodavanjem timova u ligu.
