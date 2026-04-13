@@ -71,3 +71,33 @@ Acceptance kriteriji su formulisani tako da budu jasni, mjerljivi i testabilni.
 - Korisnik mora imati mogućnost filtriranja rezervacija po statusu.
 - Rezervacije u pregledu moraju se automatski ažurirati ukoliko dođe do otkazivanja od strane administratora ili korisnika.
 - Igrači smiju vidjeti samo rezervacije svog tima, dok kapiteni i ovlaštene osobe vide rezervacije u skladu sa svojim ovlaštenjima.
+
+## Sprint 7
+
+### US-9 — Kreiranje lige
+- Sistem mora omogućiti ovlaštenom korisniku kreiranje nove lige ili takmičenja.
+- Prilikom kreiranja lige moraju se unijeti obavezni podaci prije spremanja.
+- Sistem ne smije dozvoliti kreiranje lige bez obaveznih podataka.
+- Nakon uspješnog kreiranja liga mora biti evidentirana u sistemu i dostupna za dalje upravljanje.
+- Sistem ne smije dozvoliti neovlaštenom korisniku pristup funkciji kreiranja lige.
+
+### US-10 — Dodavanje timova u ligu
+- Sistem mora omogućiti ovlaštenom korisniku dodavanje postojećih timova u odabranu ligu.
+- Sistem mora prikazati listu timova koji mogu biti povezani sa ligom.
+- Sistem ne smije dozvoliti dodavanje istog tima više puta u istu ligu.
+- Nakon uspješnog dodavanja tim mora biti vidljiv u prikazu učesnika te lige.
+- Sistem ne smije dozvoliti dodavanje nepostojećeg ili neaktivnog tima u ligu.
+
+### US-11 — Unos rezultata utakmica
+- Sistem mora omogućiti ovlaštenoj osobi unos rezultata za odigranu utakmicu.
+- Prilikom unosa rezultata moraju biti evidentirani najmanje učesnici utakmice i konačan rezultat.
+- Sistem ne smije dozvoliti unos rezultata za nepostojeću utakmicu ili unos neispravnih vrijednosti.
+- Nakon uspješnog unosa rezultat mora biti sačuvan i prikazan u sistemu.
+- Sistem ne smije dozvoliti korisniku bez odgovarajućih ovlaštenja unos ili izmjenu rezultata.
+
+### US-12 — Automatsko ažuriranje tabele
+- Nakon unosa ili izmjene rezultata sistem mora automatski ažurirati bodove, poredak i stanje na tabeli.
+- Sistem mora izračunavati tabelu na osnovu evidentiranih rezultata bez ručne intervencije korisnika.
+- Kada ne postoje evidentirani rezultati, sistem treba prikazati početno ili prazno stanje tabele.
+- Nakon svake izmjene rezultata ažurirana tabela mora odmah biti vidljiva korisnicima sa pristupom ligi.
+- Sistem ne smije dozvoliti ručno mijenjanje poretka mimo pravila obračuna zasnovanih na rezultatima.
