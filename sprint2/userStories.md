@@ -128,3 +128,81 @@ Visok
 - Povezano sa kreiranjem tima, rezervacijom termina i ligama.
 
 ---
+
+## Sprint 6 goal
+
+Omogućiti pregled dostupnih termina, rezervaciju termina bez konflikta i pregled postojećih rezervacija.
+
+---
+
+### ID storyja
+US-6
+
+### Naziv storyja
+Pregled dostupnih termina
+
+**Opis**  
+Kao korisnik sistema, želim pregledati dostupne termine, kako bih mogao odabrati termin koji odgovara mom timu ili aktivnosti.
+
+**Poslovna vrijednost**  
+Pregled termina omogućava korisnicima da na jednostavan način vide raspoloživost resursa i planiraju svoje aktivnosti bez konflikta.
+
+**Prioritet**  
+Visok
+
+### Pretpostavke i otvorena pitanja
+- Pretpostavlja se da termin sadrži osnovne informacije kao što su datum, vrijeme i lokacija.
+- Potrebno je razjasniti da li korisnik vidi samo slobodne termine ili i zauzete termine sa statusom.
+
+### Veze sa drugim storyjima ili zavisnostima
+- Povezano sa rezervacijom termina i pregledom rezervacija.
+
+---
+
+### ID storyja
+US-7
+
+### Naziv storyja
+Rezervacija termina
+
+**Opis**  
+Kao kapiten tima ili ovlašteni korisnik, želim rezervisati slobodan termin, kako bih osigurao termin za svoj tim bez preklapanja sa postojećim rezervacijama.
+
+**Poslovna vrijednost**  
+Rezervacija termina je jedna od ključnih funkcionalnosti sistema jer direktno rješava problem ručnog i nepreglednog upravljanja zauzećem resursa.
+
+**Prioritet**  
+Visok
+
+### Pretpostavke i otvorena pitanja
+- Pretpostavlja se da se može rezervisati samo slobodan termin.
+- Potrebno je dodatno razjasniti pravila otkazivanja i izmjene već kreirane rezervacije.
+
+### Veze sa drugim storyjima ili zavisnostima
+- Povezano sa pregledom dostupnih termina, pregledom rezervacija i upravljanjem timovima.
+
+---
+
+### ID storyja
+US-8
+
+### Naziv storyja
+Pregled rezervacija
+
+**Opis**  
+Kao kapiten tima, administrator ili organizator, želim pregledati postojeće rezervacije, kako bih imao uvid u raspored zauzeća i planirane aktivnosti.
+
+**Poslovna vrijednost**  
+Pregled rezervacija omogućava bolju kontrolu rasporeda, smanjuje nesporazume i pomaže korisnicima da lakše planiraju naredne aktivnosti.
+
+**Prioritet**  
+Srednji
+
+### Pretpostavke i otvorena pitanja
+- Pretpostavlja se da rezervacije mogu biti pregledane po timu ili terminu.
+- Potrebno je razjasniti da li korisnici vide sve rezervacije ili samo one za koje imaju ovlaštenje.
+
+### Veze sa drugim storyjima ili zavisnostima
+- Povezano sa pregledom dostupnih termina i rezervacijom termina.
+
+---
