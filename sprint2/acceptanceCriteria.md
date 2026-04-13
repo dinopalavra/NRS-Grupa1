@@ -42,3 +42,32 @@ Acceptance kriteriji su formulisani tako da budu jasni, mjerljivi i testabilni.
 - Nakon izmjene lista članova mora biti ažurirana.
 - Sistem mora omogućiti pregled liste članova tima.
 - Sistem mora prikazati poruku o uspješnoj izmjeni sastava tima.
+
+## Sprint 6
+
+### US-6 — Pregled dostupnih termina
+- Sistem mora prikazati listu svih dostupnih termina.
+- Sistem treba jasno razlikovati slobodne i zauzete termine.
+- Sistem mora omogućiti filtriranje termina po datumu ili vremenu.
+- Korisnik treba vidjeti osnovne informacije o terminu, uključujući vrijeme i lokaciju.
+- Nakon promjene lista termina treba biti ažurirana.
+- Prikaz termina treba biti jednostavan i pregledan za korisnika.
+
+### US-7 — Rezervacija termina
+- Sistem mora omogućiti korisniku rezervaciju dostupnog termina.
+- Sistem mora spriječiti rezervaciju već zauzetog termina.
+- Korisnik mora moći odabrati termin iz liste dostupnih termina.
+- Nakon uspješne rezervacije termin se označava kao zauzet.
+- Sistem mora prikazati potvrdu o uspješnoj rezervaciji.
+- Korisnik mora imati mogućnost otkazivanja rezervacije.
+- Nakon otkazivanja termin ponovo postaje dostupan.
+- Sistem mora ažurirati listu termina nakon svake promjene.
+- Sistem mora spriječiti rezervaciju bez prijavljenog korisnika.
+
+### US-8 — Pregled rezervacija
+- Sistem mora prikazati listu svih rezervacija koje su povezane sa korisnikom ili njegovim timom.
+- Lista mora sadržavati ključne detalje, uključujući datum, vrijeme, teren i status rezervacije.
+- Sistem treba hronološki sortirati rezervacije tako da se predstojeći termini vide prvi.
+- Korisnik mora imati mogućnost filtriranja rezervacija po statusu.
+- Rezervacije u pregledu moraju se automatski ažurirati ukoliko dođe do otkazivanja od strane administratora ili korisnika.
+- Igrači smiju vidjeti samo rezervacije svog tima, dok kapiteni i ovlaštene osobe vide rezervacije u skladu sa svojim ovlaštenjima.
