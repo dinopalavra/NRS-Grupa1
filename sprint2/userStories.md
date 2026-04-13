@@ -1,5 +1,19 @@
-# User stories
-## 1 Registracija korisnika
+# User Stories
+
+Ovdje se nalaze objašnjenja funkcionalnosti sistema napisana iz perspektive krajnjeg korisnika.  
+User stories pomažu da se funkcionalnosti ne posmatraju samo kroz to kako sistem radi, nego i kroz to ko koristi određenu funkciju i koju vrijednost ona donosi.
+
+## Sprint 5 goal
+
+Omogućiti osnovni pristup sistemu, upravljanje korisničkim nalozima, kreiranje timova i upravljanje članovima tima.
+
+---
+
+### ID storyja
+US-1
+
+### Naziv storyja
+Registracija korisnika
 
 **Opis**  
 Kao novi korisnik, želim kreirati korisnički račun, kako bih mogao pristupiti sistemu i koristiti njegove osnovne funkcionalnosti.
@@ -10,13 +24,20 @@ Registracija je osnovni preduslov za korištenje sistema i omogućava identifika
 **Prioritet**  
 Visok
 
-**Pretpostavke i otvorena pitanja**  
-Pretpostavlja se da korisnik prilikom registracije unosi osnovne podatke kao što su korisničko ime, email adresa i lozinka. Dodatno treba razjasniti da li je potrebna potvrda email adrese nakon registracije.
+### Pretpostavke i otvorena pitanja
+- Pretpostavlja se da korisnik prilikom registracije unosi osnovne podatke kao što su korisničko ime, email adresa i lozinka.
+- Potrebno je dodatno razjasniti da li je potrebna potvrda email adrese nakon registracije.
 
-**Veze sa drugim storyjima ili zavisnostima**  
-Povezano sa prijavom korisnika i upravljanjem korisničkim ulogama.
+### Veze sa drugim storyjima ili zavisnostima
+- Povezano sa prijavom korisnika i upravljanjem korisničkim ulogama.
 
-## 2 Prijava korisnika
+---
+
+### ID storyja
+US-2
+
+### Naziv storyja
+Prijava korisnika
 
 **Opis**  
 Kao registrovani korisnik, želim se prijaviti u sistem koristeći email adresu i lozinku, kako bih mogao pristupiti svom nalogu i funkcionalnostima sistema.
@@ -27,13 +48,20 @@ Prijava omogućava sigurnu autentifikaciju korisnika i pristup funkcionalnostima
 **Prioritet**  
 Visok
 
-**Pretpostavke i otvorena pitanja**  
-Pretpostavlja se da korisnik ima prethodno kreiran račun. Potrebno je dodatno razjasniti kako sistem reaguje nakon više neuspjelih pokušaja prijave.
+### Pretpostavke i otvorena pitanja
+- Pretpostavlja se da korisnik ima prethodno kreiran račun.
+- Potrebno je dodatno razjasniti kako sistem reaguje nakon više neuspjelih pokušaja prijave.
 
-**Veze sa drugim storyjima ili zavisnostima**  
-Povezano sa registracijom korisnika i upravljanjem korisničkim ulogama.
+### Veze sa drugim storyjima ili zavisnostima
+- Povezano sa registracijom korisnika i upravljanjem korisničkim ulogama.
 
-## 3 Upravljanje korisničkim ulogama
+---
+
+### ID storyja
+US-3
+
+### Naziv storyja
+Upravljanje korisničkim ulogama
 
 **Opis**  
 Kao administrator sistema, želim upravljati korisničkim ulogama, kako bih mogao kontrolisati pristup funkcionalnostima sistema.
@@ -44,13 +72,20 @@ Ova funkcionalnost omogućava pravilnu raspodjelu ovlasti i sigurnije korištenj
 **Prioritet**  
 Visok
 
-**Pretpostavke i otvorena pitanja**  
-Pretpostavlja se da sistem podržava najmanje uloge administratora, kapitena, igrača i sudije/zapisničara. Potrebno je razjasniti da li jedan korisnik može imati više uloga istovremeno.
+### Pretpostavke i otvorena pitanja
+- Pretpostavlja se da sistem podržava najmanje uloge administratora, kapitena, igrača i sudije/zapisničara.
+- Potrebno je razjasniti da li jedan korisnik može imati više uloga istovremeno.
 
-**Veze sa drugim storyjima ili zavisnostima**  
-Povezano sa registracijom, prijavom i svim funkcionalnostima kojima se pristupa prema ulozi korisnika.
+### Veze sa drugim storyjima ili zavisnostima
+- Povezano sa registracijom, prijavom i svim funkcionalnostima kojima se pristupa prema ulozi korisnika.
 
-## 4 Kreiranje tima
+---
+
+### ID storyja
+US-4
+
+### Naziv storyja
+Kreiranje tima
 
 **Opis**  
 Kao kapiten tima ili administrator, želim kreirati tim, kako bih mogao organizovati učesnike i pripremiti tim za rezervacije termina i učešće u ligi.
@@ -61,13 +96,20 @@ Tim je osnovna organizaciona jedinica sistema i bez njega nije moguće dalje upr
 **Prioritet**  
 Visok
 
-**Pretpostavke i otvorena pitanja**  
-Pretpostavlja se da tim ima naziv i odgovornu osobu. Potrebno je dodatno razjasniti da li jedan korisnik može kreirati više timova.
+### Pretpostavke i otvorena pitanja
+- Pretpostavlja se da tim ima naziv i odgovornu osobu.
+- Potrebno je dodatno razjasniti da li jedan korisnik može kreirati više timova.
 
-**Veze sa drugim storyjima ili zavisnostima**  
-Povezano sa upravljanjem članovima tima, rezervacijom termina i dodavanjem timova u ligu.
+### Veze sa drugim storyjima ili zavisnostima
+- Povezano sa upravljanjem članovima tima, rezervacijom termina i dodavanjem timova u ligu.
 
-## 5 Upravljanje članovima tima
+---
+
+### ID storyja
+US-5
+
+### Naziv storyja
+Upravljanje članovima tima
 
 **Opis**  
 Kao kapiten tima, želim dodavati i uklanjati članove tima, kako bih mogao održavati tačan i ažuran sastav tima.
@@ -78,59 +120,11 @@ Ažuran sastav tima omogućava bolju organizaciju učesnika i tačnije upravljan
 **Prioritet**  
 Visok
 
-**Pretpostavke i otvorena pitanja**  
-Pretpostavlja se da samo ovlaštena osoba može mijenjati sastav tima. Potrebno je razjasniti da li igrač može biti član više timova istovremeno.
+### Pretpostavke i otvorena pitanja
+- Pretpostavlja se da samo ovlaštena osoba može mijenjati sastav tima.
+- Potrebno je razjasniti da li igrač može biti član više timova istovremeno.
 
-**Veze sa drugim storyjima ili zavisnostima**  
-Povezano sa kreiranjem tima, rezervacijom termina i ligama.
+### Veze sa drugim storyjima ili zavisnostima
+- Povezano sa kreiranjem tima, rezervacijom termina i ligama.
 
-## 6 Pregled dostupnih termina
-
-**Opis**  
-Kao korisnik sistema, želim pregledati dostupne termine, kako bih mogao odabrati termin koji odgovara mom timu ili aktivnosti.
-
-**Poslovna vrijednost**  
-Pregled termina omogućava korisnicima da na jednostavan način vide raspoloživost resursa i planiraju svoje aktivnosti bez konflikta.
-
-**Prioritet**  
-Visok
-
-**Pretpostavke i otvorena pitanja**  
-Pretpostavlja se da termin sadrži osnovne informacije kao što su datum, vrijeme i lokacija. Potrebno je razjasniti da li korisnik vidi samo slobodne termine ili i zauzete termine sa statusom.
-
-**Veze sa drugim storyjima ili zavisnostima**  
-Povezano sa rezervacijom termina i pregledom rezervacija.
-
-## 7 Rezervacija termina
-
-**Opis**  
-Kao kapiten tima ili ovlašteni korisnik, želim rezervisati slobodan termin, kako bih osigurao termin za svoj tim bez preklapanja sa postojećim rezervacijama.
-
-**Poslovna vrijednost**  
-Rezervacija termina je jedna od ključnih funkcionalnosti sistema jer direktno rješava problem ručnog i nepreglednog upravljanja zauzećem resursa.
-
-**Prioritet**  
-Visok
-
-**Pretpostavke i otvorena pitanja**  
-Pretpostavlja se da se može rezervisati samo slobodan termin. Potrebno je dodatno razjasniti pravila otkazivanja i izmjene već kreirane rezervacije.
-
-**Veze sa drugim storyjima ili zavisnostima**  
-Povezano sa pregledom dostupnih termina, pregledom rezervacija i upravljanjem timovima.
-
-## 8 Pregled rezervacija
-
-**Opis**  
-Kao kapiten tima, administrator ili organizator, želim pregledati postojeće rezervacije, kako bih imao uvid u raspored zauzeća i planirane aktivnosti.
-
-**Poslovna vrijednost**  
-Pregled rezervacija omogućava bolju kontrolu rasporeda, smanjuje nesporazume i pomaže korisnicima da lakše planiraju naredne aktivnosti.
-
-**Prioritet**  
-Srednji
-
-**Pretpostavke i otvorena pitanja**  
-Pretpostavlja se da rezervacije mogu biti pregledane po timu ili terminu. Potrebno je razjasniti da li korisnici vide sve rezervacije ili samo one za koje imaju ovlaštenje.
-
-**Veze sa drugim storyjima ili zavisnostima**  
-Povezano sa pregledom dostupnih termina i rezervacijom termina.
+---
