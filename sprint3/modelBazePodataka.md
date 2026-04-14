@@ -64,6 +64,46 @@ Sadrži raspoložive termine za korištenje sportskih resursa.
 - resource_name
 - availability_status
 
+### reservations
+Predstavlja rezervacije termina od strane timova.
+
+**Ključni atributi:**
+- reservation_id
+- team_id
+- slot_id
+- created_by
+- status
+- created_at
+
+### leagues
+Sadrži osnovne podatke o ligama ili takmičenjima.
+
+**Ključni atributi:**
+- league_id
+- league_name
+- season
+- format
+- status
+
+### league_teams
+Predstavlja vezu između lige i timova koji učestvuju u ligi.
+
+**Ključni atributi:**
+- league_team_id
+- league_id
+- team_id
+
+### matches
+Sadrži podatke o utakmicama.
+
+**Ključni atributi:**
+- match_id
+- league_id
+- home_team_id
+- away_team_id
+- match_date
+- match_time
+- status
 
 
 
