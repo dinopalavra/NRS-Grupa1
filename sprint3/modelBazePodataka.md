@@ -200,18 +200,91 @@ Sadrži agregirane podatke za tabelu lige.
 | `standings.league_id` | `leagues.league_id` | Zapis tabele pripada ligi |
 | `standings.team_id` | `teams.team_id` | Zapis tabele pripada timu |
 
+### Dodatna pojašnjenja odnosa
+
+- Tabela `team_members` omogućava modeliranje odnosa više-prema-više između korisnika i timova.
+- Tabela `league_teams` omogućava modeliranje odnosa više-prema-više između liga i timova.
+- Tabela `results` je povezana sa tabelom `matches` tako da jedna utakmica može imati najviše jedan konačni rezultat.
+- Tabela `standings` sadrži agregirane podatke po timu unutar jedne konkretne lige.
+- Za kombinaciju `league_id` i `team_id` u tabeli `standings` treba postojati najviše jedan zapis.
+- Polja `home_team_id` i `away_team_id` u tabeli `matches` moraju referencirati dva različita tima.
+
+---
+
+## Statusi i operativna stanja
+
+Više tabela u sistemu sadrži atribute statusa koji određuju trenutno stanje entiteta i dozvoljene akcije nad njim.
+
+| Tabela | Atribut statusa | Primjeri vrijednosti |
+|---|---|---|
+| `users` | `active` | aktivan / neaktivan |
+| `teams` | `status` | aktivan, neaktivan, u formiranju |
+| `time_slots` | `availability_status` | slobodan, privremeno rezervisan, zauzet |
+| `reservations` | `status` | kreirana, potvrđena, odbijena, otkazana |
+| `leagues` | `status` | u pripremi, aktivna, završena |
+| `matches` | `status` | planirana, odigrana, odgođena, otkazana |
+
+Ovi statusi su važni jer utiču na validaciju pravila sistema, kontrolu pristupa i dozvoljene tokove rada. Na primjer, rezultat se ne bi trebao evidentirati za utakmicu koja nije u odgovarajućem statusu, a neaktivan korisnik ne bi trebao izvršavati zaštićene operacije.
+
+---
+
 ## Poslovna pravila važna za bazu
 
-- Jedan korisnik može biti član više timova samo ako to poslovna pravila dozvoljavaju.
-- Jedan termin ne smije imati više potvrđenih rezervacija za isti resurs i isti vremenski interval.
-- Jedna utakmica mora imati tačno dva različita tima.
-- Jedna utakmica može imati najviše jedan konačni rezultat.
-- Tabela lige se vodi po timu unutar jedne konkretne lige.
+### Korisnici i članstvo
+
 - Samo aktivni korisnici mogu imati funkcionalnu ulogu u sistemu.
+- Jedan korisnik može biti član više timova samo ako to poslovna pravila dozvoljavaju.
+- Veza korisnika i tima evidentira se kroz tabelu `team_members`.
+
+### Rezervacije i termini
+
+- Jedan termin ne smije imati više potvrđenih rezervacija za isti resurs i isti vremenski interval.
+- Jedan tim ne smije imati konfliktne rezervacije u vremenu koje se preklapa.
+- Rezervacija mora biti povezana sa postojećim timom, terminom i korisnikom koji ju je kreirao.
+- Ako sistem podržava proces odobravanja, samo potvrđena rezervacija treba uticati na konačnu zauzetost termina.
+
+### Liga, timovi i utakmice
+
+- Jedan tim se ne bi trebao pojaviti više puta u istoj ligi za istu sezonu.
+- Jedna utakmica mora imati tačno dva različita tima.
+- Oba tima iz utakmice trebaju biti validni učesnici lige kojoj utakmica pripada.
+
+### Rezultati i tabela
+
+- Jedna utakmica može imati najviše jedan konačni rezultat.
+- Rezultat mora biti vezan za postojeću utakmicu.
+- Tabela lige se vodi po timu unutar jedne konkretne lige.
+- Tabela lige se ažurira samo na osnovu validnih i potvrđenih rezultata utakmica.
+- Ako rezultat nije unesen, utakmica ne utiče na tabelu.
+
+---
+
+## Preporučena ograničenja integriteta
+
+Iako ovaj dokument predstavlja logički model baze, korisno je unaprijed uočiti nekoliko ograničenja integriteta koja će biti važna i u fizičkoj realizaciji baze:
+
+- `email` i `username` u tabeli `users` trebaju biti jedinstveni.
+- Kombinacija `league_id` i `team_id` u tabeli `league_teams` treba biti jedinstvena.
+- Kombinacija `league_id` i `team_id` u tabeli `standings` treba biti jedinstvena.
+- `match_id` u tabeli `results` treba biti jedinstven ako se želi osigurati najviše jedan konačni rezultat po utakmici.
+- `home_team_id` i `away_team_id` ne smiju imati istu vrijednost u istoj utakmici.
+- Vrijeme završetka termina treba biti nakon vremena početka termina.
+
+---
+
+## Veza sa ostalim artefaktima
+
+Ovaj model baze podataka je povezan sa ostalim ključnim projektnim artefaktima:
+
+- **Domain Model** definiše entitete i poslovna pravila koja se ovdje prevode u logičku strukturu tabela.
+- **Use Case Model** opisuje procese koji koriste podatke iz ovih tabela.
+- **Architecture Overview** koristi ovaj model kao osnovu za sloj perzistencije i pristupa podacima.
+- **Risk Register** prepoznaje rizike koji su direktno vezani za rezervacije, uloge korisnika, rezultate i tabelu lige.
+
+---
 
 ## Zaključak
 
-Ovaj model baze podataka predstavlja logičku osnovu za kasniju fizičku realizaciju baze i implementaciju poslovne logike sistema.
-
-
+Ovaj model baze podataka predstavlja logičku osnovu za kasniju fizičku realizaciju baze i implementaciju poslovne logike sistema.  
+Definisane tabele, odnosi i pravila omogućavaju dosljedno modeliranje korisnika, timova, termina, rezervacija, liga, utakmica i rezultata, uz dobru osnovu za dalji razvoj sistema u skladu sa MVP opsegom.
 
