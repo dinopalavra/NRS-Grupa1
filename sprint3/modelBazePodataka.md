@@ -2,152 +2,203 @@
 
 ## Uvod
 
-Model baze podataka predstavlja početni logički prikaz podataka potrebnih za rad sistema za upravljanje sportskim terminima i ligama.
-Cilj modela je osigurati da sistem može podržati korisnike, timove, termine, rezervacije, lige, utakmice i rezultate.
+Model baze podataka predstavlja početni logički prikaz podataka potrebnih za rad sistema za upravljanje sportskim terminima i ligama.  
+Cilj modela je osigurati da sistem može podržati korisnike, timove, termine, rezervacije, lige, utakmice i rezultate, te da posluži kao osnova za kasniju fizičku realizaciju baze podataka i implementaciju poslovne logike.
+
+Ovaj model je usklađen sa domain modelom i planiranim MVP opsegom sistema, a pojedina pravila i ograničenja mogu biti dodatno precizirana kroz komunikaciju sa Product Ownerom i kroz naredne sprintove.
+
+---
 
 ## Glavne tabele
 
-- users
-- teams
-- team_members
-- time_slots
-- reservations
-- leagues
-- leagues_teams
-- matches
-- results
-- standings
+Sistem se zasniva na sljedećim glavnim tabelama:
 
-## Opis tabela
+- `users`
+- `teams`
+- `team_members`
+- `time_slots`
+- `reservations`
+- `leagues`
+- `league_teams`
+- `matches`
+- `results`
+- `standings`
 
-### users
+---
+
+## Pregled tabela i njihove namjene
+
+| Tabela | Namjena |
+|---|---|
+| `users` | Čuva podatke o registrovanim korisnicima sistema. |
+| `teams` | Čuva podatke o sportskim timovima. |
+| `team_members` | Predstavlja vezu između korisnika i timova. |
+| `time_slots` | Čuva podatke o raspoloživim terminima i resursima. |
+| `reservations` | Evidentira rezervacije termina koje prave timovi. |
+| `leagues` | Čuva osnovne podatke o ligama ili takmičenjima. |
+| `league_teams` | Predstavlja vezu između liga i timova koji učestvuju u njima. |
+| `matches` | Čuva podatke o utakmicama unutar liga. |
+| `results` | Evidentira rezultate odigranih utakmica. |
+| `standings` | Čuva agregirane podatke za tabelu lige. |
+
+---
+
+## Opis tabela i ključnih atributa
+
+### `users`
+
 Sadrži podatke o registrovanim korisnicima sistema.
 
-**Ključni atributi:**
-- user_id
-- full_name
-- email
-- username
-- password_hash
-- role
-- active
+| Atribut | Opis |
+|---|---|
+| `user_id` | Jedinstveni identifikator korisnika |
+| `full_name` | Puno ime i prezime korisnika |
+| `email` | Email adresa korisnika |
+| `username` | Korisničko ime za prijavu |
+| `password_hash` | Hashirana lozinka korisnika |
+| `role` | Sistemska uloga korisnika |
+| `active` | Oznaka da li je korisnik aktivan |
 
-### teams
-Sadrži podatke o timovima-
+### `teams`
 
-**Ključni atributi:**
-- team_id
-- team_name
-- created_by
-- created_at
-- status
+Sadrži podatke o timovima.
 
-### team_members
-Predstavlja vezu izmeđe korisnika i timova.
+| Atribut | Opis |
+|---|---|
+| `team_id` | Jedinstveni identifikator tima |
+| `team_name` | Naziv tima |
+| `created_by` | Korisnik koji je kreirao tim |
+| `created_at` | Datum i vrijeme kreiranja tima |
+| `status` | Trenutni status tima |
 
-**Ključni atributi:**
-- team_memeber_id
-- team_id
-- user_id
-- member_role
-- joined_at
+### `team_members`
 
-### time_slots
+Predstavlja vezu između korisnika i timova.
+
+| Atribut | Opis |
+|---|---|
+| `team_member_id` | Jedinstveni identifikator zapisa članstva |
+| `team_id` | Identifikator tima |
+| `user_id` | Identifikator korisnika |
+| `member_role` | Uloga korisnika unutar tima |
+| `joined_at` | Datum pridruživanja timu |
+
+### `time_slots`
+
 Sadrži raspoložive termine za korištenje sportskih resursa.
 
-**Ključni atributi:**
-- slot_id
-- slot_date
-- start_time
-- end_time
-- location
-- resource_name
-- availability_status
+| Atribut | Opis |
+|---|---|
+| `slot_id` | Jedinstveni identifikator termina |
+| `slot_date` | Datum termina |
+| `start_time` | Vrijeme početka termina |
+| `end_time` | Vrijeme završetka termina |
+| `location` | Lokacija održavanja termina |
+| `resource_name` | Naziv sportskog resursa ili terena |
+| `availability_status` | Status raspoloživosti termina |
 
-### reservations
+### `reservations`
+
 Predstavlja rezervacije termina od strane timova.
 
-**Ključni atributi:**
-- reservation_id
-- team_id
-- slot_id
-- created_by
-- status
-- created_at
+| Atribut | Opis |
+|---|---|
+| `reservation_id` | Jedinstveni identifikator rezervacije |
+| `team_id` | Tim koji pravi rezervaciju |
+| `slot_id` | Termin koji se rezerviše |
+| `created_by` | Korisnik koji je izvršio rezervaciju |
+| `status` | Status rezervacije |
+| `created_at` | Datum i vrijeme kreiranja rezervacije |
 
-### leagues
+### `leagues`
+
 Sadrži osnovne podatke o ligama ili takmičenjima.
 
-**Ključni atributi:**
-- league_id
-- league_name
-- season
-- format
-- status
+| Atribut | Opis |
+|---|---|
+| `league_id` | Jedinstveni identifikator lige |
+| `league_name` | Naziv lige |
+| `season` | Sezona takmičenja |
+| `format` | Format takmičenja |
+| `status` | Status lige |
 
-### league_teams
+### `league_teams`
+
 Predstavlja vezu između lige i timova koji učestvuju u ligi.
 
-**Ključni atributi:**
-- league_team_id
-- league_id
-- team_id
+| Atribut | Opis |
+|---|---|
+| `league_team_id` | Jedinstveni identifikator zapisa veze |
+| `league_id` | Identifikator lige |
+| `team_id` | Identifikator tima |
 
-### matches
+### `matches`
+
 Sadrži podatke o utakmicama.
 
-**Ključni atributi:**
-- match_id
-- league_id
-- home_team_id
-- away_team_id
-- match_date
-- match_time
-- status
+| Atribut | Opis |
+|---|---|
+| `match_id` | Jedinstveni identifikator utakmice |
+| `league_id` | Liga kojoj utakmica pripada |
+| `home_team_id` | Domaći tim |
+| `away_team_id` | Gostujući tim |
+| `match_date` | Datum utakmice |
+| `match_time` | Vrijeme utakmice |
+| `status` | Status utakmice |
 
-### results
+### `results`
+
 Sadrži rezultat odigrane utakmice.
 
-**Ključni atributi:**
-- result_id
-- match_id
-- home_score
-- away_score
-- entered_by
-- entered_at
+| Atribut | Opis |
+|---|---|
+| `result_id` | Jedinstveni identifikator rezultata |
+| `match_id` | Utakmica na koju se rezultat odnosi |
+| `home_score` | Broj golova domaćeg tima |
+| `away_score` | Broj golova gostujućeg tima |
+| `entered_by` | Korisnik koji je unio rezultat |
+| `entered_at` | Datum i vrijeme unosa rezultata |
 
-### standings
+### `standings`
+
 Sadrži agregirane podatke za tabelu lige.
 
-**Ključni atributi:**
-- standing_id
-- league_id
-- team_id
-- played
-- wins
-- draws
-- losses
-- goals_for
-- goals_against
-- points
+| Atribut | Opis |
+|---|---|
+| `standing_id` | Jedinstveni identifikator zapisa u tabeli |
+| `league_id` | Liga kojoj zapis pripada |
+| `team_id` | Tim na koji se zapis odnosi |
+| `played` | Broj odigranih utakmica |
+| `wins` | Broj pobjeda |
+| `draws` | Broj neriješenih utakmica |
+| `losses` | Broj poraza |
+| `goals_for` | Broj datih golova |
+| `goals_against` | Broj primljenih golova |
+| `points` | Ukupan broj bodova |
+
+---
 
 ## Veze između tabela
 
-- `teams.created_by` referencira `users.user_id`
-- `team_members.team_id` referencira `teams.team_id`
-- `team_members.user_id` referencira `users.user_id`
-- `reservations.team_id` referencira `teams.team_id`
-- `reservations.slot_id` referencira `time_slots.slot_id`
-- `reservations.created_by` referencira `users.user_id`
-- `league_teams.league_id` referencira `leagues.league_id`
-- `league_teams.team_id` referencira `teams.team_id`
-- `matches.league_id` referencira `leagues.league_id`
-- `matches.home_team_id` referencira `teams.team_id`
-- `matches.away_team_id` referencira `teams.team_id`
-- `results.match_id` referencira `matches.match_id`
-- `results.entered_by` referencira `users.user_id`
-- `standings.league_id` referencira `leagues.league_id`
-- `standings.team_id` referencira `teams.team_id`
+### Pregled referenci
+
+| Izvorna tabela i atribut | Referencira | Značenje veze |
+|---|---|---|
+| `teams.created_by` | `users.user_id` | Tim je kreiran od strane korisnika |
+| `team_members.team_id` | `teams.team_id` | Članstvo pripada timu |
+| `team_members.user_id` | `users.user_id` | Članstvo pripada korisniku |
+| `reservations.team_id` | `teams.team_id` | Rezervaciju pravi tim |
+| `reservations.slot_id` | `time_slots.slot_id` | Rezervacija se odnosi na termin |
+| `reservations.created_by` | `users.user_id` | Rezervaciju evidentira korisnik |
+| `league_teams.league_id` | `leagues.league_id` | Veza pripada ligi |
+| `league_teams.team_id` | `teams.team_id` | Veza uključuje tim |
+| `matches.league_id` | `leagues.league_id` | Utakmica pripada ligi |
+| `matches.home_team_id` | `teams.team_id` | Domaći tim u utakmici |
+| `matches.away_team_id` | `teams.team_id` | Gostujući tim u utakmici |
+| `results.match_id` | `matches.match_id` | Rezultat pripada utakmici |
+| `results.entered_by` | `users.user_id` | Rezultat je unio korisnik |
+| `standings.league_id` | `leagues.league_id` | Zapis tabele pripada ligi |
+| `standings.team_id` | `teams.team_id` | Zapis tabele pripada timu |
 
 ## Poslovna pravila važna za bazu
 
