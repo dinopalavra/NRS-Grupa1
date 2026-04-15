@@ -203,3 +203,199 @@ Termin je rezervisan.
 
 ---
 
+## UC-8 — Pregled rezervacija
+
+*Akter:* Korisnik / Kapiten  
+
+*Preduslov:*  
+Postoje rezervacije u sistemu.
+
+*Postuslov:*  
+Prikazana lista rezervacija.
+
+*Osnovni tok:*
+
+1. Korisnik otvara pregled rezervacija.
+2. Sistem prikazuje rezervacije povezane sa korisnikom ili njegovim timom.
+3. Rezervacije su sortirane hronološki.
+
+---
+
+## UC-9 — Otkazivanje rezervacije
+
+*Akter:* Kapiten  
+
+*Preduslov:*  
+Postoji aktivna rezervacija.
+
+*Postuslov:*  
+Termin postaje slobodan.
+
+*Osnovni tok:*
+
+1. Kapiten bira rezervaciju.
+2. Odabire opciju otkazivanja.
+3. Sistem traži potvrdu akcije.
+4. Sistem oslobađa termin.
+
+---
+
+## UC-10 — Kreiranje lige
+
+*Akter:* Administrator  
+
+*Preduslov:*  
+Administrator je prijavljen.
+
+*Postuslov:*  
+Liga je kreirana.
+
+*Osnovni tok:*
+
+1. Administrator bira opciju za kreiranje lige.
+2. Unosi osnovne podatke o ligi.
+3. Sistem validira podatke.
+4. Sistem sprema ligu.
+
+---
+
+## UC-11 — Dodavanje timova u ligu
+
+*Akter:* Administrator  
+
+*Preduslov:*
+
+- Liga postoji
+- Tim postoji
+
+*Postuslov:*  
+Tim je dodan u ligu.
+
+*Osnovni tok:*
+
+1. Administrator otvara ligu.
+2. Sistem prikazuje listu timova.
+3. Administrator bira tim.
+4. Sistem dodaje tim u ligu.
+
+*Alternativni tok:*
+
+- Tim već postoji u ligi → sistem prikazuje grešku.
+
+---
+
+## UC-12 — Unos rezultata utakmica
+
+*Akter:* Administrator / Ovlaštena osoba  
+
+*Preduslov:*  
+Utakmica postoji u sistemu.
+
+*Postuslov:*  
+Rezultat je evidentiran.
+
+*Osnovni tok:*
+
+1. Ovlaštena osoba bira utakmicu.
+2. Unosi rezultat utakmice.
+3. Sistem provjerava podatke.
+4. Sistem sprema rezultat.
+
+---
+
+## UC-13 — Automatsko ažuriranje tabele
+
+*Akter:* Sistem  
+
+*Preduslov:*  
+Postoje evidentirani rezultati utakmica.
+
+*Postuslov:*  
+Tabela lige je ažurirana.
+
+*Osnovni tok:*
+
+1. Sistem detektuje novi rezultat.
+2. Izračunava bodove timova.
+3. Ažurira poredak na tabeli.
+4. Prikazuje ažuriranu tabelu korisnicima.
+
+---
+
+# 4. Ključni entiteti sistema
+
+## Korisnik
+
+Predstavlja osobu koja koristi sistem.
+
+Atributi:
+
+- id
+- ime
+- email
+- lozinka
+- uloga
+
+---
+
+## Tim
+
+Organizaciona jedinica koja učestvuje u rezervacijama i ligama.
+
+Atributi:
+
+- id
+- naziv
+- kapiten
+
+---
+
+## Termin
+
+Predstavlja vremenski period za rezervaciju terena.
+
+Atributi:
+
+- id
+- datum
+- vrijeme_pocetka
+- vrijeme_zavrsetka
+- status
+
+---
+
+## Rezervacija
+
+Povezuje tim sa terminom.
+
+Atributi:
+
+- id
+- tim
+- termin
+- status
+
+---
+
+## Liga
+
+Takmičarska organizacija timova.
+
+Atributi:
+
+- id
+- naziv
+- sezona
+
+---
+
+## Utakmica
+
+Predstavlja meč između dva tima.
+
+Atributi:
+
+- tim1
+- tim2
+- rezultat
+
