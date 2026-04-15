@@ -1,72 +1,205 @@
-# Use Case Model
+# Use Case Model  
+## Sistem za upravljanje rezervacijama termina i ligom
 
-## Uvod
-
-Use case model opisuje ključne interakcije korisnika sa sistemom za upravljanje sportskim terminima i ligama.  
-Fokus je na osnovnim procesima koji direktno proizlaze iz planiranog MVP opsega i backlog stavki.
+Ovaj dokument opisuje funkcionalnosti sistema kroz **Use Case scenarije** koji su izvedeni iz definisanih **User Stories** i **Acceptance Criteria**.  
+Use case model prikazuje kako različiti akteri koriste sistem i koje procese sistem podržava.
 
 ---
 
-## Use Case 1
+# 1. Akteri sistema
+
+| Akter | Opis |
+|------|------|
+| **Korisnik (Igrač)** | Registrovani korisnik koji može pregledati termine i rezervacije. |
+| **Kapiten tima** | Korisnik koji upravlja timom i rezervacijama termina. |
+| **Administrator** | Korisnik koji upravlja ligama, rezultatima i korisnicima. |
+| **Sistem** | Automatizovane funkcije kao što su validacija podataka i sprječavanje konflikta rezervacija. |
+
+---
+
+# 2. Use Case lista
+
+| ID | Naziv | Akter |
+|---|---|---|
+| UC-1 | Registracija korisnika | Korisnik |
+| UC-2 | Prijava korisnika | Korisnik |
+| UC-3 | Upravljanje korisničkim ulogama | Administrator |
+| UC-4 | Kreiranje tima | Kapiten / Administrator |
+| UC-5 | Upravljanje članovima tima | Kapiten |
+| UC-6 | Pregled dostupnih termina | Korisnik |
+| UC-7 | Rezervacija termina | Kapiten |
+| UC-8 | Pregled rezervacija | Korisnik / Kapiten |
+| UC-9 | Otkazivanje rezervacije | Kapiten |
+| UC-10 | Kreiranje lige | Administrator |
+| UC-11 | Dodavanje timova u ligu | Administrator |
+| UC-12 | Unos rezultata utakmica | Administrator / Ovlaštena osoba |
+| UC-13 | Automatsko ažuriranje tabele | Sistem |
+
+---
+
+# 3. Use Case specifikacije
+
+---
+
+## UC-1 — Registracija korisnika
 
 **Akter:** Korisnik  
-**Naziv use casea:** Registracija korisnika  
-**Kratak opis:** Korisnik kreira novi nalog u sistemu kako bi mogao pristupiti funkcionalnostima sistema.  
-**Preduslovi:** Korisnik nije već registrovan sa istim emailom ili korisničkim imenom.  
 
-**Glavni tok:**  
-1. Korisnik otvara formu za registraciju.  
-2. Korisnik unosi tražene podatke.  
-3. Sistem provjerava ispravnost i jedinstvenost podataka.  
-4. Sistem kreira korisnički nalog.  
-5. Korisnik dobija potvrdu o uspješnoj registraciji.  
+**Preduslov:**  
+Korisnik nema kreiran nalog.
 
-**Alternativni tokovi:**  
-- Ako korisničko ime već postoji, sistem odbija registraciju i prikazuje poruku.  
-- Ako obavezni podaci nisu uneseni ili nisu validni, sistem traži ispravku unosa.  
+**Postuslov:**  
+Korisnički nalog je kreiran u sistemu.
 
-**Ishod:** Novi korisnik je evidentiran u sistemu i može pristupiti prijavi.
+**Osnovni tok:**
 
----
+1. Korisnik otvara stranicu za registraciju.
+2. Sistem prikazuje formu za unos podataka.
+3. Korisnik unosi korisničko ime, email i lozinku.
+4. Sistem provjerava ispravnost podataka.
+5. Sistem kreira korisnički nalog.
+6. Sistem prikazuje potvrdu o uspješnoj registraciji.
 
-## Use Case 2
+**Alternativni tok:**
 
-**Akter:** Registrovani korisnik  
-**Naziv use casea:** Prijava korisnika  
-**Kratak opis:** Korisnik se prijavljuje u sistem pomoću svojih kredencijala.  
-**Preduslovi:** Korisnik ima prethodno kreiran nalog.  
-
-**Glavni tok:**  
-1. Korisnik otvara formu za prijavu.  
-2. Unosi korisničko ime ili email i lozinku.  
-3. Sistem provjerava kredencijale.  
-4. Sistem prijavljuje korisnika i dodjeljuje mu pristup u skladu sa ulogom.  
-
-**Alternativni tokovi:**  
-- Ako su kredencijali netačni, sistem odbija prijavu.  
-- Ako je nalog deaktiviran, sistem ne dozvoljava pristup.  
-
-**Ishod:** Korisnik uspješno pristupa sistemu.
+- Email već postoji → sistem prikazuje poruku o grešci.
+- Neispravni podaci → sistem traži ponovni unos.
 
 ---
 
-## Use Case 3
+## UC-2 — Prijava korisnika
 
-**Akter:** Kapiten tima / administrator  
-**Naziv use casea:** Kreiranje tima  
-**Kratak opis:** Ovlašteni korisnik kreira novi tim u sistemu.  
-**Preduslovi:** Korisnik je prijavljen i ima ovlaštenje za kreiranje tima.  
+**Akter:** Korisnik  
 
-**Glavni tok:**  
-1. Korisnik bira opciju za kreiranje tima.  
-2. Unosi naziv tima i osnovne informacije.  
-3. Sistem provjerava da li tim sa istim nazivom već postoji.  
-4. Sistem kreira tim i povezuje ga sa korisnikom koji ga je kreirao.  
+**Preduslov:**  
+Korisnik ima kreiran nalog.
 
-**Alternativni tokovi:**  
-- Ako naziv tima već postoji, sistem traži unos drugog naziva.  
-- Ako korisnik nema potrebna prava, sistem odbija akciju.  
+**Postuslov:**  
+Korisnik je prijavljen u sistem.
 
-**Ishod:** Novi tim je kreiran i spreman za dodavanje članova.
+**Osnovni tok:**
+
+1. Korisnik otvara stranicu za prijavu.
+2. Unosi email i lozinku.
+3. Sistem provjerava podatke.
+4. Sistem kreira korisničku sesiju.
+5. Korisnik se preusmjerava na početnu stranicu.
+
+**Alternativni tok:**
+
+- Pogrešni podaci → sistem prikazuje poruku o grešci.
+- Previše pokušaja prijave → sistem blokira pristup.
 
 ---
+
+## UC-3 — Upravljanje korisničkim ulogama
+
+**Akter:** Administrator  
+
+**Preduslov:**  
+Administrator je prijavljen.
+
+**Postuslov:**  
+Uloga korisnika je ažurirana.
+
+**Osnovni tok:**
+
+1. Administrator otvara listu korisnika.
+2. Sistem prikazuje korisnike i njihove uloge.
+3. Administrator bira korisnika.
+4. Administrator dodjeljuje ili mijenja ulogu.
+5. Sistem sprema promjene.
+
+**Alternativni tok:**
+
+- Neovlašten pristup → sistem odbija promjenu.
+
+---
+
+## UC-4 — Kreiranje tima
+
+**Akter:** Kapiten / Administrator  
+
+**Preduslov:**  
+Korisnik je prijavljen.
+
+**Postuslov:**  
+Tim je evidentiran u sistemu.
+
+**Osnovni tok:**
+
+1. Korisnik bira opciju za kreiranje tima.
+2. Unosi naziv tima.
+3. Sistem provjerava podatke.
+4. Sistem kreira tim.
+5. Tim postaje dostupan u sistemu.
+
+---
+
+## UC-5 — Upravljanje članovima tima
+
+**Akter:** Kapiten  
+
+**Preduslov:**  
+Tim postoji u sistemu.
+
+**Postuslov:**  
+Lista članova tima je ažurirana.
+
+**Osnovni tok:**
+
+1. Kapiten otvara upravljanje timom.
+2. Dodaje ili uklanja člana tima.
+3. Sistem ažurira listu članova.
+
+**Alternativni tok:**
+
+- Dupli član → sistem ne dozvoljava dodavanje.
+
+---
+
+## UC-6 — Pregled dostupnih termina
+
+**Akter:** Korisnik  
+
+**Preduslov:**  
+Korisnik je prijavljen.
+
+**Postuslov:**  
+Prikazana lista termina.
+
+**Osnovni tok:**
+
+1. Korisnik otvara raspored termina.
+2. Sistem prikazuje sve termine.
+3. Slobodni i zauzeti termini su jasno označeni.
+4. Korisnik može filtrirati termine po datumu ili vremenu.
+
+---
+
+## UC-7 — Rezervacija termina
+
+**Akter:** Kapiten  
+
+**Preduslov:**
+
+- Korisnik je prijavljen.
+- Termin je slobodan.
+
+**Postuslov:**  
+Termin je rezervisan.
+
+**Osnovni tok:**
+
+1. Kapiten bira slobodan termin.
+2. Sistem provjerava dostupnost termina.
+3. Sistem kreira rezervaciju.
+4. Termin postaje označen kao zauzet.
+
+**Alternativni tok:**
+
+- Termin već rezervisan → sistem odbija rezervaciju.
+- Korisnik nije prijavljen → sistem blokira akciju.
+
+---
+
