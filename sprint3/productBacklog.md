@@ -18,10 +18,10 @@ Na ovaj način tim postavlja kvalitetnu osnovu za naredne sprintove i kasniju im
 | 5 | Prioritetne User Stories | Razraditi najvažnije funkcionalnosti kroz user stories. | Documentation | Visok | 5 | Završeno | Sprint 2 | Obuhvata razradu odabranih prioritetnih funkcionalnosti. |
 | 6 | Acceptance Criteria | Definisati mjerljive i provjerljive kriterije prihvatanja za prioritetne storyje. | Documentation | Visok | 5 | Završeno | Sprint 2 | Povezano sa user stories za odabrane funkcionalnosti. |
 | 7 | Početni NFR zahtjevi | Definisati osnovne nefunkcionalne zahtjeve sistema. | Documentation | Srednji | 3 | Završeno | Sprint 2 | Fokus na sigurnost, pouzdanost i upotrebljivost. |
-| 8 | Model baze podataka | Definisati osnovne entitete i veze za korisnike, timove, termine, lige, utakmice i rezultate. | Technical Task | Visok | 5 | To Do | Sprint 3 | Temelj za kasniju implementaciju. |
-| 9 | Architecture Overview | Definisati osnovni arhitektonski pristup i organizaciju sistema. | Technical Task | Visok | 3 | To Do | Sprint 3 | Povezano sa tehničkim odlukama. |
-| 10 | Domain / Use Case model | Modelirati osnovne procese rezervacije termina, upravljanja timovima i unosa rezultata. | Documentation | Srednji | 5 | To Do | Sprint 3 | Podrška razumijevanju sistema. |
-| 11 | Test Strategy | Definisati pristup testiranju ključnih funkcionalnosti sistema. | Documentation | Srednji | 3 | To Do | Sprint 3 | Važno za kvalitet rješenja. |
+| 8 | Model baze podataka | Definisati osnovne entitete i veze za korisnike, timove, termine, lige, utakmice i rezultate. | Technical Task | Visok | 5 | Završeno | Sprint 3 | Temelj za kasniju implementaciju. |
+| 9 | Architecture Overview | Definisati osnovni arhitektonski pristup i organizaciju sistema. | Technical Task | Visok | 3 | Završeno | Sprint 3 | Povezano sa tehničkim odlukama. |
+| 10 | Domain / Use Case model | Modelirati osnovne procese rezervacije termina, upravljanja timovima i unosa rezultata. | Documentation | Srednji | 5 | Završeno | Sprint 3 | Podrška razumijevanju sistema. |
+| 11 | Test Strategy | Definisati pristup testiranju ključnih funkcionalnosti sistema. | Documentation | Srednji | 3 | Završeno | Sprint 3 | Važno za kvalitet rješenja. |
 | 12 | Definition of Done | Definisati zajedničke kriterije kada se stavka smatra završenom. | Documentation | Srednji | 2 | To Do | Sprint 4 | Potrebno za konzistentan timski rad. |
 | 13 | Initial Release Plan | Definisati plan inkremenata i okvirnu raspodjelu funkcionalnosti po sprintovima. | Documentation | Srednji | 3 | To Do | Sprint 4 | Povezano sa planiranjem razvoja. |
 | 14 | Registracija korisnika | Omogućiti korisniku kreiranje korisničkog računa u sistemu. | Feature | Visok | 5 | To Do | Sprint 5 | Razrada zahtjeva u Sprintu 2; implementacija planirana u Sprintu 5. |
