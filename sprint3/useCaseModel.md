@@ -398,4 +398,4 @@ Atributi:
 - tim1
 - tim2
 - rezultat
-
+/
