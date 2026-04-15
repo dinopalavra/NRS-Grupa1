@@ -105,5 +105,62 @@ Sadrži podatke o utakmicama.
 - match_time
 - status
 
+### results
+Sadrži rezultat odigrane utakmice.
+
+**Ključni atributi:**
+- result_id
+- match_id
+- home_score
+- away_score
+- entered_by
+- entered_at
+
+### standings
+Sadrži agregirane podatke za tabelu lige.
+
+**Ključni atributi:**
+- standing_id
+- league_id
+- team_id
+- played
+- wins
+- draws
+- losses
+- goals_for
+- goals_against
+- points
+
+## Veze između tabela
+
+- `teams.created_by` referencira `users.user_id`
+- `team_members.team_id` referencira `teams.team_id`
+- `team_members.user_id` referencira `users.user_id`
+- `reservations.team_id` referencira `teams.team_id`
+- `reservations.slot_id` referencira `time_slots.slot_id`
+- `reservations.created_by` referencira `users.user_id`
+- `league_teams.league_id` referencira `leagues.league_id`
+- `league_teams.team_id` referencira `teams.team_id`
+- `matches.league_id` referencira `leagues.league_id`
+- `matches.home_team_id` referencira `teams.team_id`
+- `matches.away_team_id` referencira `teams.team_id`
+- `results.match_id` referencira `matches.match_id`
+- `results.entered_by` referencira `users.user_id`
+- `standings.league_id` referencira `leagues.league_id`
+- `standings.team_id` referencira `teams.team_id`
+
+## Poslovna pravila važna za bazu
+
+- Jedan korisnik može biti član više timova samo ako to poslovna pravila dozvoljavaju.
+- Jedan termin ne smije imati više potvrđenih rezervacija za isti resurs i isti vremenski interval.
+- Jedna utakmica mora imati tačno dva različita tima.
+- Jedna utakmica može imati najviše jedan konačni rezultat.
+- Tabela lige se vodi po timu unutar jedne konkretne lige.
+- Samo aktivni korisnici mogu imati funkcionalnu ulogu u sistemu.
+
+## Zaključak
+
+Ovaj model baze podataka predstavlja logičku osnovu za kasniju fizičku realizaciju baze i implementaciju poslovne logike sistema.
+
 
 
