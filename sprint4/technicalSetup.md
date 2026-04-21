@@ -98,3 +98,77 @@ Za sistem koji obuhvata korisnike, timove, termine, rezervacije, lige i rezultat
 
 Na kraju, ovaj dokument treba posmatrati kao osnovu za dalji razvoj, a ne kao konačan opis sistema.  
 Detaljnija implementacija, konkretni tehnički izbori i proširenje strukture slijedit će u narednim sprintovima, ali je upravo Sprint 4 trenutak u kojem tim pokazuje da je spreman da iz faze planiranja pređe u fazu organizovanog tehničkog razvoja.
+
+## Tehnologije po9 slojevima sistema
+
+Tehnička osnova sistema organizovana je kroz tri glavna sloja: backend, frontend i baza podataka, pri čemu svaki sloj ima jasno definisanu ulogu u okviru projekta.
+
+Backend sloj je zadužen za implementaciju poslovne logike sistema, uključujući upravljanje korisnicima, timovima, terminima i rezervacijama.
+Frontend sloj je odgovoran za prikaz podataka i interakciju sa korisnicima kroz korisnički interfejs.
+Baza podataka predstavlja sloj za trajno čuvanje podataka i omogućava rad sa ključnim entitetima sistema.
+
+U ovoj fazi projekta tehnologije su definisane na konceptualnom nivou, dok će konkretni alati i implementacija biti dodatno razrađeni u narednim sprintovima.
+
+---
+
+## Konfiguracioni fajlovi
+
+U okviru skeleton strukture pripremljeni su osnovni konfiguracioni i organizacioni fajlovi koji omogućavaju dalji razvoj projekta.
+
+Svaki od glavnih dijelova sistema ('backend', 'frontend', 'database') sadrži svoj 'README.md' fajl koji opisuje svrhu tog dijela i način njegove organizacije.
+Ovi fajlovi služe kao početna dokumentacija i pomažu članovima  tima da se lakše snalaze unutar projekta.
+
+Pored toga, projekat uključuje i osnovne konfiguracione fajlove kao što je '.gitignore', koji definiše koje datoteke se ne trebaju verzionisati, čime se osigurava urednost repozitorija.
+
+Ova konfiguracija predstavlja minimalni setup potreban za dalji razvoj i proširenje sistema.
+
+---
+
+## Backend setup
+
+Backend dio sistema nalazi se u folderu 'skeleton/backend/' i predstavlja osnovu za razvoj poslovne logike sistema.
+
+U ovoj fazi backend ne sadrži implementirane funkcionalnosti, ali je njegova struktura postavljena tako da podrži ključne procese sistema, kao što su: 
+- upravljanje korisnicima i autentifikacija
+- upravljanje timivima i članovima tima
+- upravljanje terminima i rezervacijama
+- upravljanje ligama i rezultatima
+
+Predviđeno je da backend sloj u narednim sprintovima sadrži API kroz koji će frontend komunicirati sa sistemom, kao i logiku koja osigurava pravilno funkcionisanje svih poslovnih pravila.
+
+Struktura backenda je postavljena tako da omogući modularan razvoj i lakše proširenje sistema.
+
+---
+
+## Frontend setup
+
+Frontend dio sistema nalazi se u folderu 'skeleton/frontend/' i predstavlja osnovu za razvoj korisničkog interfejsa.
+
+U ovoj fazi frontend ne sadrži implementirane stranice, ali je predviđena struktura koja će omogućiti organizovan razvoj interfejsa.
+
+Planirana struktura uključuje:
+- komponente za prikaz podataka
+- stranice sistema (npr. pregled termina, upravljanje timovima)
+- servise za komunikaciju sa backendom
+- rute za navigaciju kroz aplikaciju
+
+Ovakva organizacija omogućava da se funkcionalnosti definisane u prethodnim sprintovima kasnije jasno mapiraju na odgovarajuće dijelove korisničkog interfejsa.
+
+---
+
+## Setup baze podataka
+
+Baza podataka nalazi se u folderu 'skeleton/database/' i predstavlja osnovu za rad sa podacima sistema.
+
+U ovoj fazi pripremljena je početna organizacija koja uključuje:
+- 'schema/' folder za definisanje strukture baze podataka
+- 'seeds/' folder za incijalne testne podatke
+
+Baza podataka će u narednim sprintovima sadržavati ključne entitete sistema, uključujući:
+- korisnike
+- timove
+- termine
+- rezervacije
+- lige i rezultate
+
+Strukture baze će biti usklađena sa domain modelom definisanim u prethodnom sprintu, čime se osigurava konzistentnost između poslovne logike i načina čuvanja podataka.
