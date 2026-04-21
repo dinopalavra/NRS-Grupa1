@@ -99,6 +99,8 @@ Za sistem koji obuhvata korisnike, timove, termine, rezervacije, lige i rezultat
 Na kraju, ovaj dokument treba posmatrati kao osnovu za dalji razvoj, a ne kao konačan opis sistema.  
 Detaljnija implementacija, konkretni tehnički izbori i proširenje strukture slijedit će u narednim sprintovima, ali je upravo Sprint 4 trenutak u kojem tim pokazuje da je spreman da iz faze planiranja pređe u fazu organizovanog tehničkog razvoja.
 
+---
+
 ## Tehnologije pod slojevima sistema
 
 Tehnička osnova sistema organizovana je kroz tri glavna sloja: backend, frontend i baza podataka, pri čemu svaki sloj ima jasno definisanu ulogu u okviru projekta.
