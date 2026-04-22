@@ -16,12 +16,12 @@ Izvorni kod je napisan prema timskim konvencijama, čist je i optimizovan za kas
 
 Funkcionalnost je verifikovana za sve predviđene uloge (Admin, Kapiten, Igrač) i ne narušava postojeće dijelove sistema.
 
-Sistem se uspješno builda i pokreće bez grešaka
+Sistem se uspješno builda i pokreće bez grešaka.
 
-Kod je integrisan u glavnu granu bez konflikata
+Kod je integrisan u glavnu granu bez konflikata.
 
-Nema kritičnih ili blokirajućih bugova
+Nema kritičnih ili blokirajućih bugova.
 
-Dokumentacija i svi relevantni artefakti su ažurirani
+Dokumentacija i svi relevantni artefakti su ažurirani.
 
-Funkcionalnost je spremna za demonstraciju
+Funkcionalnost je spremna za demonstraciju.
