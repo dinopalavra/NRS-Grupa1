@@ -1,179 +1,292 @@
+# Technical Setup
+
 ## Uvod
 
-Ovaj dokument opisuje osnovni tehnički setup projekta za sistem upravljanja sportskim terminima i ligama u okviru Sprinta 4.  
-Njegova svrha nije da predstavi završenu implementaciju sistema, nego da definiše početnu tehničku osnovu na kojoj će se graditi naredni sprintovi.
+Ovaj dokument opisuje osnovni tehnički setup projekta *Sistem za upravljanje sportskim terminima i ligama* u okviru Sprinta 4.
 
-U dosadašnjim sprintovima tim je radio na razumijevanju problema, identifikaciji stakeholdera, definisanju product backloga, user storyja i acceptance kriterija.  
-Zbog toga Sprint 4 predstavlja važnu prijelaznu tačku: nakon analize i planiranja, potrebno je postaviti tehničku strukturu projekta koja će omogućiti da se ranije definisani zahtjevi kasnije implementiraju na organizovan i smislen način.
+Njegova svrha nije da predstavi završenu implementaciju sistema, nego da definiše početnu tehničku osnovu na kojoj će se graditi naredni sprintovi. U ovoj fazi fokus nije na punoj realizaciji funkcionalnosti, nego na uspostavljanju pregledne i održive tehničke strukture koja je usklađena sa ranije definisanom arhitekturom sistema, modelom baze podataka i project structure dokumentom.
 
-Za naš projekat to je posebno važno zato što sistem uključuje više međusobno povezanih cjelina, kao što su upravljanje korisnicima, timovima, terminima, rezervacijama, ligama i rezultatima utakmica.  
-Bez unaprijed definisane tehničke organizacije, dalji razvoj bi lako mogao postati nepregledan, neusklađen i teško održiv.
-
-Zbog toga je cilj ovog dokumenta da svim članovima tima pruži zajedničko razumijevanje početne tehničke organizacije projekta, da pojasni logiku strukture repozitorija i da osigura da naredna faza implementacije ne počne nasumično, nego na jasno postavljenim temeljima.
+Sprint 4 predstavlja prijelaz iz analitičke i planske faze projekta u početnu tehničku pripremu za implementaciju. Zbog toga je važno da tim ne postavi samo pojedinačne fajlove i foldere, nego da jasno definiše kako su organizovani backend, frontend, baza podataka i pomoćna dokumentacija, koje su osnovne tehnologije izabrane i na koji način tehnička organizacija podržava glavne funkcionalne cjeline sistema.
 
 ---
 
-## Opšti pristup organizaciji projekta
+## Cilj tehničkog setupa
 
-Projekt je organizovan kroz centralni folder `skeleton/`, koji predstavlja početni tehnički okvir sistema.  
-Ovaj folder ne sadrži završene funkcionalnosti, već jasno postavljenu strukturu koja služi kao osnova za dalju implementaciju.
+Cilj tehničkog setupa u ovom sprintu je da se uspostavi stabilna i pregledna osnova za dalji razvoj full-stack web aplikacije.
 
-Unutar foldera `skeleton/` projekat je podijeljen na tri glavna dijela:
-- `backend/`
-- `frontend/`
-- `database/`
-- `docs/`
-
-Ovakva podjela nije napravljena samo radi preglednosti, nego radi jasnog razdvajanja odgovornosti unutar sistema.  
-Backend dio je predviđen za poslovnu logiku i obradu zahtjeva, frontend za korisnički interfejs i interakciju sa korisnicima, dok database dio predstavlja osnovu za organizaciju i čuvanje podataka.
-
-Za naš sistem ovakav pristup ima posebno smisla jer se već iz ranije definisanih zahtjeva vidi da će aplikacija imati više različitih funkcionalnih tokova.  
-Na primjer, jedan dio sistema odnosi se na registraciju i prijavu korisnika, drugi na upravljanje timovima i članovima tima, treći na pregled i rezervaciju termina, a četvrti na organizaciju lige, unos rezultata i ažuriranje tabele.  
-Ako bi svi ovi dijelovi bili razvijani bez jasne tehničke strukture, vrlo brzo bi došlo do miješanja odgovornosti, dupliranja logike i otežanog održavanja.
-
-Početna organizacija projekta zato treba da omogući da se svaka od ovih cjelina kasnije razvija na svom mjestu, ali i da ostane povezana sa ostatkom sistema.  
-Na taj način tehnička struktura prati logiku domene projekta, a ne predstavlja samo nasumično raspoređene foldere.
-
-Pored tri glavna dijela sistema, u okviru Sprinta 4 važnu ulogu ima i dokumentacija.  
-Dokumenti u folderu `sprint4/` služe da objasne kako je struktura postavljena, zašto je postavljena baš tako i kako se povezuje sa ranije definisanim artefaktima.  
-To znači da tehnička organizacija projekta nije odvojena od ostalih projektnih odluka, nego predstavlja njihov prirodan nastavak.
-
----
-
-## Standardi rada tima
-
-Da bi tehnička organizacija projekta bila održiva i korisna u narednim sprintovima, nije dovoljno samo napraviti početne foldere.  
-Potrebno je i da tim ima zajednička pravila rada koja će osigurati konzistentnost, preglednost i lakšu saradnju.
-
-Prvi osnovni standard je korištenje zajedničkog Git repozitorija kao centralnog mjesta za verzionisanje projekta.  
-Time se osigurava da promjene budu vidljive, da se može pratiti razvoj sistema kroz sprintove i da svi članovi tima rade unutar iste tehničke osnove.
-
-Drugi važan standard jeste jasno i dosljedno imenovanje fajlova i foldera.  
-U projektu koji će se razvijati kroz više sprintova, nepregledno imenovanje brzo dovodi do zabune i otežava snalaženje članovima tima.  
-Zbog toga struktura mora ostati dovoljno jasna da se iz samog naziva može razumjeti svrha pojedinog dijela.
-
-Treći standard odnosi se na razdvajanje slojeva sistema.  
-Tim ne treba miješati logiku korisničkog interfejsa, poslovnu logiku i podatkovni sloj, jer takav pristup otežava i razvoj i testiranje i kasnije održavanje.  
-Zato je važno da backend, frontend i database od početka budu tretirani kao odvojene, ali povezane cjeline.
-
-Četvrti standard jeste usklađenost tehničke organizacije sa ranije definisanim zahtjevima i modelima.  
-To znači da se tehnička struktura ne postavlja proizvoljno, nego tako da podržava funkcionalnosti koje su već identifikovane kroz backlog, user storyje i acceptance kriterije.  
-Na primjer, ako sistem treba podržati upravljanje članovima tima, rezervaciju termina i pregled rezultata, onda tehnička organizacija treba omogućiti da se te funkcionalnosti kasnije prirodno smjeste u odgovarajuće dijelove sistema.
-
-Peti standard odnosi se na dokumentovanje važnih tehničkih odluka.  
-Čak i u početnoj fazi razvoja važno je da tim može objasniti zašto je projekat organizovan na određeni način, kako su podijeljene odgovornosti i kako se planira dalje proširenje.  
-Na taj način tehnička struktura ne ostaje samo “postavljena”, nego i razumljiva svim članovima tima.
-
-Ovi standardi su važni ne samo radi formalnog reda, nego i zato što projekat treba ostati pregledan i održiv kada u narednim sprintovima počne implementacija stvarnih funkcionalnosti.
-
----
-
-## Minimalni cilj Sprinta 4
-
-Minimalni cilj Sprinta 4 nije razvoj završene aplikacije, niti implementacija kompletnih funkcionalnosti sistema.  
-Cilj ovog sprinta je da projekat dobije dovoljno jasnu i stabilnu tehničku osnovu kako bi naredni sprintovi mogli biti usmjereni na implementaciju bez dodatnog tehničkog haosa.
-
-To u našem slučaju znači da na kraju Sprinta 4 projekat treba imati:
+To konkretno znači da projekat na kraju Sprinta 4 treba imati:
 - jasno organizovan repozitorij
-- prepoznatljivu početnu strukturu sistema
-- razdvojene glavne tehničke cjeline (`backend`, `frontend`, `database`, `docs`)
-- osnovnu tehničku dokumentaciju koja objašnjava svrhu i logiku te strukture
+- razdvojene sprint artefakte i tehnički skeleton aplikacije
+- definisane glavne tehničke cjeline sistema
+- početne konfiguracione i ulazne fajlove
+- osnovu za dalji razvoj backend, frontend i database dijela
 
-Za projekat upravljanja sportskim terminima i ligama ovo je posebno važno jer će se u narednim sprintovima razvijati funkcionalnosti koje su međusobno zavisne.  
-Na primjer, rezervacija termina zavisi od prikaza dostupnih termina, upravljanje timovima zavisi od korisnika i njihovih uloga, a rezultati utakmica utiču na tabelu lige.  
-Ako tehnička struktura nije postavljena na vrijeme, kasnija implementacija ovih funkcionalnosti bi bila teža, nepreglednija i podložnija greškama.
-
-Zato se uspjeh Sprinta 4 ne mjeri time da li sistem već “radi” iz korisničke perspektive, nego time da li je tehnički okvir dovoljno dobro pripremljen da podrži naredne faze razvoja.  
-Drugim riječima, cilj je da tim na kraju sprinta može pokazati da zna gdje će se koji dio sistema razvijati, kako su slojevi razdvojeni i kako struktura projekta prati logiku ranije definisanih zahtjeva.
+Ovakav pristup je posebno važan jer sistem obuhvata više međusobno povezanih poslovnih cjelina, uključujući korisnike, timove, termine, rezervacije, lige, utakmice, rezultate i tabelu. Bez unaprijed postavljenog tehničkog okvira, dalji razvoj bi lako mogao postati nepregledan, neusklađen i teško održiv.
 
 ---
 
-## Zaključak
+## Organizacija repozitorija
 
-Tehnički setup definisan u ovom dokumentu predstavlja početni, ali vrlo važan temelj za razvoj sistema upravljanja sportskim terminima i ligama.  
-Iako u ovoj fazi još nisu implementirane konkretne funkcionalnosti, postavljena struktura projekta pokazuje da tim nije ostao samo na analizi problema i pisanju dokumentacije, nego je pripremio tehnički okvir za naredne sprintove.
+U skladu sa trenutnim project structure dokumentom, repozitorij je organizovan tako da se jasno razdvoje sprint artefakti od stvarnog skeletona aplikacije.
 
-Vrijednost ovakvog pristupa je u tome što omogućava da se razvoj sistema nastavi organizovano i dosljedno, uz manje rizika od haotične strukture, miješanja odgovornosti i tehničke nepreglednosti.  
-Za sistem koji obuhvata korisnike, timove, termine, rezervacije, lige i rezultate, ovakva početna organizacija je važna kako bi svaka naredna funkcionalnost imala svoje jasno mjesto u projektu.
+Na vrhu repozitorija nalaze se dva glavna dijela:
+- sprint4/
+- Projekat/
 
-Na kraju, ovaj dokument treba posmatrati kao osnovu za dalji razvoj, a ne kao konačan opis sistema.  
-Detaljnija implementacija, konkretni tehnički izbori i proširenje strukture slijedit će u narednim sprintovima, ali je upravo Sprint 4 trenutak u kojem tim pokazuje da je spreman da iz faze planiranja pređe u fazu organizovanog tehničkog razvoja.
+Folder sprint4/ sadrži formalne artefakte Sprinta 4:
+- SprintGoal.md
+- definitionOfDone.md
+- initialReleasePlan.md
+- projectStructure.md
+- technicalSetup.md
+
+Folder Projekat/ predstavlja stvarni tehnički skeleton aplikacije i sadrži:
+- README.md
+- .gitignore
+- backend/
+- frontend/
+- database/
+- docs/
+
+Ovakva podjela je važna zato što sprint dokumentacija i tehnička osnova aplikacije nemaju istu svrhu. Folder sprint4/ dokumentuje šta je urađeno u ovom sprintu, dok folder Projekat/ predstavlja početnu verziju stvarne aplikacije koja će se dalje razvijati u narednim sprintovima.
 
 ---
 
-## Tehnologije pod slojevima sistema
+## Tehnološki stack
 
-Tehnička osnova sistema organizovana je kroz tri glavna sloja: backend, frontend i baza podataka, pri čemu svaki sloj ima jasno definisanu ulogu u okviru projekta.
+Na osnovu trenutno usvojene strukture projekta, tehnička osnova sistema zasniva se na sljedećem stacku:
 
-Backend sloj je zadužen za implementaciju poslovne logike sistema, uključujući upravljanje korisnicima, timovima, terminima i rezervacijama.
-Frontend sloj je odgovoran za prikaz podataka i interakciju sa korisnicima kroz korisnički interfejs.
-Baza podataka predstavlja sloj za trajno čuvanje podataka i omogućava rad sa ključnim entitetima sistema.
+| Sloj | Tehnologija |
+|---|---|
+| Backend | Java + Spring Boot |
+| Frontend | React + Vite |
+| Baza podataka | PostgreSQL |
+| Build alat za backend | Maven |
+| Autentifikacija | Spring Security + JWT |
 
-Konkretan tehnološki stack uključuje Java + Spring Boot (Maven) na backendu, React + Vite na frontend strani, te PostgreSQL kao sistem za upravljanje bazom podataka.
+Ovaj izbor tehnologija odgovara planiranoj slojevitoj i modularnoj arhitekturi sistema. Backend tehnologije omogućavaju implementaciju poslovne logike, API sloja i pristupa podacima, frontend tehnologije omogućavaju razvoj korisničkog interfejsa, a PostgreSQL pruža relacijsku osnovu za rad sa entitetima i vezama definisanim modelom baze podataka.
 
 ---
 
-## Konfiguracioni fajlovi
+## Usklađenost sa arhitekturom
 
-U okviru skeleton strukture pripremljeni su osnovni konfiguracioni i organizacioni fajlovi koji omogućavaju dalji razvoj projekta.
+Tehnički setup direktno prati prethodno definisani Architecture Overview dokument. Sistem je planiran kao slojevita i modularna aplikacija u kojoj su razdvojeni:
+- korisnički interfejs
+- poslovna logika
+- sloj za pristup podacima
+- baza podataka
 
-Svaki od glavnih dijelova sistema ('backend', 'frontend', 'database') sadrži svoj 'README.md' fajl koji opisuje svrhu tog dijela i način njegove organizacije.
-Ovi fajlovi služe kao početna dokumentacija i pomažu članovima  tima da se lakše snalaze unutar projekta.
+Ovaj princip prenesen je i u tehničku organizaciju projekta.
 
-Pored toga, projekat uključuje i osnovne konfiguracione fajlove kao što je '.gitignore', koji definiše koje datoteke se ne trebaju verzionisati, čime se osigurava urednost repozitorija.
+Backend dio sistema preuzima odgovornost za poslovnu logiku, validacije, kontrolu prava pristupa i komunikaciju sa bazom podataka. Frontend dio sistema zadužen je za prikaz podataka, forme, navigaciju i interakciju korisnika sa funkcionalnostima sistema. Database dio sadrži SQL skripte i početnu osnovu za strukturu baze podataka.
 
-Ova konfiguracija predstavlja minimalni setup potreban za dalji razvoj i proširenje sistema.
+Pored slojevitosti, tehnički setup poštuje i modularnu podjelu po poslovnim cjelinama sistema. Zbog toga su i backend i frontend organizovani tako da podrže module za korisnike, timove, rezervacije, lige i rezultate.
 
 ---
 
 ## Backend setup
 
-Backend dio sistema nalazi se u folderu 'skeleton/backend/' i predstavlja osnovu za razvoj poslovne logike sistema.
+Backend dio sistema nalazi se u folderu Projekat/backend/ i organizovan je kao *Spring Boot* aplikacija sa Maven build sistemom.
 
-U ovoj fazi backend ne sadrži implementirane funkcionalnosti, ali je njegova struktura postavljena tako da podrži ključne procese sistema, kao što su: 
-- upravljanje korisnicima i autentifikacija
-- upravljanje timivima i članovima tima
-- upravljanje terminima i rezervacijama
-- upravljanje ligama i rezultatima
+Njegova osnovna svrha je da omogući:
+- implementaciju poslovne logike sistema
+- obradu HTTP zahtjeva kroz REST API
+- validaciju pravila sistema
+- kontrolu autentifikacije i autorizacije
+- pristup podacima i komunikaciju sa bazom podataka
 
-Predviđeno je da backend sloj u narednim sprintovima sadrži API kroz koji će frontend komunicirati sa sistemom, kao i logiku koja osigurava pravilno funkcionisanje svih poslovnih pravila.
+### Osnovni backend fajlovi
 
-Struktura backenda je postavljena tako da omogući modularan razvoj i lakše proširenje sistema.
+Backend skeleton predviđa sljedeće ključne fajlove i lokacije:
 
-Poseban fokus unutar backend setup-a je na sigurnosti, koristeći Spring Security i JWT (JSON Web Tokens) za autentifikaciju i autorizaciju korisnika kroz sve module sistema.
+- Projekat/backend/README.md — opis backend dijela projekta
+- Projekat/backend/pom.xml — Maven konfiguracija projekta
+- Projekat/backend/src/main/java/ba/sportsmanager/SportsManagerApplication.java — ulazna tačka backend aplikacije
+- Projekat/backend/src/main/resources/application.properties — osnovna konfiguracija backend sistema
+
+### Organizacija Java paketa
+
+Unutar src/main/java/ba/sportsmanager/ backend je organizovan kroz više foldera sa jasno definisanom namjenom:
+
+- config/ — konfiguracione klase, npr. CORS, sigurnosna i aplikaciona podešavanja
+- controller/ — REST kontroleri koji primaju zahtjeve i prosljeđuju ih servisnom sloju
+- service/ — poslovna logika sistema
+- repository/ — pristup podacima i komunikacija sa bazom podataka kroz JPA repozitorije
+- model/ — entiteti i domenski modeli
+- dto/ — objekti za razmjenu podataka između slojeva i prema klijentu
+- security/ — autentifikacija, autorizacija i pomoćne sigurnosne komponente
+- exception/ — centralizovano upravljanje greškama i izuzecima
+- modules/ — poslovna modularizacija sistema
+
+### Backend moduli
+
+Folder modules/ dodatno grupiše backend kod po glavnim poslovnim cjelinama sistema:
+- users/
+- teams/
+- reservations/
+- leagues/
+- results/
+
+Ovakva organizacija omogućava da se slojevita arhitektura i domenska modularnost kombinuju u istoj tehničkoj strukturi. Time backend nije organizovan samo po tehničkim slojevima, nego i po funkcionalnim cjelinama koje prate zahtjeve sistema.
+
+### Backend konfiguracija
+
+Osnovni konfiguracioni setup predviđa da se u application.properties definišu:
+- naziv aplikacije
+- port servera
+- parametri konekcije prema PostgreSQL bazi
+- osnovne JPA postavke
+- osnovni JWT parametri za razvojnu fazu
+
+U ovoj fazi cilj nije potpuna sigurnosna konfiguracija, nego postavljanje minimalne tehničke osnove na kojoj se sigurnosni i API sloj mogu dalje razvijati.
 
 ---
 
 ## Frontend setup
 
-Frontend dio sistema nalazi se u folderu 'skeleton/frontend/' i predstavlja osnovu za razvoj korisničkog interfejsa.
+Frontend dio sistema nalazi se u folderu Projekat/frontend/ i organizovan je kao *React + Vite* aplikacija.
 
-U ovoj fazi frontend ne sadrži implementirane stranice, ali je predviđena struktura koja će omogućiti organizovan razvoj interfejsa.
+Njegova osnovna svrha je da omogući korisnicima interakciju sa sistemom kroz forme, prikaze podataka i navigaciju između glavnih funkcionalnosti sistema.
 
-Planirana struktura uključuje:
-- context/ folder za upravljanje globalnim stanjem aplikacije, prvenstveno za autentifikacijski status korisnika (AuthContext)
-- komponente za prikaz podataka
-- stranice sistema (npr. pregled termina, upravljanje timovima)
-- servise za komunikaciju sa backendom
-- rute za navigaciju kroz aplikaciju
+### Osnovni frontend fajlovi
 
-Ovakva organizacija omogućava da se funkcionalnosti definisane u prethodnim sprintovima kasnije jasno mapiraju na odgovarajuće dijelove korisničkog interfejsa.
+Frontend skeleton predviđa sljedeće ključne fajlove:
+- Projekat/frontend/README.md — opis frontend dijela projekta
+- Projekat/frontend/package.json — osnovna konfiguracija i zavisnosti frontend projekta
+- Projekat/frontend/src/main.jsx — ulazna tačka frontend aplikacije
+- Projekat/frontend/src/App.jsx — centralna aplikaciona komponenta
+
+### Organizacija frontend strukture
+
+Unutar src/ frontend je organizovan na pregledan način kroz više odgovornosti:
+
+- assets/ — slike, ikone i drugi statički resursi
+- components/ — višekratno upotrebljive UI komponente
+- pages/ — glavne stranice sistema
+- services/ — komunikacija sa backend API-jem
+- routes/ — definisanje navigacije i ruta
+- context/ — zajedničko stanje aplikacije, npr. prijavljeni korisnik i auth stanje
+- utils/ — pomoćne funkcije
+- modules/ — poslovna modularizacija frontend dijela
+
+### Frontend moduli
+
+Folder modules/ prati iste glavne poslovne cjeline kao i backend:
+- users/
+- teams/
+- reservations/
+- leagues/
+- results/
+
+Time se postiže bolja usklađenost između frontend i backend dijela sistema, što olakšava razvoj, preglednost i timsku saradnju.
+
+### Frontend uloga u sistemu
+
+Frontend je zamišljen tako da ne sadrži složenu poslovnu logiku, nego da služi kao korisnički interfejs koji komunicira sa backend API slojem. Na taj način poštuje se osnovni princip arhitekture da validacije i ključna pravila sistema budu centralizovani u backend sloju.
 
 ---
 
 ## Setup baze podataka
 
-Baza podataka nalazi se u folderu 'skeleton/database/' i predstavlja osnovu za rad sa podacima sistema.
+Database dio sistema nalazi se u folderu Projekat/database/ i predstavlja početnu osnovu za relacijsku bazu podataka sistema.
 
-U ovoj fazi pripremljena je početna organizacija koja uključuje:
-- 'schema/' folder za definisanje strukture baze podataka
-- 'seeds/' folder za incijalne testne podatke
+Njegova uloga je da obezbijedi:
+- početnu strukturu baze podataka
+- relacije između glavnih entiteta sistema
+- osnovu za testne i demonstracione podatke
 
-Baza podataka će u narednim sprintovima sadržavati ključne entitete sistema, uključujući:
-- korisnike
-- timove
-- termine
-- rezervacije
-- lige i rezultate
+### Organizacija database dijela
 
-Strukture baze će biti usklađena sa domain modelom definisanim u prethodnom sprintu, čime se osigurava konzistentnost između poslovne logike i načina čuvanja podataka.
+Folder database/ sadrži:
+- README.md — opis database dijela projekta
+- schema/ — SQL skripte za definisanje strukture baze
+- seeds/ — SQL skripte za unos početnih podataka
+
+Ključni fajlovi u ovoj fazi su:
+- Projekat/database/schema/init.sql
+- Projekat/database/seeds/seed.sql
+
+### Usklađenost sa modelom baze podataka
+
+Tehnički setup baze podataka direktno prati prethodno definisani model baze. Prema trenutnom modelu, sistem se zasniva na sljedećim glavnim tabelama:
+- users
+- teams
+- team_members
+- time_slots
+- reservations
+- leagues
+- league_teams
+- matches
+- results
+- standings
+
+Ove tabele podržavaju glavne poslovne cjeline sistema i njihove međusobne odnose. Zbog toga database setup nije odvojen od ostatka tehničkog rješenja, nego je direktno povezan sa backend modulima i planiranom logikom sistema.
+
+---
+
+## Konfiguracioni i pomoćni fajlovi
+
+Pored glavnih dijelova sistema, tehnički setup uključuje i niz pomoćnih fajlova koji omogućavaju uredniji i pregledniji razvoj.
+
+### Projekat/.gitignore
+
+Ovaj fajl služi za isključivanje lokalnih, build i privremenih fajlova iz verzionisanja. Njegova svrha je da repozitorij ostane čist i da se u Git ne uključuju fajlovi koji nisu dio stvarnog izvornog koda ili dokumentacije.
+
+### README.md fajlovi
+
+U okviru projekta predviđeni su posebni README fajlovi za glavni projekat, backend, frontend i database dio. Njihova svrha je da članovima tima olakšaju snalaženje u strukturi projekta i da ukratko opišu ulogu svakog dijela sistema.
+
+### docs/
+
+Folder Projekat/docs/ služi kao prostor za pomoćnu tehničku dokumentaciju vezanu uz samu aplikaciju. U ovoj fazi može ostati minimalan, ali je važno da postoji kao predviđeno mjesto za internu tehničku dokumentaciju tokom narednih sprintova.
+
+---
+
+## Standardi rada tima
+
+Da bi ovakav tehnički setup bio održiv i koristan u narednim sprintovima, tim treba poštovati nekoliko osnovnih pravila rada.
+
+### Verzije i repozitorij
+
+Git repozitorij predstavlja centralno mjesto za verzionisanje projekta. Sve promjene trebaju biti evidentirane kroz commitove, a struktura projekta mora ostati usklađena sa dogovorenim project structure dokumentom.
+
+### Dosljedno imenovanje
+
+Nazivi foldera, paketa, fajlova i komponenti trebaju biti dosljedni i dovoljno jasni da se iz samog naziva može razumjeti njihova svrha.
+
+### Razdvajanje odgovornosti
+
+Frontend, backend i database dio ne trebaju se miješati, nego razvijati kao odvojene, ali povezane cjeline. Isto važi i unutar samog backend i frontend dijela, gdje moduli i slojevi trebaju ostati pregledno razdvojeni.
+
+### Usklađenost sa artefaktima
+
+Tehnička organizacija treba ostati usklađena sa Architecture Overview, Project Structure i modelom baze podataka. Time se osigurava da tehnički setup ne bude proizvoljan, nego zasnovan na već definisanim zahtjevima i projektnim odlukama.
+
+### Dokumentovanje tehničkih odluka
+
+Važnije tehničke odluke, naročito one koje utiču na strukturu projekta i način razvoja modula, trebaju biti dokumentovane kroz sprint artefakte i prateću tehničku dokumentaciju.
+
+---
+
+## Minimalni rezultat Sprinta 4
+
+U okviru Sprinta 4 tehnički setup ne znači završenu aplikaciju niti potpunu implementaciju poslovnih funkcionalnosti.
+
+Minimalni rezultat ovog sprinta je da projekat ima:
+- pregledno organizovan repozitorij
+- jasno razdvojene sprint artefakte i tehnički skeleton aplikacije
+- osnovni backend, frontend i database setup
+- početne konfiguracione i ulazne fajlove
+- tehničku osnovu usklađenu sa arhitekturom sistema i modelom baze podataka
+
+Drugim riječima, uspjeh ovog sprinta ne mjeri se time da sistem već radi kao gotov proizvod, nego time da je postavljena stabilna osnova za naredne implementacione sprintove.
+
+---
+
+## Zaključak
+
+Tehnički setup definisan u ovom dokumentu predstavlja početni, ali veoma važan temelj za razvoj sistema *Sistem za upravljanje sportskim terminima i ligama*.
+
+U odnosu na raniju verziju tehničke organizacije, sadašnji setup je usklađen sa trenutnim project structure dokumentom i jasno razlikuje sprint dokumentaciju u folderu sprint4/ od stvarnog skeletona aplikacije u folderu Projekat/.
+
+Takva organizacija omogućava da se naredni sprintovi usmjere na implementaciju bez tehničke nepreglednosti, uz jasno razdvojene slojeve sistema, definisane module i dobru osnovu za dalji razvoj MVP verzije aplikacije.
