@@ -109,7 +109,7 @@ Backend sloj je zadužen za implementaciju poslovne logike sistema, uključujuć
 Frontend sloj je odgovoran za prikaz podataka i interakciju sa korisnicima kroz korisnički interfejs.
 Baza podataka predstavlja sloj za trajno čuvanje podataka i omogućava rad sa ključnim entitetima sistema.
 
-U ovoj fazi projekta tehnologije su definisane na konceptualnom nivou, dok će konkretni alati i implementacija biti dodatno razrađeni u narednim sprintovima.
+Konkretan tehnološki stack uključuje Java + Spring Boot (Maven) na backendu, React + Vite na frontend strani, te PostgreSQL kao sistem za upravljanje bazom podataka.
 
 ---
 
@@ -140,6 +140,8 @@ Predviđeno je da backend sloj u narednim sprintovima sadrži API kroz koji će 
 
 Struktura backenda je postavljena tako da omogući modularan razvoj i lakše proširenje sistema.
 
+Poseban fokus unutar backend setup-a je na sigurnosti, koristeći Spring Security i JWT (JSON Web Tokens) za autentifikaciju i autorizaciju korisnika kroz sve module sistema.
+
 ---
 
 ## Frontend setup
@@ -149,6 +151,7 @@ Frontend dio sistema nalazi se u folderu 'skeleton/frontend/' i predstavlja osno
 U ovoj fazi frontend ne sadrži implementirane stranice, ali je predviđena struktura koja će omogućiti organizovan razvoj interfejsa.
 
 Planirana struktura uključuje:
+- context/ folder za upravljanje globalnim stanjem aplikacije, prvenstveno za autentifikacijski status korisnika (AuthContext)
 - komponente za prikaz podataka
 - stranice sistema (npr. pregled termina, upravljanje timovima)
 - servise za komunikaciju sa backendom
