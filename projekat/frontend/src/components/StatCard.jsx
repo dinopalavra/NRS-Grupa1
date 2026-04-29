@@ -1,3 +1,5 @@
+import React from "react";
+
 function StatCard({ label, value, help }) {
   return (
     <div className="card stat-card">

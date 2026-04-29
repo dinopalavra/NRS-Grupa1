@@ -1,3 +1,5 @@
+import React from "react";
+
 function SectionCard({ title, subtitle, children, right }) {
   return (
     <section className="card">

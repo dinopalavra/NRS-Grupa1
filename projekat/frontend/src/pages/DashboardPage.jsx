@@ -1,3 +1,4 @@
+import React from "react";
 import { useAppContext } from "../context/AppContext.jsx";
 import StatCard from "../components/StatCard.jsx";
 import SectionCard from "../components/SectionCard.jsx";

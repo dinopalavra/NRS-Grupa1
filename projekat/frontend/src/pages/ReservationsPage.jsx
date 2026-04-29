@@ -1,3 +1,4 @@
+import React from "react";
 import { useMemo, useState } from "react";
 import { useAppContext } from "../context/AppContext.jsx";
 import SectionCard from "../components/SectionCard.jsx";

@@ -1,3 +1,5 @@
+import React from "react";
+
 function DataTable({ columns, rows, emptyText = "Nema podataka za prikaz." }) {
   if (!rows.length) {
     return <div className="empty-state">{emptyText}</div>;

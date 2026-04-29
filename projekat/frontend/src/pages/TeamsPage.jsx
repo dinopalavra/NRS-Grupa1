@@ -1,3 +1,4 @@
+import React from "react";
 import TeamModule from "../modules/teams/TeamModule.jsx";
 
 function TeamsPage() {
