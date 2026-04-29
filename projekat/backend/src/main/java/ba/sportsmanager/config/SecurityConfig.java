@@ -1,0 +1,48 @@
+package ba.sportsmanager.config;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableM
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+Projekat/backend/src/main/resources/application.properties
+Projekat/backend/src/main/java/ba/sportsmanager/SportsManagerApplication.java
+Projekat/backend/src/main/java/ba/sportsmanager/config/SecurityConfig.java
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.Arrays;
+@Configuration
+@EnableMethodSecurity
+public class SecurityConfig {
+@Value("${app.cors.allowed-origins}")
+private String allowedOrigins;
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
+http
+.csrf(csrf -> csrf.disable())
+.cors(Customizer.withDefaults())
+.sessionManagement(session -> session.sessionCreationPolicy(SessionC
+.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+return http.build();
+}
+@Bean
+public CorsConfigurationSource corsConfigurationSource() {
+CorsConfiguration configuration = new CorsConfiguration();
+configuration.setAllowedOrigins(Arrays.stream(allowedOrigins.split(",")).ma
+configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH"
+configuration.setAllowedHeaders(Arrays.asList("*"));
+configuration.setAllowCredentials(true);
+UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSourc
+source.registerCorsConfiguration("/**", configuration);
+return source;
+}
+@Bean
+public PasswordEncoder passwordEncoder() {
+return new BCryptPasswordEncoder();
+}
+}
