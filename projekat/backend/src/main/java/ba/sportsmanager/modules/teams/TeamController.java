@@ -1,19 +1,27 @@
 package ba.sportsmanager.modules.teams;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
+@RequestMapping("/api/teams")
 public class TeamController {
 
-    @GetMapping("/api/teams")
-    public List<Map<String, Object>> getTeams() {
-        return List.of(
-                Map.of("id", 1, "name", "FK Developeri", "status", "ACTIVE"),
-                Map.of("id", 2, "name", "FC Backend", "status", "ACTIVE")
-        );
+    private final TeamService teamService;
+
+    public TeamController(TeamService teamService) {
+        this.teamService = teamService;
+    }
+
+    @GetMapping
+    public List<TeamResponse> getTeams() {
+        return teamService.getAllTeams();
+    }
+
+    @PostMapping
+    public TeamResponse createTeam(@Valid @RequestBody CreateTeamRequest request) {
+        return teamService.createTeam(request);
     }
 }
