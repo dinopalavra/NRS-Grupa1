@@ -1,19 +1,27 @@
 package ba.sportsmanager.modules.leagues;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
+@RequestMapping("/api/leagues")
 public class LeagueController {
 
-    @GetMapping("/api/leagues")
-    public List<Map<String, Object>> getLeagues() {
-        return List.of(
-                Map.of("id", 1, "name", "Sarajevo Rekreativna Liga", "season", "2026"),
-                Map.of("id", 2, "name", "Studentska Liga", "season", "2026")
-        );
+    private final LeagueService leagueService;
+
+    public LeagueController(LeagueService leagueService) {
+        this.leagueService = leagueService;
+    }
+
+    @GetMapping
+    public List<LeagueResponse> getLeagues() {
+        return leagueService.getAll();
+    }
+
+    @PostMapping
+    public LeagueResponse createLeague(@Valid @RequestBody CreateLeagueRequest request) {
+        return leagueService.create(request);
     }
 }
