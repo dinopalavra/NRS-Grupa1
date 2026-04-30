@@ -1,10 +1,8 @@
-function UsersPage() {
-  return (
-    <div>
-      <h2>Korisnici</h2>
-      <p>Ova stranica je početna osnova za pregled korisnika, registraciju i prijavu.</p>
-    </div>
-  );
+import React from "react";
+import UsersPage from "./UsersPage.jsx";
+
+function UserPage() {
+  return <UsersPage />;
 }
 
-export default UsersPage;
+export default UserPage;

@@ -15,7 +15,8 @@ public class TeamService {
     }
 
     public List<TeamResponse> getAllTeams() {
-        return teamRepository.findAll().stream()
+        return teamRepository.findAll()
+                .stream()
                 .map(this::toResponse)
                 .toList();
     }
