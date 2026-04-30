@@ -2,30 +2,112 @@
 
 ## Sprint cilj
 
-Uspostaviti prvi funkcionalni inkrement sistema kroz operativan backend, povezivanje sa PostgreSQL bazom, funkcionalne API endpoint-e za rad sa korisnicima i timovima, te osposobljen frontend za komunikaciju sa backendom.
+Uspostaviti prvi funkcionalni inkrement sistema kroz operativan backend, povezivanje sa PostgreSQL bazom, osnovne funkcionalnosti za rad sa korisnicima i timovima, te početno povezivanje frontenda i backenda.
 
-## Sprint backlog
+## Sprint backlog kroz User Storyje
 
-| ID | Naziv stavke | Tip | Odgovorna osoba | Status | Napomena |
-|---|---|---|---|---|---|
-| SB5-1 | Konfigurisati PostgreSQL i bazu `sports_manager` | Technical Task | Amel Divović | Završeno | Baza uspješno postavljena i dostupna za backend konekciju |
-| SB5-2 | Podesiti `application.properties` za konekciju na bazu | Technical Task | Dino Palavra | Završeno | Backend uspješno koristi podešene konekcione parametre |
-| SB5-3 | Kreirati osnovnu tabelu `users` | Technical Task | Miralem Pupalović | Završeno | Struktura tabele validirana kroz bazu podataka |
-| SB5-4 | Dodati testne korisnike u bazu | Technical Task | Tarik Avdović | Završeno | Testni podaci uspješno uneseni i dostupni za provjeru |
-| SB5-5 | Implementirati `GET /api/users` endpoint | Feature | Harun Hodžić | Završeno | Endpoint vraća listu korisnika iz baze |
-| SB5-6 | Pokrenuti frontend skeleton lokalno | Technical Task | Harun Muhić | Završeno | Frontend se uspješno pokreće i prikazuje osnovni interfejs |
-| SB5-7 | Povezati frontend sa backendom preko service sloja | Feature | Bakir Hadžialić | Završeno | Frontend ostvaruje komunikaciju sa backend servisima |
-| SB5-8 | Riješiti CORS za frontend-backend komunikaciju | Technical Task | Ernad Prasko | Završeno | Omogućena nesmetana komunikacija između frontenda i backenda |
-| SB5-9 | Validirati endpoint kroz browser, Postman ili Query Tool | Testing | Amel Divović | Završeno | Endpoint-i uspješno testirani i potvrđeni |
-| SB5-10 | Kreirati početni Decision Log | Documentation | Miralem Pupalović | Završeno | Evidencija tehničkih odluka uspostavljena |
-| SB5-11 | Kreirati početni AI Usage Log | Documentation | Harun Hodžić | Završeno | Evidencija korištenja AI alata dokumentovana |
+### US5-1: Registracija i pregled korisnika
+
+**User Story**  
+Kao administrator, želim evidentirati i pregledati korisnike u sistemu kako bi se moglo upravljati osnovnim korisničkim podacima.
+
+**Planirane stavke**
+- Kreirati i podesiti tabelu `users` u bazi podataka.
+- Dodati testne korisnike radi validacije funkcionalnosti.
+- Implementirati `GET /api/users` endpoint za dohvat korisnika.
+- Implementirati kreiranje korisnika kroz backend logiku.
+- Omogućiti prikaz korisnika na frontendu.
+- Validirati rad korisničkog modula kroz browser, Postman ili Query Tool.
+
+**Status:** Završeno
+
+---
+
+### US5-2: Prijava korisnika u sistem
+
+**User Story**  
+Kao korisnik sistema, želim se prijaviti u aplikaciju kako bih mogao pristupiti funkcionalnostima sistema.
+
+**Planirane stavke**
+- Implementirati osnovni login endpoint.
+- Definisati request i response modele za prijavu.
+- Uvesti osnovnu JWT logiku za generisanje tokena.
+- Pripremiti frontend formu za prijavu korisnika.
+- Testirati osnovni tok prijave kroz frontend i backend komunikaciju.
+
+**Status:** Završeno
+
+---
+
+### US5-3: Kreiranje i pregled timova
+
+**User Story**  
+Kao administrator ili kapiten, želim evidentirati i pregledati timove kako bi sistem mogao upravljati ekipama i njihovim osnovnim podacima.
+
+**Planirane stavke**
+- Kreirati model i tabelu za timove.
+- Implementirati `GET /api/teams` endpoint.
+- Implementirati `POST /api/teams` endpoint.
+- Omogućiti prikaz i dodavanje timova kroz frontend modul.
+- Validirati rad modula kroz ručno testiranje.
+
+**Status:** Završeno
+
+---
+
+### US5-4: Povezivanje frontenda i backenda
+
+**User Story**  
+Kao korisnik sistema, želim da frontend komunicira sa backend servisima kako bi podaci bili dohvaćeni i prikazani iz stvarnog sistema, a ne samo iz lokalnog prikaza.
+
+**Planirane stavke**
+- Pokrenuti frontend skeleton lokalno i potvrditi osnovnu strukturu.
+- Uvesti service sloj za komunikaciju sa backendom.
+- Konfigurisati backend API adresu kroz env varijablu.
+- Omogućiti osnovne fetch pozive prema backend endpoint-ima.
+- Testirati komunikaciju između frontenda i backenda.
+
+**Status:** Završeno
+
+---
+
+### US5-5: Omogućavanje komunikacije između deployanih servisa
+
+**User Story**  
+Kao član tima, želim da frontend i backend budu dostupni online i međusobno povezani kako bi sistem bio spreman za demonstraciju.
+
+**Planirane stavke**
+- Deployati frontend na Vercel.
+- Deployati backend na Render.
+- Podesiti konekciju backend servisa sa PostgreSQL bazom.
+- Riješiti CORS za komunikaciju između Vercel i Render servisa.
+- Validirati dostupnost backend servisa kroz ping endpoint.
+- Testirati osnovni rad sistema kroz javno dostupni link.
+
+**Status:** Završeno
+
+---
+
+### US5-6: Dokumentovanje i validacija sprint inkrementa
+
+**User Story**  
+Kao član projektnog tima, želim dokumentovati tehničke odluke, AI podršku i rezultate testiranja kako bi sprint inkrement bio transparentan i spreman za evaluaciju.
+
+**Planirane stavke**
+- Kreirati početni Decision Log.
+- Kreirati početni AI Usage Log.
+- Evidentirati osnovne rezultate testiranja.
+- Ažurirati relevantne sprint artefakte i tehničku dokumentaciju.
+
+**Status:** Završeno
 
 ## Kratak pregled realizacije
 
-- Završene stavke: 11
-- Djelimično završene stavke: 0
-- Nezavršene stavke: 0
+- Ukupan broj user storyja u sprintu: 6
+- Završene user story stavke: 6
+- Djelimično završene user story stavke: 0
+- Nezavršene user story stavke: 0
 
 ## Komentar
 
-Sprint backlog u Sprintu 5 bio je usmjeren na tehničko osposobljavanje prvog funkcionalnog inkrementa sistema. U okviru sprinta uspješno su realizovani backend setup, konekcija sa bazom podataka, osnovni API endpoint-i, početno povezivanje frontenda i backenda, kao i rješavanje CORS komunikacije. Na kraju sprinta uspostavljena je stabilna osnova za dalji razvoj funkcionalnosti u narednim sprintovima.
+Sprint 5 bio je usmjeren na izradu prvog funkcionalnog inkrementa sistema. U okviru sprinta uspješno su realizovani osnovni backend i frontend moduli, konekcija sa bazom podataka, rad sa korisnicima i timovima, početna autentifikacija, kao i povezivanje deployanih servisa radi javne demonstracije sistema. Na kraju sprinta tim je uspostavio stabilnu osnovu za naredni razvoj složenijih funkcionalnosti.
