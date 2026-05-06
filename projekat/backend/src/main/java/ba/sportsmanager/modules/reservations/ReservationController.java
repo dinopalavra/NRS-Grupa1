@@ -25,6 +25,16 @@ public class ReservationController {
         return reservationService.getByUser(userId);
     }
 
+    @GetMapping("/team/{teamId}")
+    public List<ReservationResponse> getByTeam(@PathVariable Long teamId) {
+        return reservationService.getByTeam(teamId);
+    }
+
+    @GetMapping("/status/{status}")
+    public List<ReservationResponse> getByStatus(@PathVariable ReservationStatus status) {
+        return reservationService.getByStatus(status);
+    }
+
     @PostMapping
     public ReservationResponse create(@Valid @RequestBody CreateReservationRequest request) {
         return reservationService.create(request);
