@@ -1,70 +1,88 @@
 import React from "react";
 import { useAppContext } from "../context/AppContext.jsx";
-import StatCard from "../components/StatCard.jsx";
-import SectionCard from "../components/SectionCard.jsx";
-import DataTable from "../components/DataTable.jsx";
-import { formatDate, statusLabel } from "../utils/format.js";
 
 function DashboardPage() {
-  const { users, teams, reservations, results, selectedRole } = useAppContext();
-
-  const approvedReservations = reservations.filter((item) => item.status === "approved").length;
-  const pendingReservations = reservations.filter((item) => item.status === "pending").length;
-  const completedMatches = results.filter((item) => item.status === "completed").length;
+  const {
+    currentUser,
+    selectedRole,
+    users,
+    teams,
+    backendStatus,
+    navigate,
+    logout
+  } = useAppContext();
 
   return (
-    <>
-      <div className="page-header">
+    <div className="app-page">
+      <div className="top-bar">
         <div>
-          <h2 className="page-title">Dashboard</h2>
-          <p className="page-subtitle">
-            Početni pregled sistema za upravljanje sportskim terminima i ligama.
+          <h1>Dashboard</h1>
+          <p className="muted">
+            Prijavljeni korisnik: {currentUser?.fullName} ({currentUser?.username})
           </p>
         </div>
-        <div className="badge">Aktivna uloga: {selectedRole}</div>
+
+        <div className="top-bar-actions">
+          <span className="badge">{selectedRole}</span>
+          <span className={`badge ${backendStatus.ok ? "badge-success" : "badge-danger"}`}>
+            {backendStatus.ok ? "Backend online" : "Backend offline"}
+          </span>
+          <button className="secondary-button" onClick={() => navigate("users")}>
+            Korisnici
+          </button>
+          <button className="secondary-button" onClick={() => navigate("teams")}>
+            Timovi
+          </button>
+          <button className="danger-button" onClick={logout}>
+            Odjava
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-4">
-        <StatCard label="Ukupno korisnika" value={users.length} help="Registrovani korisnici u sistemu" />
-        <StatCard label="Ukupno timova" value={teams.length} help="Aktivni sportski timovi" />
-        <StatCard label="Odobrene rezervacije" value={approvedReservations} help="Potvrđeni sportski termini" />
-        <StatCard label="Završene utakmice" value={completedMatches} help="Rezultati evidentirani u sistemu" />
+      <div className="stat-grid">
+        <div className="stat-card">
+          <span className="muted">Broj korisnika</span>
+          <strong>{users.length}</strong>
+        </div>
+        <div className="stat-card">
+          <span className="muted">Broj timova</span>
+          <strong>{teams.length}</strong>
+        </div>
+        <div className="stat-card">
+          <span className="muted">Aktivna uloga</span>
+          <strong>{selectedRole}</strong>
+        </div>
       </div>
 
-      <div className="grid grid-2" style={{ marginTop: 18 }}>
-        <SectionCard
-          title="Rezervacije na čekanju"
-          subtitle="Zahtjevi koji traže obradu ili potvrdu"
-          right={<div className="badge">{pendingReservations} otvorenih</div>}
-        >
-          <DataTable
-            columns={[
-              { key: "facility", header: "Objekat" },
-              { key: "team", header: "Tim" },
-              { key: "date", header: "Datum", render: (row) => formatDate(row.date) },
-              { key: "status", header: "Status", render: (row) => <span className={`status ${row.status}`}>{statusLabel(row.status)}</span> }
-            ]}
-            rows={reservations.filter((item) => item.status === "pending")}
-            emptyText="Trenutno nema rezervacija na čekanju."
-          />
-        </SectionCard>
+      <div className="card-grid">
+        <div className="card">
+          <h3>Sprint 5 status</h3>
+          <p className="muted">
+            Prijava, registracija, korisnici i timovi rade kao prvi funkcionalni inkrement.
+          </p>
+        </div>
 
-        <SectionCard title="Brzi pregled timova" subtitle="Sažetak aktivnih timova i kapitena">
-          <div className="list">
-            {teams.map((team) => (
-              <div key={team.id} className="list-item">
-                <div className="kv">
-                  <strong>{team.name}</strong>
-                  <span>Grad: {team.city}</span>
-                  <span>Kapiten: {team.captain}</span>
-                  <span>Broj članova: {team.members}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </SectionCard>
+        <div className="card">
+          <h3>Korisnici</h3>
+          <p className="muted">
+            Admin može pregledati korisnike iz baze i dodavati nove korisnike.
+          </p>
+          <button className="button" onClick={() => navigate("users")}>
+            Otvori korisnike
+          </button>
+        </div>
+
+        <div className="card">
+          <h3>Timovi</h3>
+          <p className="muted">
+            Timovi se sada učitavaju i kreiraju preko backend endpointa.
+          </p>
+          <button className="button" onClick={() => navigate("teams")}>
+            Otvori timove
+          </button>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 

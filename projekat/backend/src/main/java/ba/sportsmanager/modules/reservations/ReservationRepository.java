@@ -8,4 +8,6 @@ import java.util.List;
 public interface ReservationRepository extends JpaRepository<ReservationEntity, Long> {
     boolean existsBySlot_IdAndStatusIn(Long slotId, Collection<ReservationStatus> statuses);
     List<ReservationEntity> findByCreatedBy_Id(Long userId);
+    List<ReservationEntity> findByTeam_Id(Long teamId);
+    List<ReservationEntity> findByStatus(ReservationStatus status);
 }

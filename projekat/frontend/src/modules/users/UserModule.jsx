@@ -1,17 +1,24 @@
-import React from "react";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppContext } from "../../context/AppContext.jsx";
-import SectionCard from "../../components/SectionCard.jsx";
-import DataTable from "../../components/DataTable.jsx";
 
 function UserModule() {
-  const { users, addUser } = useAppContext();
+  const { users, registerUser, loadUsers, loadingUsers } = useAppContext();
+
   const [form, setForm] = useState({
     fullName: "",
     email: "",
-    role: "USER"
+    username: "",
+    password: "",
+    role: "PLAYER"
   });
+
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
 
   const onChange = (event) => {
     setForm((prev) => ({
@@ -20,67 +27,147 @@ function UserModule() {
     }));
   };
 
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
+    setMessage("");
+    setError("");
 
-    if (!form.fullName.trim() || !form.email.trim()) {
-      setMessage("Unesite ime i email prije spremanja korisnika.");
+    if (!form.fullName.trim() || !form.email.trim() || !form.username.trim() || !form.password.trim()) {
+      setError("Unesite puno ime, email, username i lozinku.");
       return;
     }
 
-    addUser(form);
-    setForm({ fullName: "", email: "", role: "USER" });
-    setMessage("Korisnik je uspješno dodan u lokalni frontend prikaz.");
+    setSubmitting(true);
+
+    try {
+      await registerUser(form);
+      setMessage("Korisnik je uspješno kreiran u backend bazi.");
+      setForm({
+        fullName: "",
+        email: "",
+        username: "",
+        password: "",
+        role: "PLAYER"
+      });
+    } catch (err) {
+      setError(err.message || "Kreiranje korisnika nije uspjelo.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <div className="grid grid-2">
-      <SectionCard title="Lista korisnika" subtitle="Pregled svih evidentiranih korisnika">
-        <DataTable
-          columns={[
-            { key: "fullName", header: "Ime i prezime" },
-            { key: "email", header: "Email" },
-            { key: "role", header: "Uloga" },
-            { key: "status", header: "Status" }
-          ]}
-          rows={users}
-          emptyText="Nema korisnika za prikaz."
-        />
-      </SectionCard>
+    <div className="module-layout">
+      <div className="card">
+        <h3>Novi korisnik</h3>
 
-      <SectionCard title="Dodavanje korisnika" subtitle="Minimalna forma za demo prikaz">
-        <form onSubmit={onSubmit} className="form-grid">
-          <input
-            className="form-input"
-            name="fullName"
-            placeholder="Ime i prezime"
-            value={form.fullName}
-            onChange={onChange}
-          />
-          <input
-            className="form-input"
-            name="email"
-            placeholder="Email adresa"
-            value={form.email}
-            onChange={onChange}
-          />
-          <select
-            className="form-select"
-            name="role"
-            value={form.role}
-            onChange={onChange}
-          >
-            <option value="USER">USER</option>
-            <option value="MANAGER">MANAGER</option>
-            <option value="ADMIN">ADMIN</option>
-          </select>
-          <button className="btn btn-primary" type="submit">
-            Sačuvaj korisnika
+        {error && <p className="error-text">{error}</p>}
+        {message && <p className="success-text">{message}</p>}
+
+        <form className="form" onSubmit={onSubmit}>
+          <div className="form-grid">
+            <div className="input-group">
+              <label>Ime i prezime</label>
+              <input
+                className="input"
+                name="fullName"
+                value={form.fullName}
+                onChange={onChange}
+              />
+            </div>
+
+            <div className="input-group">
+              <label>Email</label>
+              <input
+                className="input"
+                name="email"
+                value={form.email}
+                onChange={onChange}
+              />
+            </div>
+
+            <div className="input-group">
+              <label>Korisničko ime</label>
+              <input
+                className="input"
+                name="username"
+                value={form.username}
+                onChange={onChange}
+              />
+            </div>
+
+            <div className="input-group">
+              <label>Lozinka</label>
+              <input
+                className="input"
+                type="password"
+                name="password"
+                value={form.password}
+                onChange={onChange}
+              />
+            </div>
+
+            <div className="input-group">
+              <label>Uloga</label>
+              <select className="input" name="role" value={form.role} onChange={onChange}>
+                <option value="PLAYER">PLAYER</option>
+                <option value="CAPTAIN">CAPTAIN</option>
+                <option value="ADMIN">ADMIN</option>
+                <option value="REFEREE_SCOREKEEPER">REFEREE_SCOREKEEPER</option>
+              </select>
+            </div>
+          </div>
+
+          <button className="button" type="submit" disabled={submitting}>
+            {submitting ? "Spremanje..." : "Dodaj korisnika"}
           </button>
         </form>
+      </div>
 
-        {message ? <div className="notice">{message}</div> : null}
-      </SectionCard>
+      <div className="card">
+        <div className="page-header">
+          <div>
+            <h3>Lista korisnika</h3>
+            <p className="muted">Podaci se učitavaju sa backend endpointa `/api/users`.</p>
+          </div>
+          <button className="secondary-button" onClick={loadUsers}>
+            Osvježi
+          </button>
+        </div>
+
+        {loadingUsers ? (
+          <div className="empty-state">Učitavanje korisnika...</div>
+        ) : users.length === 0 ? (
+          <div className="empty-state">Nema korisnika za prikaz.</div>
+        ) : (
+          <div className="table-wrapper">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Ime i prezime</th>
+                  <th>Email</th>
+                  <th>Username</th>
+                  <th>Uloga</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id}>
+                    <td>{user.id}</td>
+                    <td>{user.fullName}</td>
+                    <td>{user.email}</td>
+                    <td>{user.username}</td>
+                    <td>{user.role}</td>
+                    <td>{user.active ? "ACTIVE" : "INACTIVE"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 package ba.sportsmanager.modules.reservations;
 
+import ba.sportsmanager.exception.BadRequestException;
 import ba.sportsmanager.exception.ConflictException;
 import ba.sportsmanager.exception.ResourceNotFoundException;
 import ba.sportsmanager.modules.teams.TeamEntity;
@@ -10,6 +11,7 @@ import ba.sportsmanager.modules.timeslots.TimeSlotService;
 import ba.sportsmanager.modules.users.UserEntity;
 import ba.sportsmanager.modules.users.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -43,6 +45,19 @@ public class ReservationService {
                 .toList();
     }
 
+    public List<ReservationResponse> getByTeam(Long teamId) {
+        return reservationRepository.findByTeam_Id(teamId).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<ReservationResponse> getByStatus(ReservationStatus status) {
+        return reservationRepository.findByStatus(status).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Transactional
     public ReservationResponse create(CreateReservationRequest request) {
         TeamEntity team = teamService.getTeamEntity(request.teamId());
         TimeSlotEntity slot = timeSlotService.getEntity(request.slotId());
@@ -68,8 +83,14 @@ public class ReservationService {
         return toResponse(reservationRepository.save(reservation));
     }
 
+    @Transactional
     public ReservationResponse approve(Long reservationId) {
         ReservationEntity reservation = getEntity(reservationId);
+
+        if (reservation.getStatus() != ReservationStatus.PENDING) {
+            throw new BadRequestException("Only PENDING reservations can be approved.");
+        }
+
         reservation.setStatus(ReservationStatus.APPROVED);
 
         TimeSlotEntity slot = reservation.getSlot();
@@ -79,8 +100,14 @@ public class ReservationService {
         return toResponse(reservationRepository.save(reservation));
     }
 
+    @Transactional
     public ReservationResponse reject(Long reservationId) {
         ReservationEntity reservation = getEntity(reservationId);
+
+        if (reservation.getStatus() != ReservationStatus.PENDING) {
+            throw new BadRequestException("Only PENDING reservations can be rejected.");
+        }
+
         reservation.setStatus(ReservationStatus.REJECTED);
 
         TimeSlotEntity slot = reservation.getSlot();
@@ -90,8 +117,15 @@ public class ReservationService {
         return toResponse(reservationRepository.save(reservation));
     }
 
+    @Transactional
     public ReservationResponse cancel(Long reservationId) {
         ReservationEntity reservation = getEntity(reservationId);
+
+        if (reservation.getStatus() == ReservationStatus.CANCELLED
+                || reservation.getStatus() == ReservationStatus.REJECTED) {
+            throw new BadRequestException("Reservation is already cancelled or rejected.");
+        }
+
         reservation.setStatus(ReservationStatus.CANCELLED);
 
         TimeSlotEntity slot = reservation.getSlot();

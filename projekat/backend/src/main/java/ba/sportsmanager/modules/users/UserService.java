@@ -15,16 +15,19 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    public UserService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder,
-                       JwtService jwtService) {
+    public UserService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            JwtService jwtService
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
 
     public List<UserResponse> getAllUsers() {
-        return userRepository.findAll().stream()
+        return userRepository.findAll()
+                .stream()
                 .map(this::toResponse)
                 .toList();
     }
@@ -33,6 +36,7 @@ public class UserService {
         if (userRepository.existsByEmail(request.email())) {
             throw new BadRequestException("Email already exists.");
         }
+
         if (userRepository.existsByUsername(request.username())) {
             throw new BadRequestException("Username already exists.");
         }
@@ -42,7 +46,7 @@ public class UserService {
         user.setEmail(request.email());
         user.setUsername(request.username());
         user.setPasswordHash(passwordEncoder.encode(request.password()));
-        user.setRole(request.role());
+        user.setRole(request.role() == null ? UserRole.PLAYER : request.role());
         user.setActive(true);
 
         return toResponse(userRepository.save(user));
@@ -64,7 +68,11 @@ public class UserService {
             throw new ResourceNotFoundException("Invalid username or password.");
         }
 
-        String token = jwtService.generateToken(user.getId(), user.getUsername(), user.getRole().name());
+        String token = jwtService.generateToken(
+                user.getId(),
+                user.getUsername(),
+                user.getRole().name()
+        );
 
         return new AuthResponse(
                 token,
