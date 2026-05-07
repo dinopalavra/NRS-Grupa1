@@ -9,10 +9,7 @@ function LoginPage() {
   const [success, setSuccess] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const [loginForm, setLoginForm] = useState({
-    username: "",
-    password: ""
-  });
+  const [loginForm, setLoginForm] = useState({ username: "", password: "" });
 
   const [registerForm, setRegisterForm] = useState({
     fullName: "",
@@ -22,29 +19,17 @@ function LoginPage() {
     role: "PLAYER"
   });
 
-  const handleLoginChange = (event) => {
-    setLoginForm((prev) => ({
-      ...prev,
-      [event.target.name]: event.target.value
-    }));
-  };
+  const handleLoginChange = (e) =>
+    setLoginForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
-  const handleRegisterChange = (event) => {
-    setRegisterForm((prev) => ({
-      ...prev,
-      [event.target.name]: event.target.value
-    }));
-  };
+  const handleRegisterChange = (e) =>
+    setRegisterForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
-  const submitLogin = async (event) => {
-    event.preventDefault();
-    setError("");
-    setSuccess("");
-    setSubmitting(true);
-
+  const submitLogin = async (e) => {
+    e.preventDefault();
+    setError(""); setSuccess(""); setSubmitting(true);
     try {
       await login(loginForm);
-      setSuccess("Prijava uspješna.");
     } catch (err) {
       setError(err.message || "Prijava nije uspjela.");
     } finally {
@@ -52,26 +37,14 @@ function LoginPage() {
     }
   };
 
-  const submitRegister = async (event) => {
-    event.preventDefault();
-    setError("");
-    setSuccess("");
-    setSubmitting(true);
-
+  const submitRegister = async (e) => {
+    e.preventDefault();
+    setError(""); setSuccess(""); setSubmitting(true);
     try {
       await registerUser(registerForm);
-      setSuccess("Korisnik je uspješno registrovan. Sada se možeš prijaviti.");
-      setLoginForm({
-        username: registerForm.username,
-        password: registerForm.password
-      });
-      setRegisterForm({
-        fullName: "",
-        email: "",
-        username: "",
-        password: "",
-        role: "PLAYER"
-      });
+      setSuccess("Korisnik je uspješno registrovan. Možeš se prijaviti.");
+      setLoginForm({ username: registerForm.username, password: registerForm.password });
+      setRegisterForm({ fullName: "", email: "", username: "", password: "", role: "PLAYER" });
       setMode("login");
     } catch (err) {
       setError(err.message || "Registracija nije uspjela.");
@@ -80,39 +53,43 @@ function LoginPage() {
     }
   };
 
+  const statusClass = backendStatus.loading ? "loading" : backendStatus.ok ? "online" : "offline";
+  const statusLabel = backendStatus.loading ? "Provjera..." : backendStatus.ok ? "Backend online" : "Backend offline";
+
   return (
     <div className="auth-shell">
       <div className="auth-card">
-        <div className="page-header">
-          <div>
-            <h1>Sports Manager</h1>
-            <p className="muted">
-              Sprint 5 inkrement: registracija, prijava, korisnici i timovi.
-            </p>
+
+        <div className="auth-header">
+          <div className="auth-ball">⚽</div>
+          <h1 className="auth-title">Pitch Manager</h1>
+          <p className="auth-desc">Rezervacija i upravljanje fudbalskim terminima</p>
+          <div className="auth-status-row">
+            <span className={`status-pill ${statusClass}`}>
+              <span className="status-pill-dot" />
+              {statusLabel}
+            </span>
           </div>
-          <span className={`badge ${backendStatus.ok ? "badge-success" : "badge-danger"}`}>
-            {backendStatus.loading ? "Provjera..." : backendStatus.ok ? "Backend online" : "Backend offline"}
-          </span>
         </div>
 
         <div className="tab-row">
           <button
-            className={`tab-button ${mode === "login" ? "tab-button-active" : ""}`}
-            onClick={() => setMode("login")}
             type="button"
+            className={`tab-button ${mode === "login" ? "tab-button-active" : ""}`}
+            onClick={() => { setMode("login"); setError(""); setSuccess(""); }}
           >
             Prijava
           </button>
           <button
-            className={`tab-button ${mode === "register" ? "tab-button-active" : ""}`}
-            onClick={() => setMode("register")}
             type="button"
+            className={`tab-button ${mode === "register" ? "tab-button-active" : ""}`}
+            onClick={() => { setMode("register"); setError(""); setSuccess(""); }}
           >
             Registracija
           </button>
         </div>
 
-        {error && <p className="error-text">{error}</p>}
+        {error   && <p className="error-text">{error}</p>}
         {success && <p className="success-text">{success}</p>}
 
         {mode === "login" ? (
@@ -124,7 +101,8 @@ function LoginPage() {
                 name="username"
                 value={loginForm.username}
                 onChange={handleLoginChange}
-                placeholder="npr. admin"
+                placeholder="Npr. admin"
+                autoComplete="username"
               />
             </div>
 
@@ -137,11 +115,12 @@ function LoginPage() {
                 value={loginForm.password}
                 onChange={handleLoginChange}
                 placeholder="Unesi lozinku"
+                autoComplete="current-password"
               />
             </div>
 
-            <button className="button" type="submit" disabled={submitting}>
-              {submitting ? "Prijava..." : "Prijavi se"}
+            <button className="button" type="submit" disabled={submitting} style={{ marginTop: 4 }}>
+              {submitting ? "Prijava u toku..." : "Prijavi se"}
             </button>
           </form>
         ) : (
@@ -154,7 +133,7 @@ function LoginPage() {
                   name="fullName"
                   value={registerForm.fullName}
                   onChange={handleRegisterChange}
-                  placeholder="Unesi puno ime"
+                  placeholder="Puno ime"
                 />
               </div>
 
@@ -162,6 +141,7 @@ function LoginPage() {
                 <label>Email</label>
                 <input
                   className="input"
+                  type="email"
                   name="email"
                   value={registerForm.email}
                   onChange={handleRegisterChange}
@@ -192,7 +172,7 @@ function LoginPage() {
                 />
               </div>
 
-              <div className="input-group">
+              <div className="input-group" style={{ gridColumn: "1 / -1" }}>
                 <label>Uloga</label>
                 <select
                   className="input"
@@ -200,19 +180,20 @@ function LoginPage() {
                   value={registerForm.role}
                   onChange={handleRegisterChange}
                 >
-                  <option value="PLAYER">PLAYER</option>
-                  <option value="CAPTAIN">CAPTAIN</option>
-                  <option value="ADMIN">ADMIN</option>
-                  <option value="REFEREE_SCOREKEEPER">REFEREE_SCOREKEEPER</option>
+                  <option value="PLAYER">Igrač (PLAYER)</option>
+                  <option value="CAPTAIN">Kapiten (CAPTAIN)</option>
+                  <option value="ADMIN">Administrator (ADMIN)</option>
+                  <option value="REFEREE_SCOREKEEPER">Sudija / Zapisničar</option>
                 </select>
               </div>
             </div>
 
-            <button className="button" type="submit" disabled={submitting}>
-              {submitting ? "Spremanje..." : "Registruj korisnika"}
+            <button className="button" type="submit" disabled={submitting} style={{ marginTop: 4 }}>
+              {submitting ? "Registracija..." : "Registruj se"}
             </button>
           </form>
         )}
+
       </div>
     </div>
   );

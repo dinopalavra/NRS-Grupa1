@@ -110,7 +110,7 @@ function TimeSlotsPage() {
   ];
 
   return (
-    <>
+    <div className="app-page">
       <div className="page-header">
         <div>
           <h2 className="page-title">Time slotovi</h2>
@@ -216,7 +216,7 @@ function TimeSlotsPage() {
           )}
         </SectionCard>
       </div>
-    </>
+    </div>
   );
 }
 

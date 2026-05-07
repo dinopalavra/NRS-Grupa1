@@ -150,7 +150,7 @@ function ReservationsPage() {
   ];
 
   return (
-    <>
+    <div className="app-page">
       <div className="page-header">
         <div>
           <h2 className="page-title">Rezervacije</h2>
@@ -266,7 +266,7 @@ function ReservationsPage() {
           )}
         </SectionCard>
       </div>
-    </>
+    </div>
   );
 }
 

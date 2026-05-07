@@ -1,11 +1,12 @@
 import React from "react";
 
-function StatCard({ label, value, help }) {
+function StatCard({ label, value, icon, help }) {
   return (
-    <div className="card stat-card">
+    <div className="stat-card">
+      {icon ? <span className="stat-icon">{icon}</span> : null}
+      <strong>{value}</strong>
       <span className="stat-label">{label}</span>
-      <strong className="stat-value">{value}</strong>
-      <span className="stat-help">{help}</span>
+      {help ? <span className="muted" style={{ fontSize: "0.78rem" }}>{help}</span> : null}
     </div>
   );
 }
