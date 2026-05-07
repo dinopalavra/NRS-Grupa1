@@ -122,58 +122,60 @@ function TimeSlotsPage() {
       </div>
 
       <div className="grid grid-2">
-        <SectionCard
-          title="Novi termin"
-          subtitle="Dodaj novi slobodan termin koji će odmah biti dostupan za rezervacije."
-        >
-          <form onSubmit={onSubmit} className="form-grid">
-            <input
-              className="form-input"
-              type="date"
-              name="slotDate"
-              value={form.slotDate}
-              onChange={onChange}
-            />
+        {selectedRole === "ADMIN" && (
+          <SectionCard
+            title="Novi termin"
+            subtitle="Dodaj novi slobodan termin koji će odmah biti dostupan za rezervacije."
+          >
+            <form onSubmit={onSubmit} className="form-grid">
+              <input
+                className="form-input"
+                type="date"
+                name="slotDate"
+                value={form.slotDate}
+                onChange={onChange}
+              />
 
-            <input
-              className="form-input"
-              type="time"
-              name="startTime"
-              value={form.startTime}
-              onChange={onChange}
-            />
+              <input
+                className="form-input"
+                type="time"
+                name="startTime"
+                value={form.startTime}
+                onChange={onChange}
+              />
 
-            <input
-              className="form-input"
-              type="time"
-              name="endTime"
-              value={form.endTime}
-              onChange={onChange}
-            />
+              <input
+                className="form-input"
+                type="time"
+                name="endTime"
+                value={form.endTime}
+                onChange={onChange}
+              />
 
-            <input
-              className="form-input"
-              name="location"
-              placeholder="Lokacija, npr. Skenderija"
-              value={form.location}
-              onChange={onChange}
-            />
+              <input
+                className="form-input"
+                name="location"
+                placeholder="Lokacija, npr. Skenderija"
+                value={form.location}
+                onChange={onChange}
+              />
 
-            <input
-              className="form-input form-grid-full"
-              name="resourceName"
-              placeholder="Naziv resursa, npr. Teren 1"
-              value={form.resourceName}
-              onChange={onChange}
-            />
+              <input
+                className="form-input form-grid-full"
+                name="resourceName"
+                placeholder="Naziv resursa, npr. Teren 1"
+                value={form.resourceName}
+                onChange={onChange}
+              />
 
-            <button className="btn btn-primary form-grid-full" type="submit">
-              Kreiraj termin
-            </button>
-          </form>
+              <button className="btn btn-primary form-grid-full" type="submit">
+                Kreiraj termin
+              </button>
+            </form>
 
-          {message ? <div className="notice">{message}</div> : null}
-        </SectionCard>
+            {message ? <div className="notice">{message}</div> : null}
+          </SectionCard>
+        )}
 
         <SectionCard
           title="Pregled statusa"

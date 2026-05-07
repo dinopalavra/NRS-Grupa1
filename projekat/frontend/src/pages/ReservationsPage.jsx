@@ -10,6 +10,7 @@ function ReservationsPage() {
     teams,
     availableTimeSlots,
     selectedRole,
+    currentUser,
     loadingReservations,
     loadingTimeSlots,
     addReservation,
@@ -17,6 +18,8 @@ function ReservationsPage() {
     rejectReservation,
     cancelReservation
   } = useAppContext();
+
+  const canCreate = selectedRole === "ADMIN" || selectedRole === "CAPTAIN";
 
   const [filter, setFilter] = useState("all");
   const [form, setForm] = useState({
@@ -34,13 +37,21 @@ function ReservationsPage() {
     }));
   }, [teams, availableTimeSlots]);
 
+  const currentUserId = currentUser?.userId ?? currentUser?.id ?? null;
+
+  const visibleReservations = useMemo(() => {
+    if (selectedRole === "PLAYER" || selectedRole === "REFEREE_SCOREKEEPER") {
+      return reservations.filter((r) => r.createdByUserId === currentUserId);
+    }
+    return reservations;
+  }, [reservations, selectedRole, currentUserId]);
+
   const filteredReservations = useMemo(() => {
     if (filter === "all") {
-      return reservations;
+      return visibleReservations;
     }
-
-    return reservations.filter((item) => item.status === filter);
-  }, [filter, reservations]);
+    return visibleReservations.filter((item) => item.status === filter);
+  }, [filter, visibleReservations]);
 
   const onChange = (event) => {
     const { name, value } = event.target;
@@ -162,65 +173,67 @@ function ReservationsPage() {
       </div>
 
       <div className="grid grid-2">
-        <SectionCard
-          title="Nova rezervacija"
-          subtitle="Kreiranje zahtjeva za slobodan termin iz sistema time slotova."
-        >
-          <form onSubmit={onSubmit} className="form-grid">
-            <select
-              className="form-select"
-              name="teamId"
-              value={form.teamId}
-              onChange={onChange}
-            >
-              <option value="">Odaberi tim</option>
-              {teams.map((team) => (
-                <option key={team.id} value={team.id}>
-                  {team.name}
+        {canCreate && (
+          <SectionCard
+            title="Nova rezervacija"
+            subtitle="Kreiranje zahtjeva za slobodan termin iz sistema time slotova."
+          >
+            <form onSubmit={onSubmit} className="form-grid">
+              <select
+                className="form-select"
+                name="teamId"
+                value={form.teamId}
+                onChange={onChange}
+              >
+                <option value="">Odaberi tim</option>
+                {teams.map((team) => (
+                  <option key={team.id} value={team.id}>
+                    {team.name}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                className="form-select"
+                name="slotId"
+                value={form.slotId}
+                onChange={onChange}
+                disabled={!availableTimeSlots.length || loadingTimeSlots}
+              >
+                <option value="">
+                  {loadingTimeSlots ? "Učitavanje termina..." : "Odaberi slobodan termin"}
                 </option>
-              ))}
-            </select>
+                {availableTimeSlots.map((slot) => (
+                  <option key={slot.id} value={slot.id}>
+                    {slot.location} - {slot.resourceName} | {formatDate(slot.slotDate)} |{" "}
+                    {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+                  </option>
+                ))}
+              </select>
 
-            <select
-              className="form-select"
-              name="slotId"
-              value={form.slotId}
-              onChange={onChange}
-              disabled={!availableTimeSlots.length || loadingTimeSlots}
-            >
-              <option value="">
-                {loadingTimeSlots ? "Učitavanje termina..." : "Odaberi slobodan termin"}
-              </option>
-              {availableTimeSlots.map((slot) => (
-                <option key={slot.id} value={slot.id}>
-                  {slot.location} - {slot.resourceName} | {formatDate(slot.slotDate)} |{" "}
-                  {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
-                </option>
-              ))}
-            </select>
+              <textarea
+                className="form-input form-grid-full"
+                name="note"
+                placeholder="Napomena (opcionalno)"
+                value={form.note}
+                onChange={onChange}
+                rows={4}
+              />
 
-            <textarea
-              className="form-input form-grid-full"
-              name="note"
-              placeholder="Napomena (opcionalno)"
-              value={form.note}
-              onChange={onChange}
-              rows={4}
-            />
+              <button className="btn btn-primary form-grid-full" type="submit">
+                Kreiraj rezervaciju
+              </button>
+            </form>
 
-            <button className="btn btn-primary form-grid-full" type="submit">
-              Kreiraj rezervaciju
-            </button>
-          </form>
+            {message ? <div className="notice">{message}</div> : null}
 
-          {message ? <div className="notice">{message}</div> : null}
-
-          {!availableTimeSlots.length && !loadingTimeSlots ? (
-            <div className="warning-box">
-              Trenutno nema slobodnih termina za rezervaciju.
-            </div>
-          ) : null}
-        </SectionCard>
+            {!availableTimeSlots.length && !loadingTimeSlots ? (
+              <div className="warning-box">
+                Trenutno nema slobodnih termina za rezervaciju.
+              </div>
+            ) : null}
+          </SectionCard>
+        )}
 
         <SectionCard
           title="Filter rezervacija"
