@@ -1798,3 +1798,205 @@ select.field-input { cursor: pointer; }
   .dashboard-cards { grid-template-columns: 1fr; }
   .coming-soon-grid { grid-template-columns: 1fr; }
 }
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='560' viewBox='0 0 800 560'%3E%3Crect width='800' height='560' fill='none'/%3E%3Crect x='40' y='30' width='720' height='500' rx='6' fill='none' stroke='%2316a34a' stroke-width='2.5'/%3E%3Cline x1='400' y1='30' x2='400' y2='530' stroke='%2316a34a' stroke-width='2' stroke-dasharray='0'/%3E%3Ccircle cx='400' cy='280' r='60' fill='none' stroke='%2316a34a' stroke-width='2'/%3E%3Ccircle cx='400' cy='280' r='4' fill='%2316a34a'/%3E%3Crect x='40' y='205' width='100' height='150' rx='2' fill='none' stroke='%2316a34a' stroke-width='2'/%3E%3Crect x='660' y='205' width='100' height='150' rx='2' fill='none' stroke='%2316a34a' stroke-width='2'/%3E%3Crect x='40' y='240' width='50' height='80' rx='2' fill='none' stroke='%2316a34a' stroke-width='1.5'/%3E%3Crect x='710' y='240' width='50' height='80' rx='2' fill='none' stroke='%2316a34a' stroke-width='1.5'/%3E%3Ccircle cx='40' cy='280' r='60' fill='none' stroke='%2316a34a' stroke-width='1.5' stroke-dasharray='6 4'/%3E%3Ccircle cx='760' cy='280' r='60' fill='none' stroke='%2316a34a' stroke-width='1.5' stroke-dasharray='6 4'/%3E%3Ccircle cx='140' cy='280' r='3.5' fill='%2316a34a'/%3E%3Ccircle cx='660' cy='280' r='3.5' fill='%2316a34a'/%3E%3C/svg%3E");
+  background-size: 900px 630px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  opacity: 0.045;
+}
+
+/* Ensure stacking context works for layout */
+.layout-shell,
+.auth-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   BLACK ACCENT ELEMENTS
+   ============================================================ */
+
+/* Dark table header — black with white text */
+.data-table thead tr {
+  background: #111827;
+  color: #ffffff;
+}
+
+.data-table thead th {
+  color: #f9fafb;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+}
+
+/* Black top accent bar on cards */
+.card::before {
+  content: "";
+  display: block;
+  height: 3px;
+  background: linear-gradient(90deg, #111827 0%, var(--color-primary) 60%, transparent 100%);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  margin: -1px -1px 0;
+}
+
+/* content-card top accent */
+.content-card::before {
+  content: "";
+  display: block;
+  height: 3px;
+  background: linear-gradient(90deg, #111827 0%, var(--color-primary) 60%, transparent 100%);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  margin: -1px -1px 0;
+}
+
+/* Sidebar divider stronger */
+.layout-nav {
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+/* Brand icon stronger */
+.brand-icon {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #14532d 100%);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+}
+
+/* Active nav item gets a left black accent */
+.nav-item.is-active {
+  border-left: 3px solid #000000;
+}
+
+/* Page hero dark gradient accent */
+.page-hero {
+  background: linear-gradient(135deg, #111827 0%, var(--clr-green-900) 40%, var(--clr-green-800) 100%);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-hero::after {
+  content: "";
+  position: absolute;
+  right: -60px;
+  top: -60px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  pointer-events: none;
+}
+
+.page-hero .page-title,
+.page-hero .page-subtitle,
+.page-hero .mini-stat-val,
+.page-hero .mini-stat-label {
+  color: #ffffff;
+}
+
+.page-hero .mini-stat {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(4px);
+}
+
+.page-hero .mini-stat-label {
+  color: rgba(255,255,255,0.65);
+}
+
+/* Dashboard welcome dark badge for role */
+.dashboard-welcome {
+  background: linear-gradient(135deg, #111827 0%, var(--clr-green-900) 100%);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  margin-bottom: 22px;
+  color: #fff;
+}
+
+.dashboard-welcome .page-title,
+.dashboard-welcome .page-subtitle {
+  color: #ffffff;
+}
+
+.dashboard-welcome .page-subtitle {
+  color: rgba(255,255,255,0.65);
+  margin-top: 4px;
+}
+
+.dashboard-welcome .inline-status {
+  font-weight: 600;
+}
+
+/* Danger button for delete */
+.btn-danger {
+  background: transparent;
+  color: var(--clr-red-600);
+  border: 1px solid var(--clr-red-200);
+  border-radius: var(--radius-sm);
+  padding: 3px 9px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--tr), color var(--tr), border-color var(--tr);
+  white-space: nowrap;
+}
+
+.btn-danger:hover {
+  background: var(--clr-red-600);
+  color: #ffffff;
+  border-color: var(--clr-red-600);
+}
+
+.btn-danger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Black accent on auth card */
+.auth-card {
+  border-top: 3px solid #111827;
+}
+
+/* Darker nav-badge */
+.nav-badge {
+  background: #111827;
+  color: #ffffff;
+  border: none;
+}
+
+/* Dash stat cards — dark left border accent */
+.dash-stat {
+  border-left: 3px solid #111827;
+}
+
+/* Dash card title accent */
+.dash-card-title {
+  color: #111827;
+}
+
+/* Table row hover with subtle dark tint */
+.data-table tbody tr:hover {
+  background: #f1f5f9;
+}
+
+/* ============================================================
+   RESPONSIVE — additions
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .page-hero {
+    padding: 20px 18px;
+  }
+  .dashboard-welcome {
+    padding: 18px 20px;
+  }
+}

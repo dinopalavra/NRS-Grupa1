@@ -83,6 +83,12 @@ public class UserService {
         );
     }
 
+    public void deleteUser(Long id) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
+        userRepository.delete(user);
+    }
+
     private UserResponse toResponse(UserEntity user) {
         return new UserResponse(
                 user.getId(),

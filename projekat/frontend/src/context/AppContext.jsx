@@ -11,6 +11,7 @@ import {
   createTeam,
   createTimeSlot as apiCreateTimeSlot,
   createUser,
+  deleteUser as apiDeleteUser,
   approveReservation as apiApproveReservation,
   rejectReservation as apiRejectReservation,
   cancelReservation as apiCancelReservation,
@@ -235,6 +236,12 @@ export function AppProvider({ children }) {
     return created;
   };
 
+  const removeUser = async (id) => {
+    if (!auth?.token) throw new Error("Niste prijavljeni.");
+    await apiDeleteUser(id, auth.token);
+    await loadUsers();
+  };
+
   const registerTeam = async (payload) => {
     const created = await createTeam(payload, auth?.token);
     if (auth?.token) {
@@ -332,6 +339,7 @@ export function AppProvider({ children }) {
       loadAvailableSlots,
       loadReservations,
       registerUser,
+      removeUser,
       registerTeam,
       createNewTimeSlot,
       addReservation,
