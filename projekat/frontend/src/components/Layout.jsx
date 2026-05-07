@@ -51,6 +51,17 @@ const IconLogOut = () => (
   </svg>
 );
 
+const IconTrophy = ({ className = "nav-icon" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+    <path d="M4 22h16"/>
+    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+    <path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>
+  </svg>
+);
+
 const IconBall = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"/>
@@ -62,11 +73,12 @@ const IconBall = () => (
 /* ── Role-based nav items ──────────────────────────────────── */
 
 const ALL_NAV = [
-  { key: "dashboard",    label: "Dashboard",   Icon: IconGrid,     roles: null },
-  { key: "users",        label: "Korisnici",   Icon: IconUsers,    roles: ["ADMIN"] },
-  { key: "teams",        label: "Timovi",      Icon: IconShield,   roles: ["ADMIN", "CAPTAIN"] },
-  { key: "timeslots",    label: "Termini",     Icon: IconClock,    roles: null },
-  { key: "reservations", label: "Rezervacije", Icon: IconCalendar, roles: null },
+  { key: "dashboard",    label: "Dashboard",   Icon: IconGrid,     roles: null,                       badge: null },
+  { key: "users",        label: "Korisnici",   Icon: IconUsers,    roles: ["ADMIN"],                  badge: null },
+  { key: "teams",        label: "Timovi",      Icon: IconShield,   roles: ["ADMIN", "CAPTAIN"],       badge: null },
+  { key: "timeslots",    label: "Termini",     Icon: IconClock,    roles: null,                       badge: null },
+  { key: "reservations", label: "Rezervacije", Icon: IconCalendar, roles: null,                       badge: null },
+  { key: "liga",         label: "Liga",        Icon: IconTrophy,   roles: null,                       badge: "S7"  },
 ];
 
 function getNavItems(role) {
@@ -110,7 +122,7 @@ function Layout({ children }) {
 
         <nav className="layout-nav">
           <div className="nav-section-label">Navigacija</div>
-          {navItems.map(({ key, label, Icon }) => (
+          {navItems.map(({ key, label, Icon, badge }) => (
             <button
               key={key}
               type="button"
@@ -118,7 +130,8 @@ function Layout({ children }) {
               className={`nav-item ${currentPage === key ? "is-active" : ""}`}
             >
               <Icon />
-              {label}
+              <span className="nav-label">{label}</span>
+              {badge && <span className="nav-badge">{badge}</span>}
             </button>
           ))}
         </nav>
@@ -144,5 +157,5 @@ function Layout({ children }) {
   );
 }
 
-export { IconUsers, IconShield, IconClock, IconCalendar, IconGrid };
+export { IconUsers, IconShield, IconClock, IconCalendar, IconGrid, IconTrophy };
 export default Layout;
