@@ -1,6 +1,7 @@
 package ba.sportsmanager.modules.timeslots;
 
 import ba.sportsmanager.exception.BadRequestException;
+import ba.sportsmanager.exception.ConflictException;
 import ba.sportsmanager.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -39,12 +40,25 @@ public class TimeSlotService {
             throw new BadRequestException("End time must be after start time.");
         }
 
+        String location = request.location().trim();
+        String resourceName = request.resourceName().trim();
+
+        boolean overlaps = !timeSlotRepository.findOverlapping(
+                location, resourceName, request.slotDate(),
+                request.startTime(), request.endTime(), -1L
+        ).isEmpty();
+
+        if (overlaps) {
+            throw new ConflictException(
+                    "A time slot on this resource already exists that overlaps with the requested time range.");
+        }
+
         TimeSlotEntity slot = new TimeSlotEntity();
         slot.setSlotDate(request.slotDate());
         slot.setStartTime(request.startTime());
         slot.setEndTime(request.endTime());
-        slot.setLocation(request.location().trim());
-        slot.setResourceName(request.resourceName().trim());
+        slot.setLocation(location);
+        slot.setResourceName(resourceName);
         slot.setAvailabilityStatus(SlotAvailabilityStatus.AVAILABLE);
 
         return toResponse(timeSlotRepository.save(slot));

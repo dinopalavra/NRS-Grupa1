@@ -61,7 +61,13 @@ function LoginPage() {
       <div className="auth-card">
 
         <div className="auth-header">
-          <div className="auth-ball">⚽</div>
+          <div className="auth-ball">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: 36, height: 36 }}>
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 2a10 10 0 0 1 6.88 2.74L12 12 5.12 4.74A10 10 0 0 1 12 2z" strokeWidth="0" fill="white" fillOpacity="0.35"/>
+              <path d="M12 12l6.88-7.26M12 12l-6.88-7.26M12 12v10M12 12l8.66 5M12 12l-8.66 5"/>
+            </svg>
+          </div>
           <h1 className="auth-title">Pitch Manager</h1>
           <p className="auth-desc">Rezervacija i upravljanje fudbalskim terminima</p>
           <div className="auth-status-row">

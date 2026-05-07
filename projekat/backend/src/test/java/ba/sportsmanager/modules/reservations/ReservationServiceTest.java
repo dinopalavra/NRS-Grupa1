@@ -25,6 +25,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -70,6 +73,9 @@ class ReservationServiceTest {
         when(timeSlotService.getEntity(1L)).thenReturn(mockSlot);
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
         when(reservationRepository.existsBySlot_IdAndStatusIn(eq(1L), any())).thenReturn(false);
+        when(reservationRepository.existsOverlappingActiveReservation(
+                anyString(), anyString(), any(), any(), any(), anyLong(), anyCollection()))
+                .thenReturn(false);
         when(reservationRepository.save(any(ReservationEntity.class))).thenAnswer(invocation -> {
             ReservationEntity entity = invocation.getArgument(0);
             ReflectionTestUtils.setField(entity, "id", 5L);
@@ -84,6 +90,20 @@ class ReservationServiceTest {
         assertEquals(1L, response.teamId());
         assertEquals(1L, response.slotId());
         verify(reservationRepository).save(any(ReservationEntity.class));
+    }
+
+    @Test
+    void create_WhenOverlappingReservationExists_ThrowsConflictException() {
+        when(teamService.getTeamEntity(1L)).thenReturn(mockTeam);
+        when(timeSlotService.getEntity(1L)).thenReturn(mockSlot);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(reservationRepository.existsBySlot_IdAndStatusIn(eq(1L), any())).thenReturn(false);
+        when(reservationRepository.existsOverlappingActiveReservation(
+                anyString(), anyString(), any(), any(), any(), anyLong(), anyCollection()))
+                .thenReturn(true);
+
+        assertThrows(ConflictException.class, () -> reservationService.create(validRequest));
+        verify(reservationRepository, never()).save(any());
     }
 
     @Test

@@ -1,6 +1,7 @@
 package ba.sportsmanager.modules.timeslots;
 
 import ba.sportsmanager.exception.BadRequestException;
+import ba.sportsmanager.exception.ConflictException;
 import ba.sportsmanager.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,11 +12,14 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,6 +41,8 @@ class TimeSlotServiceTest {
                 "Teren A"
         );
 
+        when(timeSlotRepository.findOverlapping(anyString(), anyString(), any(), any(), any(), anyLong()))
+                .thenReturn(Collections.emptyList());
         when(timeSlotRepository.save(any(TimeSlotEntity.class))).thenAnswer(invocation -> {
             TimeSlotEntity entity = invocation.getArgument(0);
             ReflectionTestUtils.setField(entity, "id", 10L);
@@ -62,6 +68,28 @@ class TimeSlotServiceTest {
         );
 
         assertThrows(BadRequestException.class, () -> timeSlotService.create(request));
+        verify(timeSlotRepository, never()).save(any());
+    }
+
+    @Test
+    void create_WhenOverlappingSlotExists_ThrowsConflictException() {
+        CreateTimeSlotRequest request = new CreateTimeSlotRequest(
+                LocalDate.of(2026, 5, 11),
+                LocalTime.of(11, 0),
+                LocalTime.of(12, 30),
+                "Skenderija",
+                "Teren 1"
+        );
+
+        TimeSlotEntity overlapping = new TimeSlotEntity();
+        ReflectionTestUtils.setField(overlapping, "id", 3L);
+        overlapping.setStartTime(LocalTime.of(10, 0));
+        overlapping.setEndTime(LocalTime.of(11, 30));
+
+        when(timeSlotRepository.findOverlapping(anyString(), anyString(), any(), any(), any(), anyLong()))
+                .thenReturn(List.of(overlapping));
+
+        assertThrows(ConflictException.class, () -> timeSlotService.create(request));
         verify(timeSlotRepository, never()).save(any());
     }
 

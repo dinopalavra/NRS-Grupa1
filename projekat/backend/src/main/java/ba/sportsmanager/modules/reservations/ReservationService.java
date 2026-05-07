@@ -94,6 +94,21 @@ public class ReservationService {
             throw new ConflictException("Selected time slot is already reserved or pending.");
         }
 
+        boolean overlappingReservation = reservationRepository.existsOverlappingActiveReservation(
+                slot.getLocation(),
+                slot.getResourceName(),
+                slot.getSlotDate(),
+                slot.getStartTime(),
+                slot.getEndTime(),
+                slot.getId(),
+                List.of(ReservationStatus.PENDING, ReservationStatus.APPROVED)
+        );
+
+        if (overlappingReservation) {
+            throw new ConflictException(
+                    "Another reservation overlaps with this time slot on the same resource.");
+        }
+
         ReservationEntity reservation = new ReservationEntity();
         reservation.setTeam(team);
         reservation.setSlot(slot);
