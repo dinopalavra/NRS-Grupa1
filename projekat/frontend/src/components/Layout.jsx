@@ -5,52 +5,44 @@ const navItems = [
   { key: "dashboard", label: "Dashboard" },
   { key: "users", label: "Korisnici" },
   { key: "teams", label: "Timovi" },
-  { key: "reservations", label: "Rezervacije" },
-  { key: "leagues", label: "Lige" },
-  { key: "results", label: "Rezultati" }
+  { key: "timeslots", label: "Time slotovi" },
+  { key: "reservations", label: "Rezervacije" }
 ];
 
 function Layout({ children }) {
-  const { currentPage, setCurrentPage, selectedRole, setSelectedRole } = useAppContext();
+  const { currentPage, navigate, selectedRole, isAuthenticated, logout } = useAppContext();
+
+  if (!isAuthenticated) {
+    return children;
+  }
 
   return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <div className="brand">
+    <div className="layout-shell">
+      <aside className="layout-sidebar">
+        <div className="layout-brand">
           <h1>Sports Manager</h1>
-          <p>Sistem za upravljanje timovima, terminima i ligama</p>
+          <span className="badge">Uloga: {selectedRole}</span>
         </div>
 
-        <div className="role-box">
-          <label htmlFor="role-select">Aktivna uloga</label>
-          <select
-            id="role-select"
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-          >
-            <option value="ADMIN">ADMIN</option>
-            <option value="MANAGER">MANAGER</option>
-            <option value="USER">USER</option>
-          </select>
-        </div>
+        <nav className="layout-nav">
+          {navItems.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => navigate(item.key)}
+              className={`nav-item ${currentPage === item.key ? "is-active" : ""}`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
 
-        <div className="nav-box">
-          <div className="nav-title">Navigacija</div>
-          <div className="nav-list">
-            {navItems.map((item) => (
-              <button
-                key={item.key}
-                className={`nav-button ${currentPage === item.key ? "active" : ""}`}
-                onClick={() => setCurrentPage(item.key)}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <button type="button" className="btn btn-secondary" onClick={logout}>
+          Odjava
+        </button>
       </aside>
 
-      <main className="content">{children}</main>
+      <main className="layout-content">{children}</main>
     </div>
   );
 }

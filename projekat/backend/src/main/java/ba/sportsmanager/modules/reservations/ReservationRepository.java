@@ -9,5 +9,6 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
     boolean existsBySlot_IdAndStatusIn(Long slotId, Collection<ReservationStatus> statuses);
     List<ReservationEntity> findByCreatedBy_Id(Long userId);
     List<ReservationEntity> findByTeam_Id(Long teamId);
+    List<ReservationEntity> findBySlot_Id(Long slotId);
     List<ReservationEntity> findByStatus(ReservationStatus status);
 }

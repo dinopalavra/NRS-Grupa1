@@ -30,6 +30,11 @@ public class ReservationController {
         return reservationService.getByTeam(teamId);
     }
 
+    @GetMapping("/slot/{slotId}")
+    public List<ReservationResponse> getBySlot(@PathVariable Long slotId) {
+        return reservationService.getBySlot(slotId);
+    }
+
     @GetMapping("/status/{status}")
     public List<ReservationResponse> getByStatus(@PathVariable ReservationStatus status) {
         return reservationService.getByStatus(status);

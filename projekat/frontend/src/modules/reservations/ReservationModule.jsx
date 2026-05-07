@@ -1,5 +1,8 @@
+import React from "react";
+import ReservationsPage from "../pages/ReservationsPage.jsx";
+
 function ReservationModule() {
-  return <div>Reservation module placeholder</div>;
+  return <ReservationsPage />;
 }
 
 export default ReservationModule;

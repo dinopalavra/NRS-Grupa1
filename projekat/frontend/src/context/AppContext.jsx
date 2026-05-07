@@ -7,9 +7,17 @@ import {
   useState
 } from "react";
 import {
+  createReservation as apiCreateReservation,
   createTeam,
+  createTimeSlot as apiCreateTimeSlot,
   createUser,
+  approveReservation as apiApproveReservation,
+  rejectReservation as apiRejectReservation,
+  cancelReservation as apiCancelReservation,
+  fetchAvailableTimeSlots,
+  fetchReservations,
   fetchTeams,
+  fetchTimeSlots,
   fetchUsers,
   loginUser,
   pingBackend
@@ -27,15 +35,26 @@ function readStoredAuth() {
   }
 }
 
+function resolveCurrentUserId(auth) {
+  return auth?.userId ?? auth?.id ?? auth?.user?.userId ?? auth?.user?.id ?? null;
+}
+
 export function AppProvider({ children }) {
   const [auth, setAuth] = useState(readStoredAuth);
-  const [currentPage, setCurrentPage] = useState(readStoredAuth() ? "dashboard" : "login");
+  const [currentPage, setCurrentPage] = useState(
+    readStoredAuth() ? "dashboard" : "login"
+  );
 
   const [users, setUsers] = useState([]);
   const [teams, setTeams] = useState([]);
+  const [timeSlots, setTimeSlots] = useState([]);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
+  const [reservations, setReservations] = useState([]);
 
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingTeams, setLoadingTeams] = useState(false);
+  const [loadingTimeSlots, setLoadingTimeSlots] = useState(false);
+  const [loadingReservations, setLoadingReservations] = useState(false);
 
   const [backendStatus, setBackendStatus] = useState({
     loading: true,
@@ -47,10 +66,14 @@ export function AppProvider({ children }) {
   const selectedRole = auth?.role || "GUEST";
 
   useEffect(() => {
-    if (auth) {
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth));
-    } else {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
+    try {
+      if (auth) {
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth));
+      } else {
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+      }
+    } catch {
+      // ignore localStorage errors
     }
   }, [auth]);
 
@@ -67,7 +90,7 @@ export function AppProvider({ children }) {
         setBackendStatus({
           loading: false,
           ok: false,
-          message: error.message || "Backend nije dostupan"
+          message: error?.message || "Backend nije dostupan"
         });
       }
     };
@@ -109,15 +132,79 @@ export function AppProvider({ children }) {
     }
   }, [auth?.token]);
 
+  const loadTimeSlots = useCallback(async () => {
+    if (!auth?.token) {
+      setTimeSlots([]);
+      return [];
+    }
+
+    setLoadingTimeSlots(true);
+    try {
+      const data = await fetchTimeSlots(auth.token);
+      const normalized = Array.isArray(data) ? data : [];
+      setTimeSlots(normalized);
+      return normalized;
+    } finally {
+      setLoadingTimeSlots(false);
+    }
+  }, [auth?.token]);
+
+  const loadAvailableSlots = useCallback(async () => {
+    if (!auth?.token) {
+      setAvailableTimeSlots([]);
+      return [];
+    }
+
+    try {
+      const data = await fetchAvailableTimeSlots(auth.token);
+      const normalized = Array.isArray(data) ? data : [];
+      setAvailableTimeSlots(normalized);
+      return normalized;
+    } catch (error) {
+      setAvailableTimeSlots([]);
+      throw error;
+    }
+  }, [auth?.token]);
+
+  const loadReservations = useCallback(async () => {
+    if (!auth?.token) {
+      setReservations([]);
+      return [];
+    }
+
+    setLoadingReservations(true);
+    try {
+      const data = await fetchReservations(auth.token);
+      const normalized = Array.isArray(data) ? data : [];
+      setReservations(normalized);
+      return normalized;
+    } finally {
+      setLoadingReservations(false);
+    }
+  }, [auth?.token]);
+
   useEffect(() => {
     if (auth?.token) {
       loadUsers();
       loadTeams();
+      loadTimeSlots();
+      loadAvailableSlots();
+      loadReservations();
     } else {
       setUsers([]);
       setTeams([]);
+      setTimeSlots([]);
+      setAvailableTimeSlots([]);
+      setReservations([]);
     }
-  }, [auth?.token, loadUsers, loadTeams]);
+  }, [
+    auth?.token,
+    loadUsers,
+    loadTeams,
+    loadTimeSlots,
+    loadAvailableSlots,
+    loadReservations
+  ]);
 
   const login = async (payload) => {
     const result = await loginUser(payload);
@@ -131,6 +218,9 @@ export function AppProvider({ children }) {
     setCurrentPage("login");
     setUsers([]);
     setTeams([]);
+    setTimeSlots([]);
+    setAvailableTimeSlots([]);
+    setReservations([]);
   };
 
   const navigate = (page) => {
@@ -153,6 +243,69 @@ export function AppProvider({ children }) {
     return created;
   };
 
+  const createNewTimeSlot = async (payload) => {
+    if (!auth?.token) {
+      throw new Error("Niste prijavljeni.");
+    }
+
+    const created = await apiCreateTimeSlot(payload, auth.token);
+    await Promise.all([loadTimeSlots(), loadAvailableSlots()]);
+    return created;
+  };
+
+  const addReservation = async (payload) => {
+    if (!auth?.token) {
+      throw new Error("Niste prijavljeni.");
+    }
+
+    const createdByUserId = resolveCurrentUserId(auth);
+
+    if (!createdByUserId) {
+      throw new Error("Nedostaje userId u prijavljenom korisniku.");
+    }
+
+    const body = {
+      teamId: Number(payload.teamId),
+      slotId: Number(payload.slotId),
+      createdByUserId: Number(createdByUserId),
+      note: payload.note?.trim() || null
+    };
+
+    const created = await apiCreateReservation(body, auth.token);
+    await Promise.all([loadReservations(), loadTimeSlots(), loadAvailableSlots()]);
+    return created;
+  };
+
+  const approveReservation = async (id) => {
+    if (!auth?.token) {
+      throw new Error("Niste prijavljeni.");
+    }
+
+    const updated = await apiApproveReservation(id, auth.token);
+    await Promise.all([loadReservations(), loadTimeSlots(), loadAvailableSlots()]);
+    return updated;
+  };
+
+  const rejectReservation = async (id) => {
+    if (!auth?.token) {
+      throw new Error("Niste prijavljeni.");
+    }
+
+    const updated = await apiRejectReservation(id, auth.token);
+    await Promise.all([loadReservations(), loadTimeSlots(), loadAvailableSlots()]);
+    return updated;
+  };
+
+  const cancelReservation = async (id) => {
+    if (!auth?.token) {
+      throw new Error("Niste prijavljeni.");
+    }
+
+    const updated = await apiCancelReservation(id, auth.token);
+    await Promise.all([loadReservations(), loadTimeSlots(), loadAvailableSlots()]);
+    return updated;
+  };
+
   const value = useMemo(
     () => ({
       auth,
@@ -163,15 +316,28 @@ export function AppProvider({ children }) {
       backendStatus,
       users,
       teams,
+      timeSlots,
+      availableTimeSlots,
+      reservations,
       loadingUsers,
       loadingTeams,
+      loadingTimeSlots,
+      loadingReservations,
       login,
       logout,
       navigate,
       loadUsers,
       loadTeams,
+      loadTimeSlots,
+      loadAvailableSlots,
+      loadReservations,
       registerUser,
-      registerTeam
+      registerTeam,
+      createNewTimeSlot,
+      addReservation,
+      approveReservation,
+      rejectReservation,
+      cancelReservation
     }),
     [
       auth,
@@ -181,10 +347,18 @@ export function AppProvider({ children }) {
       backendStatus,
       users,
       teams,
+      timeSlots,
+      availableTimeSlots,
+      reservations,
       loadingUsers,
       loadingTeams,
+      loadingTimeSlots,
+      loadingReservations,
       loadUsers,
-      loadTeams
+      loadTeams,
+      loadTimeSlots,
+      loadAvailableSlots,
+      loadReservations
     ]
   );
 

@@ -26,6 +26,7 @@ async function parseResponse(response) {
       (typeof payload === "object" && payload?.error) ||
       (typeof payload === "string" && payload) ||
       `HTTP ${response.status}`;
+
     throw new Error(message);
   }
 
@@ -75,6 +76,55 @@ export function createTeam(payload, token) {
   return request("/api/teams", {
     method: "POST",
     body: payload,
+    token
+  });
+}
+
+export function fetchTimeSlots(token) {
+  return request("/api/timeslots", { token });
+}
+
+export function fetchAvailableTimeSlots(token) {
+  return request("/api/timeslots/available", { token });
+}
+
+export function createTimeSlot(payload, token) {
+  return request("/api/timeslots", {
+    method: "POST",
+    body: payload,
+    token
+  });
+}
+
+export function fetchReservations(token) {
+  return request("/api/reservations", { token });
+}
+
+export function createReservation(payload, token) {
+  return request("/api/reservations", {
+    method: "POST",
+    body: payload,
+    token
+  });
+}
+
+export function approveReservation(id, token) {
+  return request(`/api/reservations/${id}/approve`, {
+    method: "PATCH",
+    token
+  });
+}
+
+export function rejectReservation(id, token) {
+  return request(`/api/reservations/${id}/reject`, {
+    method: "PATCH",
+    token
+  });
+}
+
+export function cancelReservation(id, token) {
+  return request(`/api/reservations/${id}/cancel`, {
+    method: "PATCH",
     token
   });
 }

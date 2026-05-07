@@ -4,6 +4,7 @@ import ba.sportsmanager.exception.BadRequestException;
 import ba.sportsmanager.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -17,12 +18,18 @@ public class TimeSlotService {
 
     public List<TimeSlotResponse> getAll() {
         return timeSlotRepository.findAll().stream()
+                .sorted(Comparator
+                        .comparing(TimeSlotEntity::getSlotDate)
+                        .thenComparing(TimeSlotEntity::getStartTime))
                 .map(this::toResponse)
                 .toList();
     }
 
     public List<TimeSlotResponse> getAvailable() {
         return timeSlotRepository.findByAvailabilityStatus(SlotAvailabilityStatus.AVAILABLE).stream()
+                .sorted(Comparator
+                        .comparing(TimeSlotEntity::getSlotDate)
+                        .thenComparing(TimeSlotEntity::getStartTime))
                 .map(this::toResponse)
                 .toList();
     }
@@ -36,8 +43,8 @@ public class TimeSlotService {
         slot.setSlotDate(request.slotDate());
         slot.setStartTime(request.startTime());
         slot.setEndTime(request.endTime());
-        slot.setLocation(request.location());
-        slot.setResourceName(request.resourceName());
+        slot.setLocation(request.location().trim());
+        slot.setResourceName(request.resourceName().trim());
         slot.setAvailabilityStatus(SlotAvailabilityStatus.AVAILABLE);
 
         return toResponse(timeSlotRepository.save(slot));
