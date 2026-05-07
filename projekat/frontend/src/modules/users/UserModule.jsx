@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAppContext } from "../../context/AppContext.jsx";
 
 function UserModule() {
-  const { users, registerUser, loadUsers, loadingUsers } = useAppContext();
+  const { users, registerUser, removeUser, loadUsers, loadingUsers, currentUser } = useAppContext();
 
   const [form, setForm] = useState({
     fullName: "",
@@ -15,6 +15,7 @@ function UserModule() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     loadUsers();
@@ -42,17 +43,32 @@ function UserModule() {
     try {
       await registerUser(form);
       setMessage("Korisnik je uspješno kreiran u backend bazi.");
-      setForm({
-        fullName: "",
-        email: "",
-        username: "",
-        password: "",
-        role: "PLAYER"
-      });
+      setForm({ fullName: "", email: "", username: "", password: "", role: "PLAYER" });
     } catch (err) {
       setError(err.message || "Kreiranje korisnika nije uspjelo.");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const onDelete = async (user) => {
+    const selfId = currentUser?.userId ?? currentUser?.id ?? null;
+    if (selfId && Number(selfId) === Number(user.id)) {
+      setError("Ne možete obrisati vlastiti nalog.");
+      return;
+    }
+    if (!window.confirm(`Obrisati korisnika "${user.fullName || user.username}"? Ova akcija je nepovratna.`)) return;
+
+    setDeletingId(user.id);
+    setError("");
+    setMessage("");
+    try {
+      await removeUser(user.id);
+      setMessage(`Korisnik "${user.fullName || user.username}" je obrisan.`);
+    } catch (err) {
+      setError(err.message || "Brisanje nije uspjelo.");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -68,45 +84,20 @@ function UserModule() {
           <div className="form-grid">
             <div className="input-group">
               <label>Ime i prezime</label>
-              <input
-                className="input"
-                name="fullName"
-                value={form.fullName}
-                onChange={onChange}
-              />
+              <input className="input" name="fullName" value={form.fullName} onChange={onChange} />
             </div>
-
             <div className="input-group">
               <label>Email</label>
-              <input
-                className="input"
-                name="email"
-                value={form.email}
-                onChange={onChange}
-              />
+              <input className="input" name="email" value={form.email} onChange={onChange} />
             </div>
-
             <div className="input-group">
               <label>Korisničko ime</label>
-              <input
-                className="input"
-                name="username"
-                value={form.username}
-                onChange={onChange}
-              />
+              <input className="input" name="username" value={form.username} onChange={onChange} />
             </div>
-
             <div className="input-group">
               <label>Lozinka</label>
-              <input
-                className="input"
-                type="password"
-                name="password"
-                value={form.password}
-                onChange={onChange}
-              />
+              <input className="input" type="password" name="password" value={form.password} onChange={onChange} />
             </div>
-
             <div className="input-group">
               <label>Uloga</label>
               <select className="input" name="role" value={form.role} onChange={onChange}>
@@ -117,7 +108,6 @@ function UserModule() {
               </select>
             </div>
           </div>
-
           <button className="button" type="submit" disabled={submitting}>
             {submitting ? "Spremanje..." : "Dodaj korisnika"}
           </button>
@@ -150,6 +140,7 @@ function UserModule() {
                   <th>Username</th>
                   <th>Uloga</th>
                   <th>Status</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -160,7 +151,21 @@ function UserModule() {
                     <td>{user.email}</td>
                     <td>{user.username}</td>
                     <td>{user.role}</td>
-                    <td>{user.active ? "ACTIVE" : "INACTIVE"}</td>
+                    <td>
+                      <span className={`status-chip ${user.active ? "status-available" : "status-blocked"}`}>
+                        {user.active ? "AKTIVAN" : "NEAKTIVAN"}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        className="btn-xs btn-danger"
+                        onClick={() => onDelete(user)}
+                        disabled={deletingId === user.id}
+                        title="Obriši korisnika"
+                      >
+                        {deletingId === user.id ? "..." : "Obriši"}
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

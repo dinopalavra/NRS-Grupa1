@@ -68,6 +68,13 @@ export function createUser(payload, token) {
   });
 }
 
+export function deleteUser(id, token) {
+  return request(`/api/users/${id}`, {
+    method: "DELETE",
+    token
+  });
+}
+
 export function fetchTeams(token) {
   return request("/api/teams", { token });
 }
