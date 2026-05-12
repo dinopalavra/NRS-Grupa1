@@ -1,117 +1,661 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAppContext } from "../context/AppContext.jsx";
 
-const COMING_FEATURES = [
-  {
-    title: "Kreiranje lige",
-    desc: "Administrator ili organizator kreira novu ligu ili takmičenje sa osnovnim podacima — naziv, sezona i format.",
-    story: "US-9",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
-      </svg>
-    ),
-  },
-  {
-    title: "Dodavanje timova u ligu",
-    desc: "Organizator dodaje postojeće timove u odabranu ligu. Isti tim ne može biti dodan više puta.",
-    story: "US-10",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-    ),
-  },
-  {
-    title: "Unos rezultata utakmica",
-    desc: "Ovlaštena osoba unosi konačni rezultat za odigranu utakmicu. Sistem evidentira ko je unio rezultat i kada.",
-    story: "US-11",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-      </svg>
-    ),
-  },
-  {
-    title: "Automatska tabela lige",
-    desc: "Nakon unosa rezultata sistem automatski izračunava poene, gol-razliku i poredak timova na tabeli.",
-    story: "US-12",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
-        <line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/>
-      </svg>
-    ),
-  },
+/* ── Icons ─────────────────────────────────────────────────── */
+
+const IconTrophy = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+    <path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+    <path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>
+  </svg>
+);
+
+const IconPlus = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+);
+
+const IconChevron = ({ right }) => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    {right ? <polyline points="9 18 15 12 9 6"/> : <polyline points="15 18 9 12 15 6"/>}
+  </svg>
+);
+
+const IconX = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+);
+
+const IconCheck = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+);
+
+const IconCalendar = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+  </svg>
+);
+
+const IconEdit = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+  </svg>
+);
+
+/* ── Shared UI ──────────────────────────────────────────────── */
+
+function Alert({ type = "error", message, onDismiss }) {
+  if (!message) return null;
+  const isError = type === "error";
+  return (
+    <div className={`liga-alert liga-alert--${type}`}>
+      <span>{message}</span>
+      {onDismiss && <button type="button" className="liga-alert-close" onClick={onDismiss}><IconX /></button>}
+    </div>
+  );
+}
+
+function Spinner() {
+  return <div className="liga-spinner" />;
+}
+
+function EmptyState({ icon, title, subtitle }) {
+  return (
+    <div className="liga-empty">
+      <div className="liga-empty-icon">{icon}</div>
+      <div className="liga-empty-title">{title}</div>
+      {subtitle && <div className="liga-empty-sub">{subtitle}</div>}
+    </div>
+  );
+}
+
+/* ── League List Panel ──────────────────────────────────────── */
+
+function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeague }) {
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ leagueName: "", season: "" });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    if (!form.leagueName.trim() || !form.season.trim()) {
+      setError("Naziv i sezona su obavezni.");
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      await onCreateLeague({ leagueName: form.leagueName.trim(), season: form.season.trim() });
+      setForm({ leagueName: "", season: "" });
+      setShowForm(false);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="liga-panel liga-panel--list">
+      <div className="liga-panel-header">
+        <h2 className="liga-panel-title">
+          <IconTrophy /> Liga
+        </h2>
+        <button type="button" className="btn-liga-sm btn-liga-primary" onClick={() => setShowForm(v => !v)}>
+          <IconPlus /> Nova
+        </button>
+      </div>
+
+      {showForm && (
+        <form className="liga-inline-form" onSubmit={handleCreate}>
+          <Alert type="error" message={error} onDismiss={() => setError(null)} />
+          <div className="liga-field">
+            <label className="liga-label">Naziv</label>
+            <input
+              className="liga-input"
+              placeholder="npr. Gradska liga"
+              value={form.leagueName}
+              onChange={e => setForm(f => ({ ...f, leagueName: e.target.value }))}
+            />
+          </div>
+          <div className="liga-field">
+            <label className="liga-label">Sezona</label>
+            <input
+              className="liga-input"
+              placeholder="npr. 2025/26"
+              value={form.season}
+              onChange={e => setForm(f => ({ ...f, season: e.target.value }))}
+            />
+          </div>
+          <div className="liga-form-row">
+            <button type="submit" className="btn-liga-sm btn-liga-primary" disabled={saving}>
+              {saving ? <Spinner /> : <><IconCheck /> Kreiraj</>}
+            </button>
+            <button type="button" className="btn-liga-sm btn-liga-ghost" onClick={() => setShowForm(false)}>
+              Otkaži
+            </button>
+          </div>
+        </form>
+      )}
+
+      {loading ? (
+        <div className="liga-list-loading"><Spinner /></div>
+      ) : leagues.length === 0 ? (
+        <EmptyState
+          icon={<IconTrophy />}
+          title="Nema liga"
+          subtitle="Kreirajte prvu ligu."
+        />
+      ) : (
+        <ul className="liga-list">
+          {leagues.map(lg => (
+            <li key={lg.id}>
+              <button
+                type="button"
+                className={`liga-list-item ${selectedId === lg.id ? "is-active" : ""}`}
+                onClick={() => onSelect(lg)}
+              >
+                <div className="liga-list-item-avatar">{lg.leagueName[0]?.toUpperCase()}</div>
+                <div className="liga-list-item-body">
+                  <div className="liga-list-item-name">{lg.leagueName}</div>
+                  <div className="liga-list-item-sub">{lg.season}</div>
+                </div>
+                <span className={`liga-status-chip liga-status-chip--${lg.status?.toLowerCase()}`}>
+                  {lg.status}
+                </span>
+                <IconChevron right />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/* ── Tabs ───────────────────────────────────────────────────── */
+
+function Tabs({ tabs, active, onChange }) {
+  return (
+    <div className="liga-tabs">
+      {tabs.map(t => (
+        <button
+          key={t.key}
+          type="button"
+          className={`liga-tab ${active === t.key ? "is-active" : ""}`}
+          onClick={() => onChange(t.key)}
+        >
+          {t.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/* ── Teams Tab ──────────────────────────────────────────────── */
+
+function TeamsTab({ leagueId, allTeams }) {
+  const { getLeagueTeams, addTeamToLeague, removeTeamFromLeague } = useAppContext();
+  const [leagueTeams, setLeagueTeams] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedTeamId, setSelectedTeamId] = useState("");
+  const [adding, setAdding] = useState(false);
+  const [removing, setRemoving] = useState(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getLeagueTeams(leagueId);
+      setLeagueTeams(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [leagueId, getLeagueTeams]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const leagueTeamIds = new Set(leagueTeams.map(t => t.id));
+  const availableToAdd = allTeams.filter(t => !leagueTeamIds.has(t.id));
+
+  const handleAdd = async () => {
+    if (!selectedTeamId) return;
+    setAdding(true);
+    setError(null);
+    try {
+      await addTeamToLeague(leagueId, Number(selectedTeamId));
+      setSelectedTeamId("");
+      await load();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const handleRemove = async (teamId) => {
+    setRemoving(teamId);
+    setError(null);
+    try {
+      await removeTeamFromLeague(leagueId, teamId);
+      await load();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setRemoving(null);
+    }
+  };
+
+  if (loading) return <div className="liga-tab-body liga-center"><Spinner /></div>;
+
+  return (
+    <div className="liga-tab-body">
+      <Alert type="error" message={error} onDismiss={() => setError(null)} />
+
+      <div className="liga-add-row">
+        <select
+          className="liga-input liga-select"
+          value={selectedTeamId}
+          onChange={e => setSelectedTeamId(e.target.value)}
+          disabled={availableToAdd.length === 0}
+        >
+          <option value="">{availableToAdd.length === 0 ? "Svi timovi su u ligi" : "Odaberite tim..."}</option>
+          {availableToAdd.map(t => (
+            <option key={t.id} value={t.id}>{t.name} — {t.city}</option>
+          ))}
+        </select>
+        <button
+          type="button"
+          className="btn-liga-sm btn-liga-primary"
+          onClick={handleAdd}
+          disabled={!selectedTeamId || adding}
+        >
+          {adding ? <Spinner /> : <><IconPlus /> Dodaj</>}
+        </button>
+      </div>
+
+      {leagueTeams.length === 0 ? (
+        <EmptyState icon={<span style={{fontSize:28}}>🏟️</span>} title="Nema timova u ligi" subtitle="Dodajte timove iznad." />
+      ) : (
+        <ul className="liga-teams-list">
+          {leagueTeams.map(t => (
+            <li key={t.id} className="liga-team-row">
+              <div className="liga-team-avatar">{t.name[0]?.toUpperCase()}</div>
+              <div className="liga-team-info">
+                <div className="liga-team-name">{t.name}</div>
+                <div className="liga-team-sub">{t.city} · {t.captainName}</div>
+              </div>
+              <button
+                type="button"
+                className="btn-liga-icon btn-liga-danger"
+                onClick={() => handleRemove(t.id)}
+                disabled={removing === t.id}
+                title="Ukloni iz lige"
+              >
+                {removing === t.id ? <Spinner /> : <IconX />}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/* ── Matches Tab ────────────────────────────────────────────── */
+
+function MatchesTab({ leagueId, leagueTeams }) {
+  const { getLeagueMatches, addMatch, submitResult } = useAppContext();
+  const [matches, setMatches] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ homeTeamId: "", awayTeamId: "", matchDate: "" });
+  const [saving, setSaving] = useState(false);
+  const [resultForm, setResultForm] = useState({ matchId: null, homeScore: "", awayScore: "" });
+  const [submitting, setSubmitting] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getLeagueMatches(leagueId);
+      setMatches(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [leagueId, getLeagueMatches]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleCreateMatch = async (e) => {
+    e.preventDefault();
+    if (!form.homeTeamId || !form.awayTeamId || !form.matchDate) {
+      setError("Sva polja su obavezna.");
+      return;
+    }
+    if (form.homeTeamId === form.awayTeamId) {
+      setError("Domaći i gostujući tim ne mogu biti isti.");
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      await addMatch({
+        leagueId,
+        homeTeamId: Number(form.homeTeamId),
+        awayTeamId: Number(form.awayTeamId),
+        matchDate: form.matchDate
+      });
+      setForm({ homeTeamId: "", awayTeamId: "", matchDate: "" });
+      setShowForm(false);
+      await load();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleResultSubmit = async (e) => {
+    e.preventDefault();
+    const hs = parseInt(resultForm.homeScore, 10);
+    const as = parseInt(resultForm.awayScore, 10);
+    if (isNaN(hs) || isNaN(as) || hs < 0 || as < 0) {
+      setError("Unesite ispravne rezultate (≥ 0).");
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      await submitResult(resultForm.matchId, { homeScore: hs, awayScore: as });
+      setResultForm({ matchId: null, homeScore: "", awayScore: "" });
+      await load();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) return <div className="liga-tab-body liga-center"><Spinner /></div>;
+
+  return (
+    <div className="liga-tab-body">
+      <Alert type="error" message={error} onDismiss={() => setError(null)} />
+
+      <div className="liga-section-actions">
+        <button type="button" className="btn-liga-sm btn-liga-primary" onClick={() => setShowForm(v => !v)}>
+          <IconPlus /> Zakaži utakmicu
+        </button>
+      </div>
+
+      {showForm && (
+        <form className="liga-inline-form" onSubmit={handleCreateMatch}>
+          <div className="liga-form-grid">
+            <div className="liga-field">
+              <label className="liga-label">Domaći tim</label>
+              <select className="liga-input liga-select" value={form.homeTeamId} onChange={e => setForm(f => ({ ...f, homeTeamId: e.target.value }))}>
+                <option value="">Odaberite...</option>
+                {leagueTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </select>
+            </div>
+            <div className="liga-field">
+              <label className="liga-label">Gostujući tim</label>
+              <select className="liga-input liga-select" value={form.awayTeamId} onChange={e => setForm(f => ({ ...f, awayTeamId: e.target.value }))}>
+                <option value="">Odaberite...</option>
+                {leagueTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </select>
+            </div>
+            <div className="liga-field">
+              <label className="liga-label">Datum</label>
+              <input type="date" className="liga-input" value={form.matchDate} onChange={e => setForm(f => ({ ...f, matchDate: e.target.value }))} />
+            </div>
+          </div>
+          <div className="liga-form-row">
+            <button type="submit" className="btn-liga-sm btn-liga-primary" disabled={saving}>
+              {saving ? <Spinner /> : <><IconCheck /> Zakaži</>}
+            </button>
+            <button type="button" className="btn-liga-sm btn-liga-ghost" onClick={() => setShowForm(false)}>Otkaži</button>
+          </div>
+        </form>
+      )}
+
+      {resultForm.matchId && (
+        <form className="liga-inline-form liga-result-form" onSubmit={handleResultSubmit}>
+          <h4 className="liga-result-form-title">Unesi rezultat</h4>
+          <div className="liga-result-inputs">
+            <input
+              type="number" min="0" className="liga-input liga-score-input"
+              placeholder="Domaći" value={resultForm.homeScore}
+              onChange={e => setResultForm(f => ({ ...f, homeScore: e.target.value }))}
+            />
+            <span className="liga-result-sep">:</span>
+            <input
+              type="number" min="0" className="liga-input liga-score-input"
+              placeholder="Gosti" value={resultForm.awayScore}
+              onChange={e => setResultForm(f => ({ ...f, awayScore: e.target.value }))}
+            />
+          </div>
+          <div className="liga-form-row">
+            <button type="submit" className="btn-liga-sm btn-liga-primary" disabled={submitting}>
+              {submitting ? <Spinner /> : <><IconCheck /> Potvrdi</>}
+            </button>
+            <button type="button" className="btn-liga-sm btn-liga-ghost" onClick={() => setResultForm({ matchId: null, homeScore: "", awayScore: "" })}>Otkaži</button>
+          </div>
+        </form>
+      )}
+
+      {matches.length === 0 ? (
+        <EmptyState icon={<span style={{fontSize:28}}>⚽</span>} title="Nema utakmica" subtitle="Zakaži prvu utakmicu." />
+      ) : (
+        <ul className="liga-matches-list">
+          {matches.map(m => (
+            <li key={m.id} className="liga-match-card">
+              <div className="liga-match-teams">
+                <span className="liga-match-team">{m.homeTeamName}</span>
+                <div className="liga-match-score-box">
+                  {m.status === "COMPLETED"
+                    ? <span className="liga-match-score">{m.homeScore} : {m.awayScore}</span>
+                    : <span className="liga-match-score liga-match-score--pending">vs</span>
+                  }
+                </div>
+                <span className="liga-match-team liga-match-team--away">{m.awayTeamName}</span>
+              </div>
+              <div className="liga-match-footer">
+                <span className="liga-match-date"><IconCalendar /> {m.matchDate}</span>
+                <span className={`liga-match-status liga-match-status--${m.status?.toLowerCase()}`}>
+                  {m.status === "COMPLETED" ? "Završeno" : "Zakazano"}
+                </span>
+                <button
+                  type="button"
+                  className="btn-liga-icon btn-liga-secondary"
+                  title="Unesi rezultat"
+                  onClick={() => setResultForm({ matchId: m.id, homeScore: m.homeScore ?? "", awayScore: m.awayScore ?? "" })}
+                >
+                  <IconEdit />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/* ── Standings Tab ──────────────────────────────────────────── */
+
+function StandingsTab({ leagueId }) {
+  const { getLeagueStandings } = useAppContext();
+  const [standings, setStandings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getLeagueStandings(leagueId);
+      setStandings(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [leagueId, getLeagueStandings]);
+
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) return <div className="liga-tab-body liga-center"><Spinner /></div>;
+
+  return (
+    <div className="liga-tab-body">
+      <Alert type="error" message={error} onDismiss={() => setError(null)} />
+      {standings.length === 0 ? (
+        <EmptyState icon={<span style={{fontSize:28}}>📊</span>} title="Tabela je prazna" subtitle="Unesite rezultate utakmica." />
+      ) : (
+        <div className="liga-table-wrapper">
+          <table className="liga-table">
+            <thead>
+              <tr>
+                <th className="liga-th liga-th--rank">#</th>
+                <th className="liga-th liga-th--team">Tim</th>
+                <th className="liga-th liga-th--num" title="Odigrano">O</th>
+                <th className="liga-th liga-th--num" title="Pobjede">P</th>
+                <th className="liga-th liga-th--num" title="Remiji">R</th>
+                <th className="liga-th liga-th--num" title="Porazi">Pr</th>
+                <th className="liga-th liga-th--num" title="Gol razlika">GR</th>
+                <th className="liga-th liga-th--pts">Bod</th>
+              </tr>
+            </thead>
+            <tbody>
+              {standings.map((s, i) => {
+                const gd = s.goalsFor - s.goalsAgainst;
+                return (
+                  <tr key={s.teamId} className={`liga-tr ${i === 0 ? "liga-tr--first" : i < 3 ? "liga-tr--top" : ""}`}>
+                    <td className="liga-td liga-td--rank">
+                      {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
+                    </td>
+                    <td className="liga-td liga-td--team">
+                      <div className="liga-standing-team">
+                        <div className="liga-standing-avatar">{s.teamName[0]?.toUpperCase()}</div>
+                        {s.teamName}
+                      </div>
+                    </td>
+                    <td className="liga-td liga-td--num">{s.played}</td>
+                    <td className="liga-td liga-td--num">{s.wins}</td>
+                    <td className="liga-td liga-td--num">{s.draws}</td>
+                    <td className="liga-td liga-td--num">{s.losses}</td>
+                    <td className="liga-td liga-td--num">{gd > 0 ? `+${gd}` : gd}</td>
+                    <td className="liga-td liga-td--pts"><strong>{s.points}</strong></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Detail Panel ───────────────────────────────────────────── */
+
+const TABS = [
+  { key: "timovi", label: "Timovi" },
+  { key: "utakmice", label: "Utakmice" },
+  { key: "tabela", label: "Tabela" }
 ];
 
+function LeagueDetailPanel({ league, onBack }) {
+  const { getLeagueTeams, teams } = useAppContext();
+  const [activeTab, setActiveTab] = useState("timovi");
+  const [leagueTeams, setLeagueTeams] = useState([]);
+
+  const refreshLeagueTeams = useCallback(async () => {
+    try {
+      const data = await getLeagueTeams(league.id);
+      setLeagueTeams(Array.isArray(data) ? data : []);
+    } catch { /* ignore */ }
+  }, [league.id, getLeagueTeams]);
+
+  useEffect(() => { refreshLeagueTeams(); }, [refreshLeagueTeams]);
+
+  return (
+    <div className="liga-panel liga-panel--detail">
+      <div className="liga-panel-header liga-panel-header--detail">
+        <button type="button" className="btn-liga-back" onClick={onBack}>
+          <IconChevron /> Nazad
+        </button>
+        <div className="liga-detail-title">
+          <div className="liga-detail-avatar">{league.leagueName[0]?.toUpperCase()}</div>
+          <div>
+            <h2 className="liga-panel-title">{league.leagueName}</h2>
+            <div className="liga-detail-sub">{league.season}</div>
+          </div>
+        </div>
+        <span className={`liga-status-chip liga-status-chip--${league.status?.toLowerCase()}`}>
+          {league.status}
+        </span>
+      </div>
+
+      <Tabs tabs={TABS} active={activeTab} onChange={t => { setActiveTab(t); if (t === "timovi") refreshLeagueTeams(); }} />
+
+      {activeTab === "timovi" && (
+        <TeamsTab leagueId={league.id} allTeams={teams} />
+      )}
+      {activeTab === "utakmice" && (
+        <MatchesTab leagueId={league.id} leagueTeams={leagueTeams} />
+      )}
+      {activeTab === "tabela" && (
+        <StandingsTab leagueId={league.id} />
+      )}
+    </div>
+  );
+}
+
+/* ── Main Page ──────────────────────────────────────────────── */
+
 function LigaPage() {
-  const { teams } = useAppContext();
+  const { leagues, loadingLeagues, addLeague } = useAppContext();
+  const [selected, setSelected] = useState(null);
+
+  const handleSelect = (lg) => setSelected(lg);
+  const handleBack = () => setSelected(null);
 
   return (
     <div className="app-page">
-
       <div className="page-hero page-hero-liga">
         <div className="page-hero-text">
-          <div className="coming-soon-badge">Sprint 7 · Uskoro</div>
-          <h1 className="page-title">Liga</h1>
+          <h1 className="page-title">Upravljanje ligama</h1>
           <p className="page-subtitle">
-            Modul za upravljanje ligama, utakmicama i automatskim ažuriranjem tabele.
-            Biće dostupan u narednom sprintu.
+            Kreiranje liga, dodavanje timova, raspoređivanje utakmica i automatska tabela.
           </p>
         </div>
       </div>
 
       <div className="page-body">
-
-        <div className="coming-soon-grid">
-          {COMING_FEATURES.map(f => (
-            <div key={f.story} className="coming-soon-card">
-              <div className="coming-soon-card-icon">{f.icon}</div>
-              <div className="coming-soon-card-body">
-                <div className="coming-soon-story">{f.story}</div>
-                <h3 className="coming-soon-title">{f.title}</h3>
-                <p className="coming-soon-desc">{f.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="content-card">
-          <div className="content-card-header">
-            <h2 className="content-card-title">Pregled timova za ligu</h2>
-            <p className="content-card-subtitle">
-              {teams.length > 0
-                ? `${teams.length} timova registrovano u sistemu — biće dostupni za dodjelu u ligu`
-                : "Nema registrovanih timova u sistemu"}
-            </p>
-          </div>
-          {teams.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-state-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                  <circle cx="9" cy="7" r="4"/>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                </svg>
-              </div>
-              <p>Dodajte timove u modulu Timovi pa se ovdje mogu dodijeliti u ligu.</p>
-            </div>
+        <div className="liga-layout">
+          {selected ? (
+            <LeagueDetailPanel league={selected} onBack={handleBack} />
           ) : (
-            <div className="teams-preview-grid">
-              {teams.map(t => (
-                <div key={t.id} className="team-preview-chip">
-                  <div className="team-preview-avatar">{t.name?.[0]?.toUpperCase() || "T"}</div>
-                  <span>{t.name}</span>
-                </div>
-              ))}
-            </div>
+            <LeagueListPanel
+              leagues={leagues}
+              loading={loadingLeagues}
+              selectedId={selected?.id}
+              onSelect={handleSelect}
+              onCreateLeague={addLeague}
+            />
           )}
         </div>
-
       </div>
     </div>
   );

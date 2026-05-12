@@ -1,6 +1,7 @@
 package ba.sportsmanager.modules.results;
 
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,12 +21,18 @@ public class ResultsController {
         return resultsService.getMatches();
     }
 
+    @GetMapping("/leagues/{leagueId}/matches")
+    public List<MatchResponse> getMatchesByLeague(@PathVariable Long leagueId) {
+        return resultsService.getMatchesByLeague(leagueId);
+    }
+
     @GetMapping("/leagues/{leagueId}/standings")
     public List<StandingResponse> getStandings(@PathVariable Long leagueId) {
         return resultsService.getStandings(leagueId);
     }
 
     @PostMapping("/matches")
+    @ResponseStatus(HttpStatus.CREATED)
     public MatchResponse createMatch(@Valid @RequestBody CreateMatchRequest request) {
         return resultsService.createMatch(request);
     }

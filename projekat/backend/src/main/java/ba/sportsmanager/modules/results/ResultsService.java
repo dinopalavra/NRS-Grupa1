@@ -35,6 +35,13 @@ public class ResultsService {
                 .toList();
     }
 
+    public List<MatchResponse> getMatchesByLeague(Long leagueId) {
+        leagueService.getEntity(leagueId);
+        return matchRepository.findByLeague_IdOrderByMatchDateAsc(leagueId).stream()
+                .map(this::toMatchResponse)
+                .toList();
+    }
+
     public List<StandingResponse> getStandings(Long leagueId) {
         return standingRepository.findByLeague_IdOrderByPointsDescGoalsForDescGoalsAgainstAsc(leagueId).stream()
                 .map(this::toStandingResponse)
@@ -43,7 +50,7 @@ public class ResultsService {
 
     public MatchResponse createMatch(CreateMatchRequest request) {
         if (request.homeTeamId().equals(request.awayTeamId())) {
-            throw new BadRequestException("Home and away team cannot be the same.");
+            throw new BadRequestException("Domaći i gostujući tim ne mogu biti isti.");
         }
 
         LeagueEntity league = leagueService.getEntity(request.leagueId());
@@ -63,7 +70,11 @@ public class ResultsService {
     @Transactional
     public MatchResponse recordResult(Long matchId, RecordResultRequest request) {
         MatchEntity match = matchRepository.findById(matchId)
-                .orElseThrow(() -> new ResourceNotFoundException("Match not found."));
+                .orElseThrow(() -> new ResourceNotFoundException("Utakmica nije pronađena."));
+
+        if (match.getStatus() == MatchStatus.COMPLETED) {
+            undoStats(match);
+        }
 
         match.setHomeScore(request.homeScore());
         match.setAwayScore(request.awayScore());
@@ -80,6 +91,34 @@ public class ResultsService {
         standingRepository.save(awayStanding);
 
         return toMatchResponse(match);
+    }
+
+    private void undoStats(MatchEntity match) {
+        standingRepository.findByLeague_IdAndTeam_Id(match.getLeague().getId(), match.getHomeTeam().getId())
+                .ifPresent(s -> {
+                    removeStats(s, match.getHomeScore(), match.getAwayScore());
+                    standingRepository.save(s);
+                });
+        standingRepository.findByLeague_IdAndTeam_Id(match.getLeague().getId(), match.getAwayTeam().getId())
+                .ifPresent(s -> {
+                    removeStats(s, match.getAwayScore(), match.getHomeScore());
+                    standingRepository.save(s);
+                });
+    }
+
+    private void removeStats(StandingEntity standing, int goalsFor, int goalsAgainst) {
+        standing.setPlayed(Math.max(0, standing.getPlayed() - 1));
+        standing.setGoalsFor(Math.max(0, standing.getGoalsFor() - goalsFor));
+        standing.setGoalsAgainst(Math.max(0, standing.getGoalsAgainst() - goalsAgainst));
+        if (goalsFor > goalsAgainst) {
+            standing.setWins(Math.max(0, standing.getWins() - 1));
+            standing.setPoints(Math.max(0, standing.getPoints() - 3));
+        } else if (goalsFor == goalsAgainst) {
+            standing.setDraws(Math.max(0, standing.getDraws() - 1));
+            standing.setPoints(Math.max(0, standing.getPoints() - 1));
+        } else {
+            standing.setLosses(Math.max(0, standing.getLosses() - 1));
+        }
     }
 
     private StandingEntity getOrCreateStanding(LeagueEntity league, TeamEntity team) {

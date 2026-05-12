@@ -78,7 +78,7 @@ const ALL_NAV = [
   { key: "teams",        label: "Timovi",      Icon: IconShield,   roles: ["ADMIN", "CAPTAIN"],       badge: null },
   { key: "timeslots",    label: "Termini",     Icon: IconClock,    roles: null,                       badge: null },
   { key: "reservations", label: "Rezervacije", Icon: IconCalendar, roles: null,                       badge: null },
-  { key: "liga",         label: "Liga",        Icon: IconTrophy,   roles: null,                       badge: "S7"  },
+  { key: "liga",         label: "Liga",        Icon: IconTrophy,   roles: null,                       badge: null  },
 ];
 
 function getNavItems(role) {

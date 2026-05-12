@@ -3,15 +3,8 @@ export const API_BASE_URL =
 
 function buildHeaders(token, hasBody = false) {
   const headers = {};
-
-  if (hasBody) {
-    headers["Content-Type"] = "application/json";
-  }
-
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-
+  if (hasBody) headers["Content-Type"] = "application/json";
+  if (token) headers.Authorization = `Bearer ${token}`;
   return headers;
 }
 
@@ -26,7 +19,6 @@ async function parseResponse(response) {
       (typeof payload === "object" && payload?.error) ||
       (typeof payload === "string" && payload) ||
       `HTTP ${response.status}`;
-
     throw new Error(message);
   }
 
@@ -35,57 +27,49 @@ async function parseResponse(response) {
 
 async function request(path, options = {}) {
   const { method = "GET", body, token } = options;
-
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method,
     headers: buildHeaders(token, Boolean(body)),
     body: body ? JSON.stringify(body) : undefined
   });
-
   return parseResponse(response);
 }
+
+/* ── Auth ─────────────────────────────────────────────────── */
 
 export function pingBackend() {
   return request("/api/auth/ping");
 }
 
 export function loginUser(payload) {
-  return request("/api/auth/login", {
-    method: "POST",
-    body: payload
-  });
+  return request("/api/auth/login", { method: "POST", body: payload });
 }
+
+/* ── Users ────────────────────────────────────────────────── */
 
 export function fetchUsers(token) {
   return request("/api/users", { token });
 }
 
 export function createUser(payload, token) {
-  return request("/api/users", {
-    method: "POST",
-    body: payload,
-    token
-  });
+  return request("/api/users", { method: "POST", body: payload, token });
 }
 
 export function deleteUser(id, token) {
-  return request(`/api/users/${id}`, {
-    method: "DELETE",
-    token
-  });
+  return request(`/api/users/${id}`, { method: "DELETE", token });
 }
+
+/* ── Teams ────────────────────────────────────────────────── */
 
 export function fetchTeams(token) {
   return request("/api/teams", { token });
 }
 
 export function createTeam(payload, token) {
-  return request("/api/teams", {
-    method: "POST",
-    body: payload,
-    token
-  });
+  return request("/api/teams", { method: "POST", body: payload, token });
 }
+
+/* ── Time Slots ───────────────────────────────────────────── */
 
 export function fetchTimeSlots(token) {
   return request("/api/timeslots", { token });
@@ -96,42 +80,88 @@ export function fetchAvailableTimeSlots(token) {
 }
 
 export function createTimeSlot(payload, token) {
-  return request("/api/timeslots", {
-    method: "POST",
-    body: payload,
-    token
-  });
+  return request("/api/timeslots", { method: "POST", body: payload, token });
 }
+
+/* ── Reservations ─────────────────────────────────────────── */
 
 export function fetchReservations(token) {
   return request("/api/reservations", { token });
 }
 
 export function createReservation(payload, token) {
-  return request("/api/reservations", {
+  return request("/api/reservations", { method: "POST", body: payload, token });
+}
+
+export function approveReservation(id, token) {
+  return request(`/api/reservations/${id}/approve`, { method: "PATCH", token });
+}
+
+export function rejectReservation(id, token) {
+  return request(`/api/reservations/${id}/reject`, { method: "PATCH", token });
+}
+
+export function cancelReservation(id, token) {
+  return request(`/api/reservations/${id}/cancel`, { method: "PATCH", token });
+}
+
+/* ── Leagues ──────────────────────────────────────────────── */
+
+export function fetchLeagues(token) {
+  return request("/api/leagues", { token });
+}
+
+export function fetchLeague(id, token) {
+  return request(`/api/leagues/${id}`, { token });
+}
+
+export function createLeague(payload, token) {
+  return request("/api/leagues", { method: "POST", body: payload, token });
+}
+
+export function fetchLeagueTeams(leagueId, token) {
+  return request(`/api/leagues/${leagueId}/teams`, { token });
+}
+
+export function addTeamToLeague(leagueId, teamId, token) {
+  return request(`/api/leagues/${leagueId}/teams`, {
     method: "POST",
+    body: { teamId },
+    token
+  });
+}
+
+export function removeTeamFromLeague(leagueId, teamId, token) {
+  return request(`/api/leagues/${leagueId}/teams/${teamId}`, {
+    method: "DELETE",
+    token
+  });
+}
+
+/* ── Matches & Results ────────────────────────────────────── */
+
+export function fetchLeagueMatches(leagueId, token) {
+  return request(`/api/results/leagues/${leagueId}/matches`, { token });
+}
+
+export function fetchAllMatches(token) {
+  return request("/api/results/matches", { token });
+}
+
+export function createMatch(payload, token) {
+  return request("/api/results/matches", { method: "POST", body: payload, token });
+}
+
+export function recordMatchResult(matchId, payload, token) {
+  return request(`/api/results/matches/${matchId}`, {
+    method: "PATCH",
     body: payload,
     token
   });
 }
 
-export function approveReservation(id, token) {
-  return request(`/api/reservations/${id}/approve`, {
-    method: "PATCH",
-    token
-  });
-}
+/* ── Standings ────────────────────────────────────────────── */
 
-export function rejectReservation(id, token) {
-  return request(`/api/reservations/${id}/reject`, {
-    method: "PATCH",
-    token
-  });
-}
-
-export function cancelReservation(id, token) {
-  return request(`/api/reservations/${id}/cancel`, {
-    method: "PATCH",
-    token
-  });
+export function fetchStandings(leagueId, token) {
+  return request(`/api/results/leagues/${leagueId}/standings`, { token });
 }
