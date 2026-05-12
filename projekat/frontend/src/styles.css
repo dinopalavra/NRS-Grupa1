@@ -2608,3 +2608,52 @@ body::before {
 }
 .liga-empty-title { font-size: 0.9rem; font-weight: 600; color: var(--color-text); }
 .liga-empty-sub { font-size: 0.8rem; color: var(--color-text-muted); }
+
+/* Dark top accent on liga panel — matches content-card::before */
+.liga-panel::before {
+  content: "";
+  display: block;
+  height: 3px;
+  background: linear-gradient(90deg, #111827 0%, var(--color-primary) 60%, transparent 100%);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  margin: -1px -1px 0;
+}
+
+/* ============================================================
+   ROLE CHIPS — user role badges in tables
+   ============================================================ */
+
+.role-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+.role-chip--default {
+  background: var(--clr-gray-100);
+  color: var(--clr-gray-700);
+  border: 1px solid var(--clr-gray-200);
+}
+
+.role-chip--admin {
+  background: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+}
+
+.role-chip--captain {
+  background: var(--clr-green-100);
+  color: var(--clr-green-800);
+  border: 1px solid var(--clr-green-200);
+}
+
+.role-chip--referee {
+  background: var(--clr-blue-100);
+  color: var(--clr-blue-600);
+  border: 1px solid #bfdbfe;
+}

@@ -56,11 +56,10 @@ const ALL_FEATURE_CARDS = [
     key: "liga",
     Icon: IconTrophy,
     title: "Liga",
-    desc: "Kreiranje liga, dodavanje timova, unos rezultata i automatska tabela. Dolazi u Sprintu 7.",
+    desc: "Kreiranje liga, dodavanje timova, zakazivanje utakmica i automatska tabela poretka.",
     label: "Otvori ligu",
     roles: null,
     color: "card-gold",
-    soon: true,
   },
 ];
 

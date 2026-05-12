@@ -3,24 +3,27 @@ import { useAppContext } from "../context/AppContext.jsx";
 import TeamModule from "../modules/teams/TeamModule.jsx";
 
 function TeamsPage() {
-  const { selectedRole, navigate } = useAppContext();
+  const { selectedRole, teams } = useAppContext();
   const allowed = selectedRole === "ADMIN" || selectedRole === "CAPTAIN";
 
   if (!allowed) {
     return (
       <div className="app-page">
-        <div className="page-header">
-          <div>
-            <h1>Timovi</h1>
-            <p className="muted">Pristup ograničen na ADMIN i CAPTAIN uloge.</p>
+        <div className="page-hero">
+          <div className="page-hero-text">
+            <h1 className="page-title">Timovi</h1>
+            <p className="page-subtitle">Pristup ograničen na ADMIN i CAPTAIN uloge.</p>
           </div>
-          <button className="secondary-button" onClick={() => navigate("dashboard")}>
-            Nazad
-          </button>
         </div>
-
-        <div className="access-denied">
-          Ova stranica je dostupna samo korisnicima sa ulogom ADMIN ili CAPTAIN.
+        <div className="page-body">
+          <div className="content-card">
+            <div className="empty-state">
+              <div className="empty-state-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <p>Ova stranica je dostupna samo korisnicima sa ulogom ADMIN ili CAPTAIN.</p>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -28,19 +31,23 @@ function TeamsPage() {
 
   return (
     <div className="app-page">
-      <div className="page-header">
-        <div>
-          <h1>Timovi</h1>
-          <p className="muted">
-            Kreiranje i pregled timova preko backend API-ja.
+      <div className="page-hero">
+        <div className="page-hero-text">
+          <h1 className="page-title">Timovi</h1>
+          <p className="page-subtitle">
+            Kreiranje i pregled fudbalskih timova registrovanih u sistemu.
           </p>
         </div>
-        <button className="secondary-button" onClick={() => navigate("dashboard")}>
-          Nazad
-        </button>
+        <div className="page-hero-stats">
+          <div className="mini-stat mini-stat-total">
+            <span className="mini-stat-val">{teams.length}</span>
+            <span className="mini-stat-label">timova</span>
+          </div>
+        </div>
       </div>
-
-      <TeamModule />
+      <div className="page-body">
+        <TeamModule />
+      </div>
     </div>
   );
 }

@@ -1,51 +1,41 @@
 import React, { useEffect, useState } from "react";
 import { useAppContext } from "../../context/AppContext.jsx";
 
+const ROLE_LABELS = {
+  ADMIN: "Administrator",
+  CAPTAIN: "Kapiten",
+  PLAYER: "Igrač",
+  REFEREE_SCOREKEEPER: "Sudija / Zapisničar",
+};
+
 function UserModule() {
   const { users, registerUser, removeUser, loadUsers, loadingUsers, currentUser } = useAppContext();
 
   const [form, setForm] = useState({
-    fullName: "",
-    email: "",
-    username: "",
-    password: "",
-    role: "PLAYER"
+    fullName: "", email: "", username: "", password: "", role: "PLAYER"
   });
-
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [message, setMessage]   = useState({ text: "", ok: true });
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
-  useEffect(() => {
-    loadUsers();
-  }, [loadUsers]);
+  useEffect(() => { loadUsers(); }, [loadUsers]);
 
-  const onChange = (event) => {
-    setForm((prev) => ({
-      ...prev,
-      [event.target.name]: event.target.value
-    }));
-  };
+  const onChange = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
-  const onSubmit = async (event) => {
-    event.preventDefault();
-    setMessage("");
-    setError("");
-
+  const onSubmit = async e => {
+    e.preventDefault();
+    setMessage({ text: "", ok: true });
     if (!form.fullName.trim() || !form.email.trim() || !form.username.trim() || !form.password.trim()) {
-      setError("Unesite puno ime, email, username i lozinku.");
+      setMessage({ text: "Unesite puno ime, email, username i lozinku.", ok: false });
       return;
     }
-
     setSubmitting(true);
-
     try {
       await registerUser(form);
-      setMessage("Korisnik je uspješno kreiran u backend bazi.");
+      setMessage({ text: "Korisnik je uspješno kreiran.", ok: true });
       setForm({ fullName: "", email: "", username: "", password: "", role: "PLAYER" });
     } catch (err) {
-      setError(err.message || "Kreiranje korisnika nije uspjelo.");
+      setMessage({ text: err.message || "Kreiranje korisnika nije uspjelo.", ok: false });
     } finally {
       setSubmitting(false);
     }
@@ -54,88 +44,97 @@ function UserModule() {
   const onDelete = async (user) => {
     const selfId = currentUser?.userId ?? currentUser?.id ?? null;
     if (selfId && Number(selfId) === Number(user.id)) {
-      setError("Ne možete obrisati vlastiti nalog.");
+      setMessage({ text: "Ne možete obrisati vlastiti nalog.", ok: false });
       return;
     }
     if (!window.confirm(`Obrisati korisnika "${user.fullName || user.username}"? Ova akcija je nepovratna.`)) return;
-
     setDeletingId(user.id);
-    setError("");
-    setMessage("");
+    setMessage({ text: "", ok: true });
     try {
       await removeUser(user.id);
-      setMessage(`Korisnik "${user.fullName || user.username}" je obrisan.`);
+      setMessage({ text: `Korisnik "${user.fullName || user.username}" je obrisan.`, ok: true });
     } catch (err) {
-      setError(err.message || "Brisanje nije uspjelo.");
+      setMessage({ text: err.message || "Brisanje nije uspjelo.", ok: false });
     } finally {
       setDeletingId(null);
     }
   };
 
   return (
-    <div className="module-layout">
-      <div className="card">
-        <h3>Novi korisnik</h3>
-
-        {error && <p className="error-text">{error}</p>}
-        {message && <p className="success-text">{message}</p>}
-
-        <form className="form" onSubmit={onSubmit}>
-          <div className="form-grid">
-            <div className="input-group">
-              <label>Ime i prezime</label>
-              <input className="input" name="fullName" value={form.fullName} onChange={onChange} />
+    <>
+      <div className="content-card">
+        <div className="content-card-header">
+          <h2 className="content-card-title">Novi korisnik</h2>
+          <p className="content-card-subtitle">Registruj novog korisnika u sistemu</p>
+        </div>
+        <form onSubmit={onSubmit} className="inline-form">
+          <div className="form-row">
+            <div className="field field-grow">
+              <label className="field-label">Ime i prezime</label>
+              <input className="field-input" name="fullName" value={form.fullName} onChange={onChange} placeholder="Npr. Haris Kovač" />
             </div>
-            <div className="input-group">
-              <label>Email</label>
-              <input className="input" name="email" value={form.email} onChange={onChange} />
-            </div>
-            <div className="input-group">
-              <label>Korisničko ime</label>
-              <input className="input" name="username" value={form.username} onChange={onChange} />
-            </div>
-            <div className="input-group">
-              <label>Lozinka</label>
-              <input className="input" type="password" name="password" value={form.password} onChange={onChange} />
-            </div>
-            <div className="input-group">
-              <label>Uloga</label>
-              <select className="input" name="role" value={form.role} onChange={onChange}>
-                <option value="PLAYER">PLAYER</option>
-                <option value="CAPTAIN">CAPTAIN</option>
-                <option value="ADMIN">ADMIN</option>
-                <option value="REFEREE_SCOREKEEPER">REFEREE_SCOREKEEPER</option>
-              </select>
+            <div className="field field-grow">
+              <label className="field-label">Email</label>
+              <input className="field-input" type="email" name="email" value={form.email} onChange={onChange} placeholder="ime@domena.com" />
             </div>
           </div>
-          <button className="button" type="submit" disabled={submitting}>
-            {submitting ? "Spremanje..." : "Dodaj korisnika"}
-          </button>
+          <div className="form-row">
+            <div className="field field-grow">
+              <label className="field-label">Korisničko ime</label>
+              <input className="field-input" name="username" value={form.username} onChange={onChange} placeholder="username" />
+            </div>
+            <div className="field field-grow">
+              <label className="field-label">Lozinka</label>
+              <input className="field-input" type="password" name="password" value={form.password} onChange={onChange} placeholder="••••••••" />
+            </div>
+            <div className="field">
+              <label className="field-label">Uloga</label>
+              <select className="field-input" name="role" value={form.role} onChange={onChange}>
+                <option value="PLAYER">Igrač</option>
+                <option value="CAPTAIN">Kapiten</option>
+                <option value="ADMIN">Administrator</option>
+                <option value="REFEREE_SCOREKEEPER">Sudija / Zapisničar</option>
+              </select>
+            </div>
+            <div className="field field-action">
+              <label className="field-label">&nbsp;</label>
+              <button className="btn btn-primary" type="submit" disabled={submitting}>
+                {submitting ? "Kreiranje..." : "Dodaj korisnika"}
+              </button>
+            </div>
+          </div>
+          {message.text && (
+            <div className={message.ok ? "inline-success" : "inline-error"}>{message.text}</div>
+          )}
         </form>
       </div>
 
-      <div className="card">
-        <div className="page-header">
+      <div className="content-card">
+        <div className="content-card-header content-card-header-row">
           <div>
-            <h3>Lista korisnika</h3>
-            <p className="muted">Podaci se učitavaju sa backend endpointa `/api/users`.</p>
+            <h2 className="content-card-title">Lista korisnika</h2>
+            <p className="content-card-subtitle">{users.length} korisnika registrovano u sistemu</p>
           </div>
-          <button className="secondary-button" onClick={loadUsers}>
+          <button className="btn btn-secondary" type="button" onClick={loadUsers}>
             Osvježi
           </button>
         </div>
 
         {loadingUsers ? (
-          <div className="empty-state">Učitavanje korisnika...</div>
+          <div className="loading-state">Učitavanje korisnika...</div>
         ) : users.length === 0 ? (
-          <div className="empty-state">Nema korisnika za prikaz.</div>
+          <div className="empty-state">
+            <div className="empty-state-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            </div>
+            <p>Nema korisnika za prikaz.</p>
+          </div>
         ) : (
-          <div className="table-wrapper">
-            <table className="data-table">
+          <div className="slots-table-wrap">
+            <table className="slots-table">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Ime i prezime</th>
+                  <th>Korisnik</th>
                   <th>Email</th>
                   <th>Username</th>
                   <th>Uloga</th>
@@ -144,24 +143,34 @@ function UserModule() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
+                {users.map(user => (
                   <tr key={user.id}>
-                    <td>{user.id}</td>
-                    <td>{user.fullName}</td>
-                    <td>{user.email}</td>
-                    <td>{user.username}</td>
-                    <td>{user.role}</td>
                     <td>
-                      <span className={`status-chip ${user.active ? "status-available" : "status-blocked"}`}>
-                        {user.active ? "AKTIVAN" : "NEAKTIVAN"}
+                      <div className="slot-resource">{user.fullName || "—"}</div>
+                      <div className="slot-location">ID #{user.id}</div>
+                    </td>
+                    <td>{user.email || "—"}</td>
+                    <td>{user.username}</td>
+                    <td>
+                      <span className={`role-chip ${
+                        user.role === "ADMIN" ? "role-chip--admin"
+                        : user.role === "CAPTAIN" ? "role-chip--captain"
+                        : user.role === "REFEREE_SCOREKEEPER" ? "role-chip--referee"
+                        : "role-chip--default"
+                      }`}>
+                        {ROLE_LABELS[user.role] || user.role}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`status-chip status-${user.active ? "available" : "blocked"}`}>
+                        {user.active ? "Aktivan" : "Neaktivan"}
                       </span>
                     </td>
                     <td>
                       <button
-                        className="btn-xs btn-danger"
+                        className="btn btn-xs btn-danger"
                         onClick={() => onDelete(user)}
                         disabled={deletingId === user.id}
-                        title="Obriši korisnika"
                       >
                         {deletingId === user.id ? "..." : "Obriši"}
                       </button>
@@ -173,7 +182,7 @@ function UserModule() {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }
 
