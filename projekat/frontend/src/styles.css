@@ -27,6 +27,7 @@
 
   --clr-red-50:    #fef2f2;
   --clr-red-100:   #fee2e2;
+  --clr-red-200:   #fecaca;
   --clr-red-500:   #ef4444;
   --clr-red-600:   #dc2626;
   --clr-red-700:   #b91c1c;
@@ -169,7 +170,7 @@ button, input, select, textarea { font: inherit; }
   justify-content: center;
   flex-shrink: 0;
   font-size: 20px;
-  box-shadow: 0 4px 10px rgba(22,163,74,0.35);
+  box-shadow: var(--shadow-md);
 }
 
 .brand-title {
@@ -524,11 +525,12 @@ button, input, select, textarea { font: inherit; }
   border-radius: var(--radius-lg);
   padding: 22px;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow var(--tr), transform var(--tr);
+  transition: box-shadow var(--tr), transform var(--tr), border-color var(--tr);
 }
 
 .card:hover {
   box-shadow: var(--shadow-md);
+  border-color: var(--clr-green-200);
 }
 
 .team-card {
@@ -537,12 +539,13 @@ button, input, select, textarea { font: inherit; }
   border-radius: var(--radius-lg);
   padding: 20px;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow var(--tr), transform var(--tr);
+  transition: box-shadow var(--tr), transform var(--tr), border-color var(--tr);
 }
 
 .team-card:hover {
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
+  border-color: var(--clr-green-200);
 }
 
 .access-denied {
@@ -610,7 +613,7 @@ button, input, select, textarea { font: inherit; }
   display: flex;
   flex-direction: column;
   gap: 6px;
-  transition: box-shadow var(--tr), transform var(--tr);
+  transition: box-shadow var(--tr), transform var(--tr), border-color var(--tr);
   position: relative;
   overflow: hidden;
 }
@@ -627,6 +630,7 @@ button, input, select, textarea { font: inherit; }
 .stat-card:hover {
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
+  border-color: var(--clr-green-200);
 }
 
 .stat-icon {
@@ -797,7 +801,7 @@ button, input, select, textarea { font: inherit; }
 .input:hover:not(:focus),
 .form-input:hover:not(:focus),
 .form-select:hover:not(:focus) {
-  border-color: var(--clr-gray-300);
+  border-color: var(--clr-green-300);
 }
 
 textarea.form-input {
@@ -869,7 +873,7 @@ textarea.form-input {
 .secondary-button:hover:not(:disabled),
 .btn-secondary:hover:not(:disabled) {
   background: var(--clr-gray-50);
-  border-color: var(--clr-gray-300);
+  border-color: var(--clr-green-300);
 }
 
 /* Danger */
@@ -984,8 +988,8 @@ textarea.form-input {
 
 .status::before {
   content: '';
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: currentColor;
   opacity: 0.7;
@@ -1056,7 +1060,7 @@ textarea.form-input {
   text-align: center;
   padding: 40px 24px;
   color: var(--color-text-muted);
-  border: 1.5px dashed var(--color-border);
+  border: 1.5px dashed var(--clr-green-200);
   border-radius: var(--radius-lg);
   gap: 6px;
   font-size: 0.875rem;
@@ -1112,12 +1116,13 @@ textarea.form-input {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  transition: box-shadow var(--tr), transform var(--tr);
+  transition: box-shadow var(--tr), transform var(--tr), border-color var(--tr);
 }
 
 .feature-card:hover {
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
+  border-color: var(--clr-green-200);
 }
 
 .feature-card-icon {
@@ -1366,6 +1371,10 @@ textarea.form-input {
   box-shadow: var(--shadow-focus);
 }
 
+.field-input:hover:not(:focus) {
+  border-color: var(--clr-green-300);
+}
+
 .field-input::placeholder { color: var(--clr-gray-400); }
 
 select.field-input { cursor: pointer; }
@@ -1472,7 +1481,7 @@ select.field-input { cursor: pointer; }
   transition: background var(--tr);
 }
 
-.slots-table tbody tr:hover { background: var(--clr-gray-50); }
+.slots-table tbody tr:hover { background: var(--clr-green-50); }
 
 .slot-resource {
   font-weight: 600;
@@ -1508,7 +1517,7 @@ select.field-input { cursor: pointer; }
   opacity: 0.7;
 }
 .status-available  { background: var(--clr-green-100);  color: var(--clr-green-800); }
-.status-reserved   { background: var(--clr-red-100);    color: var(--clr-red-700); }
+.status-reserved   { background: var(--clr-blue-100);   color: var(--clr-blue-600); }
 .status-blocked    { background: var(--clr-gray-100);   color: var(--clr-gray-600); }
 .status-pending    { background: var(--clr-amber-100);  color: var(--clr-amber-600); }
 .status-approved   { background: var(--clr-green-100);  color: var(--clr-green-800); }
@@ -1606,9 +1615,9 @@ select.field-input { cursor: pointer; }
   min-width: 150px;
   box-shadow: var(--shadow-sm);
   animation: fadeInUp 0.22s var(--ease) both;
-  transition: box-shadow var(--tr), transform var(--tr);
+  transition: box-shadow var(--tr), transform var(--tr), border-color var(--tr);
 }
-.dash-stat:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.dash-stat:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); border-color: var(--clr-green-200); }
 
 .dash-stat-icon {
   width: 40px; height: 40px;
@@ -1652,6 +1661,7 @@ select.field-input { cursor: pointer; }
 .dash-card:hover {
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
+  border-color: var(--clr-green-200);
 }
 
 .dash-card-icon {
@@ -1983,11 +1993,6 @@ body::before {
   color: #111827;
 }
 
-/* Table row hover with subtle dark tint */
-.data-table tbody tr:hover {
-  background: #f1f5f9;
-}
-
 /* ============================================================
    RESPONSIVE — additions
    ============================================================ */
@@ -2027,7 +2032,7 @@ body::before {
   gap: 10px;
   padding: 18px 22px 14px;
   border-bottom: 1px solid var(--color-border);
-  background: #f9fafb;
+  background: var(--clr-gray-50);
 }
 
 .liga-panel-header--detail {
@@ -2052,10 +2057,10 @@ body::before {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 7px 13px;
+  padding: 5px 11px;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
-  font-size: 0.82rem;
+  font-size: 0.80rem;
   font-weight: 600;
   cursor: pointer;
   transition: background var(--tr), border-color var(--tr), opacity var(--tr);
@@ -2129,7 +2134,7 @@ body::before {
 .liga-status-chip {
   font-size: 0.7rem;
   font-weight: 700;
-  padding: 3px 9px;
+  padding: 3px 10px;
   border-radius: var(--radius-full);
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -2284,7 +2289,7 @@ body::before {
   display: flex;
   gap: 0;
   border-bottom: 1px solid var(--color-border);
-  background: #f9fafb;
+  background: var(--clr-gray-50);
   padding: 0 18px;
 }
 
@@ -2508,7 +2513,7 @@ body::before {
 }
 
 .liga-th {
-  padding: 10px 12px;
+  padding: 11px 14px;
   text-align: left;
   font-size: 0.72rem;
   font-weight: 700;
@@ -2522,7 +2527,7 @@ body::before {
 .liga-th--team { text-align: left; }
 
 .liga-td {
-  padding: 10px 12px;
+  padding: 11px 14px;
   border-bottom: 1px solid var(--color-border);
   vertical-align: middle;
 }
@@ -2530,7 +2535,7 @@ body::before {
 .liga-td--pts { text-align: center; font-size: 0.95rem; }
 
 .liga-tr { transition: background var(--tr); }
-.liga-tr:hover { background: var(--clr-gray-50); }
+.liga-tr:hover { background: var(--clr-green-50); }
 .liga-tr--first { background: #fefce8; }
 .liga-tr--top { background: var(--clr-green-50); }
 
