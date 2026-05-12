@@ -607,7 +607,7 @@ function LeagueDetailPanel({ league, onBack }) {
         </span>
       </div>
 
-      <Tabs tabs={TABS} active={activeTab} onChange={t => { setActiveTab(t); if (t === "timovi") refreshLeagueTeams(); }} />
+      <Tabs tabs={TABS} active={activeTab} onChange={t => { setActiveTab(t); refreshLeagueTeams(); }} />
 
       {activeTab === "timovi" && (
         <TeamsTab leagueId={league.id} allTeams={teams} />
