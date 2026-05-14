@@ -1878,10 +1878,7 @@ body::before {
   box-shadow: 0 4px 14px rgba(0,0,0,0.35);
 }
 
-/* Active nav item gets a left black accent */
-.nav-item.is-active {
-  border-left: 3px solid #000000;
-}
+/* Active nav item left accent handled by ::after pseudo-element */
 
 /* Page hero dark gradient accent */
 .page-hero {
