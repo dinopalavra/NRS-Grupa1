@@ -148,7 +148,7 @@ function Layout({ children }) {
 
       </aside>
 
-      <main className="layout-content">{children}</main>
+      <main className={`layout-content layout-bg--${currentPage}`}>{children}</main>
     </div>
   );
 }
