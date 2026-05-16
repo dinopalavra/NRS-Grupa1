@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
 /* ============================================================
    DESIGN TOKENS — Exclusive Private Sports Club
@@ -58,7 +58,7 @@
   --sidebar-width: 260px;
   --content-max:   1160px;
 
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Montserrat', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -79,11 +79,12 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
   line-height: 1.2;
   color: var(--cream);
-  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
 }
 
 p { margin: 0; }
@@ -158,11 +159,12 @@ button, input, select, textarea { font: inherit; }
 }
 
 .brand-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.15rem;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--cream);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
   line-height: 1.2;
 }
 
@@ -450,11 +452,12 @@ button, input, select, textarea { font: inherit; }
 }
 
 .auth-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2rem;
-  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 300;
   color: var(--cream);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
   margin-bottom: 8px;
 }
 
@@ -502,11 +505,12 @@ button, input, select, textarea { font: inherit; }
 }
 
 .page-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2.2rem;
-  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 300;
   color: var(--cream);
-  letter-spacing: 0.01em;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   margin: 0 0 6px;
 }
 
@@ -553,7 +557,7 @@ button, input, select, textarea { font: inherit; }
 }
 
 .mini-stat-val {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 1.8rem;
   font-weight: 500;
   line-height: 1;
@@ -618,11 +622,12 @@ button, input, select, textarea { font: inherit; }
 }
 
 .content-card-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.1rem;
-  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
   color: var(--cream);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .content-card-subtitle {
@@ -1045,10 +1050,11 @@ select.field-input option {
 }
 
 .dashboard-welcome .page-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2.8rem;
-  font-weight: 300;
-  letter-spacing: -0.01em;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2rem;
+  font-weight: 200;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
   color: var(--cream);
   margin-bottom: 8px;
 }
@@ -1090,7 +1096,7 @@ select.field-input option {
 }
 .dash-stat-svg   { width: 20px; height: 20px; }
 .dash-stat-val   {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 2rem; font-weight: 400; line-height: 1;
   color: var(--gold-light);
 }
@@ -1151,9 +1157,11 @@ select.field-input option {
 .dash-card-body  { flex: 1; }
 .dash-card-title-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .dash-card-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.05rem;
-  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--cream);
   letter-spacing: 0.02em;
 }
@@ -1229,9 +1237,11 @@ select.field-input option {
 }
 
 .liga-panel-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.05rem;
-  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--cream);
   display: flex;
   align-items: center;
@@ -1443,7 +1453,7 @@ select.field-input option {
 .liga-match-team--away { text-align: right; }
 .liga-match-score-box { display: flex; justify-content: center; }
 .liga-match-score {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 1.2rem; font-weight: 500;
   color: var(--gold-light);
   background: var(--gold-subtle);
@@ -1463,7 +1473,7 @@ select.field-input option {
 .liga-result-form        { background: rgba(59,130,246,0.06); border-color: rgba(59,130,246,0.2); }
 .liga-result-form-title  { font-size: 0.82rem; font-weight: 500; color: #93c5fd; margin: 0; }
 .liga-result-inputs      { display: flex; align-items: center; gap: 10px; }
-.liga-score-input        { width: 72px !important; text-align: center; font-family: 'Cormorant Garamond', serif; font-size: 1.2rem !important; font-weight: 500; }
+.liga-score-input        { width: 72px !important; text-align: center; font-family: 'Montserrat', sans-serif; font-size: 1.2rem !important; font-weight: 500; }
 .liga-result-sep         { font-size: 1.3rem; font-weight: 300; color: var(--cream-muted); }
 
 /* Standings table */
@@ -1548,7 +1558,7 @@ select.field-input option {
 .stat-grid  { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 28px; }
 .stat-card  { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: var(--radius-lg); padding: 20px; display: flex; flex-direction: column; gap: 6px; }
 .stat-label { font-size: 0.72rem; color: var(--cream-muted); text-transform: uppercase; letter-spacing: 0.08em; }
-.stat-card strong { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 400; color: var(--gold-light); line-height: 1; }
+.stat-card strong { font-family: 'Montserrat', sans-serif; font-size: 2.2rem; font-weight: 400; color: var(--gold-light); line-height: 1; }
 
 .muted { font-size: 0.875rem; color: var(--cream-muted); }
 
@@ -1612,7 +1622,7 @@ select.field-input option {
 
 .section-card         { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: var(--radius-lg); overflow: hidden; }
 .section-card-head    { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 18px 22px 14px; border-bottom: 1px solid rgba(201,168,124,0.1); }
-.section-card-title   { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 500; color: var(--cream); margin: 0 0 3px; }
+.section-card-title   { font-family: 'Montserrat', sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--cream); letter-spacing: 0.12em; text-transform: uppercase; margin: 0 0 3px; }
 .section-card-subtitle { font-size: 0.78rem; color: var(--cream-muted); margin: 0; }
 .section-card-body    { padding: 18px 22px; }
 
