@@ -62,8 +62,26 @@ const IconTrophy = ({ className = "nav-icon" }) => (
   </svg>
 );
 
-const IconBall = () => (
-  <span style={{ fontSize: 20, lineHeight: 1 }}>🏅</span>
+const Logo = () => (
+  <svg
+    width="22" height="22"
+    viewBox="0 0 32 32"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    {/* Outer arena frame */}
+    <rect x="2" y="2" width="28" height="28" rx="3" stroke="#c9a87c" strokeWidth="1.6" fill="none"/>
+    {/* Center dividing line */}
+    <line x1="16" y1="2" x2="16" y2="30" stroke="#c9a87c" strokeWidth="1" opacity="0.55"/>
+    {/* Center circle */}
+    <circle cx="16" cy="16" r="5.5" stroke="#c9a87c" strokeWidth="1.2" fill="none"/>
+    {/* Center spot */}
+    <circle cx="16" cy="16" r="1.6" fill="#c9a87c"/>
+    {/* Top arc (penalty/service area suggestion) */}
+    <path d="M10 2 Q10 7 16 7 Q22 7 22 2" stroke="#c9a87c" strokeWidth="1" opacity="0.45" fill="none"/>
+    {/* Bottom arc */}
+    <path d="M10 30 Q10 25 16 25 Q22 25 22 30" stroke="#c9a87c" strokeWidth="1" opacity="0.45" fill="none"/>
+  </svg>
 );
 
 /* ── Role-based nav items ──────────────────────────────────── */
@@ -103,7 +121,7 @@ function Layout({ children }) {
         <div className="layout-brand">
           <div className="brand-logo">
             <div className="brand-icon">
-              <IconBall />
+              <Logo />
             </div>
             <div>
               <div className="brand-title">Pitch Manager</div>
