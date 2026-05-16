@@ -1,6 +1,7 @@
 package ba.sportsmanager.modules.results;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 public record MatchResponse(
         Long id,
@@ -13,6 +14,11 @@ public record MatchResponse(
         LocalDate matchDate,
         MatchStatus status,
         Integer homeScore,
-        Integer awayScore
+        Integer awayScore,
+        String location,
+        String resourceName,
+        LocalTime startTime,
+        LocalTime endTime,
+        Long linkedSlotId
 ) {
 }

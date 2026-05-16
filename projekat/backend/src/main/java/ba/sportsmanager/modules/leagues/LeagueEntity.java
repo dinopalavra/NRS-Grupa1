@@ -1,5 +1,6 @@
 package ba.sportsmanager.modules.leagues;
 
+import ba.sportsmanager.common.SportType;
 import jakarta.persistence.*;
 
 @Entity
@@ -20,6 +21,10 @@ public class LeagueEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private LeagueStatus status = LeagueStatus.ACTIVE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sport")
+    private SportType sport;
 
     public LeagueEntity() {
     }
@@ -50,5 +55,13 @@ public class LeagueEntity {
 
     public void setStatus(LeagueStatus status) {
         this.status = status;
+    }
+
+    public SportType getSport() {
+        return sport;
+    }
+
+    public void setSport(SportType sport) {
+        this.sport = sport;
     }
 }

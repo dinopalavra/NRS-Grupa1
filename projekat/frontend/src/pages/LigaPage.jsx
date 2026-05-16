@@ -1,6 +1,16 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useAppContext } from "../context/AppContext.jsx";
 
+const SPORT_LABELS = {
+  FOOTBALL:   "⚽ Fudbal",
+  BASKETBALL: "🏀 Košarka",
+  VOLLEYBALL: "🏐 Odbojka",
+  HANDBALL:   "🤾 Rukomet",
+  FUTSAL:     "🥅 Futsal",
+  TENNIS:     "🎾 Tenis",
+  OTHER:      "🏅 Ostalo",
+};
+
 /* ── Icons ─────────────────────────────────────────────────── */
 
 const IconTrophy = () => (
@@ -74,7 +84,7 @@ function EmptyState({ icon, title, subtitle }) {
 
 function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeague }) {
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ leagueName: "", season: "" });
+  const [form, setForm] = useState({ leagueName: "", season: "", sport: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
@@ -87,8 +97,8 @@ function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeagu
     setSaving(true);
     setError(null);
     try {
-      await onCreateLeague({ leagueName: form.leagueName.trim(), season: form.season.trim() });
-      setForm({ leagueName: "", season: "" });
+      await onCreateLeague({ leagueName: form.leagueName.trim(), season: form.season.trim(), sport: form.sport || null });
+      setForm({ leagueName: "", season: "", sport: "" });
       setShowForm(false);
     } catch (err) {
       setError(err.message);
@@ -129,6 +139,19 @@ function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeagu
               onChange={e => setForm(f => ({ ...f, season: e.target.value }))}
             />
           </div>
+          <div className="liga-field">
+            <label className="liga-label">Sport</label>
+            <select className="liga-input liga-select" value={form.sport} onChange={e => setForm(f => ({ ...f, sport: e.target.value }))}>
+              <option value="">Odaberi...</option>
+              <option value="FOOTBALL">Fudbal</option>
+              <option value="BASKETBALL">Košarka</option>
+              <option value="VOLLEYBALL">Odbojka</option>
+              <option value="HANDBALL">Rukomet</option>
+              <option value="FUTSAL">Futsal</option>
+              <option value="TENNIS">Tenis</option>
+              <option value="OTHER">Ostalo</option>
+            </select>
+          </div>
           <div className="liga-form-row">
             <button type="submit" className="btn-liga-sm btn-liga-primary" disabled={saving}>
               {saving ? <Spinner /> : <><IconCheck /> Kreiraj</>}
@@ -160,7 +183,10 @@ function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeagu
                 <div className="liga-list-item-avatar">{lg.leagueName[0]?.toUpperCase()}</div>
                 <div className="liga-list-item-body">
                   <div className="liga-list-item-name">{lg.leagueName}</div>
-                  <div className="liga-list-item-sub">{lg.season}</div>
+                  <div className="liga-list-item-sub">
+                    {lg.season}
+                    {lg.sport && <span style={{ marginLeft: 6 }}>{SPORT_LABELS[lg.sport] || lg.sport}</span>}
+                  </div>
                 </div>
                 <span className={`liga-status-chip liga-status-chip--${lg.status?.toLowerCase()}`}>
                   {lg.status}
@@ -315,7 +341,7 @@ function MatchesTab({ leagueId, leagueTeams }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ homeTeamId: "", awayTeamId: "", matchDate: "" });
+  const [form, setForm] = useState({ homeTeamId: "", awayTeamId: "", matchDate: "", location: "", resourceName: "", startTime: "", endTime: "" });
   const [saving, setSaving] = useState(false);
   const [resultForm, setResultForm] = useState({ matchId: null, homeScore: "", awayScore: "" });
   const [submitting, setSubmitting] = useState(false);
@@ -352,9 +378,13 @@ function MatchesTab({ leagueId, leagueTeams }) {
         leagueId,
         homeTeamId: Number(form.homeTeamId),
         awayTeamId: Number(form.awayTeamId),
-        matchDate: form.matchDate
+        matchDate: form.matchDate,
+        location: form.location || null,
+        resourceName: form.resourceName || null,
+        startTime: form.startTime ? (form.startTime.length === 5 ? `${form.startTime}:00` : form.startTime) : null,
+        endTime: form.endTime ? (form.endTime.length === 5 ? `${form.endTime}:00` : form.endTime) : null,
       });
-      setForm({ homeTeamId: "", awayTeamId: "", matchDate: "" });
+      setForm({ homeTeamId: "", awayTeamId: "", matchDate: "", location: "", resourceName: "", startTime: "", endTime: "" });
       setShowForm(false);
       await load();
     } catch (err) {
@@ -419,6 +449,24 @@ function MatchesTab({ leagueId, leagueTeams }) {
               <input type="date" className="liga-input" value={form.matchDate} onChange={e => setForm(f => ({ ...f, matchDate: e.target.value }))} />
             </div>
           </div>
+          <div className="liga-form-grid" style={{ marginTop: 4 }}>
+            <div className="liga-field">
+              <label className="liga-label">Lokacija <span style={{ fontWeight: 400, textTransform: "none" }}>(opciono)</span></label>
+              <input type="text" className="liga-input" placeholder="npr. Skenderija" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} />
+            </div>
+            <div className="liga-field">
+              <label className="liga-label">Teren <span style={{ fontWeight: 400, textTransform: "none" }}>(opciono)</span></label>
+              <input type="text" className="liga-input" placeholder="npr. Teren 1" value={form.resourceName} onChange={e => setForm(f => ({ ...f, resourceName: e.target.value }))} />
+            </div>
+            <div className="liga-field">
+              <label className="liga-label">Početak <span style={{ fontWeight: 400, textTransform: "none" }}>(opciono)</span></label>
+              <input type="time" className="liga-input" value={form.startTime} onChange={e => setForm(f => ({ ...f, startTime: e.target.value }))} />
+            </div>
+            <div className="liga-field">
+              <label className="liga-label">Kraj <span style={{ fontWeight: 400, textTransform: "none" }}>(opciono)</span></label>
+              <input type="time" className="liga-input" value={form.endTime} onChange={e => setForm(f => ({ ...f, endTime: e.target.value }))} />
+            </div>
+          </div>
           <div className="liga-form-row">
             <button type="submit" className="btn-liga-sm btn-liga-primary" disabled={saving}>
               {saving ? <Spinner /> : <><IconCheck /> Zakaži</>}
@@ -471,6 +519,12 @@ function MatchesTab({ leagueId, leagueTeams }) {
               </div>
               <div className="liga-match-footer">
                 <span className="liga-match-date"><IconCalendar /> {m.matchDate}</span>
+                {m.location && (
+                  <span className="liga-match-date" style={{ fontSize: "0.73rem" }}>
+                    📍 {m.location}{m.resourceName ? ` · ${m.resourceName}` : ""}
+                    {m.startTime ? ` · ${m.startTime.slice(0,5)}` : ""}
+                  </span>
+                )}
                 <span className={`liga-match-status liga-match-status--${m.status?.toLowerCase()}`}>
                   {m.status === "COMPLETED" ? "Završeno" : "Zakazano"}
                 </span>

@@ -1,5 +1,6 @@
 package ba.sportsmanager.modules.timeslots;
 
+import ba.sportsmanager.common.SportType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -11,6 +12,7 @@ public record CreateTimeSlotRequest(
         @NotNull LocalTime startTime,
         @NotNull LocalTime endTime,
         @NotBlank String location,
-        @NotBlank String resourceName
+        @NotBlank String resourceName,
+        SportType sport
 ) {
 }

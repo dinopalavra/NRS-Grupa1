@@ -1,15 +1,21 @@
 package ba.sportsmanager.modules.results;
 
 import ba.sportsmanager.exception.BadRequestException;
+import ba.sportsmanager.exception.ConflictException;
 import ba.sportsmanager.exception.ResourceNotFoundException;
 import ba.sportsmanager.modules.leagues.LeagueEntity;
 import ba.sportsmanager.modules.leagues.LeagueService;
 import ba.sportsmanager.modules.teams.TeamEntity;
 import ba.sportsmanager.modules.teams.TeamService;
+import ba.sportsmanager.modules.timeslots.SlotAvailabilityStatus;
+import ba.sportsmanager.modules.timeslots.TimeSlotEntity;
+import ba.sportsmanager.modules.timeslots.TimeSlotRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ResultsService {
@@ -18,15 +24,18 @@ public class ResultsService {
     private final StandingRepository standingRepository;
     private final LeagueService leagueService;
     private final TeamService teamService;
+    private final TimeSlotRepository timeSlotRepository;
 
     public ResultsService(MatchRepository matchRepository,
                           StandingRepository standingRepository,
                           LeagueService leagueService,
-                          TeamService teamService) {
+                          TeamService teamService,
+                          TimeSlotRepository timeSlotRepository) {
         this.matchRepository = matchRepository;
         this.standingRepository = standingRepository;
         this.leagueService = leagueService;
         this.teamService = teamService;
+        this.timeSlotRepository = timeSlotRepository;
     }
 
     public List<MatchResponse> getMatches() {
@@ -48,6 +57,7 @@ public class ResultsService {
                 .toList();
     }
 
+    @Transactional
     public MatchResponse createMatch(CreateMatchRequest request) {
         if (request.homeTeamId().equals(request.awayTeamId())) {
             throw new BadRequestException("Domaći i gostujući tim ne mogu biti isti.");
@@ -64,7 +74,54 @@ public class ResultsService {
         match.setMatchDate(request.matchDate());
         match.setStatus(MatchStatus.SCHEDULED);
 
-        return toMatchResponse(matchRepository.save(match));
+        // Auto-reserve timeslot if venue+time provided
+        boolean hasVenue = request.location() != null && !request.location().isBlank()
+                && request.resourceName() != null && !request.resourceName().isBlank()
+                && request.startTime() != null && request.matchDate() != null;
+
+        TimeSlotEntity slotToLink = null;
+        if (hasVenue) {
+            String loc = request.location().trim();
+            String res = request.resourceName().trim();
+            LocalTime end = request.endTime() != null ? request.endTime() : request.startTime().plusHours(2);
+
+            Optional<TimeSlotEntity> existingSlot = timeSlotRepository
+                    .findByLocationAndResourceNameAndSlotDateAndStartTime(loc, res, request.matchDate(), request.startTime());
+
+            TimeSlotEntity slot;
+            if (existingSlot.isPresent()) {
+                slot = existingSlot.get();
+                if (slot.getAvailabilityStatus() != SlotAvailabilityStatus.AVAILABLE) {
+                    throw new ConflictException("Ovaj termin nije slobodan.");
+                }
+            } else {
+                slot = new TimeSlotEntity();
+                slot.setLocation(loc);
+                slot.setResourceName(res);
+                slot.setSlotDate(request.matchDate());
+                slot.setStartTime(request.startTime());
+                slot.setEndTime(end);
+                slot.setAvailabilityStatus(SlotAvailabilityStatus.AVAILABLE);
+            }
+            slot.setAvailabilityStatus(SlotAvailabilityStatus.RESERVED);
+            slotToLink = timeSlotRepository.save(slot);
+
+            match.setLocation(loc);
+            match.setResourceName(res);
+            match.setStartTime(request.startTime());
+            match.setEndTime(end);
+        }
+
+        MatchEntity savedMatch = matchRepository.save(match);
+
+        if (slotToLink != null) {
+            slotToLink.setLeagueMatchId(savedMatch.getId());
+            timeSlotRepository.save(slotToLink);
+            savedMatch.setLinkedSlotId(slotToLink.getId());
+            savedMatch = matchRepository.save(savedMatch);
+        }
+
+        return toMatchResponse(savedMatch);
     }
 
     @Transactional
@@ -159,7 +216,12 @@ public class ResultsService {
                 match.getMatchDate(),
                 match.getStatus(),
                 match.getHomeScore(),
-                match.getAwayScore()
+                match.getAwayScore(),
+                match.getLocation(),
+                match.getResourceName(),
+                match.getStartTime(),
+                match.getEndTime(),
+                match.getLinkedSlotId()
         );
     }
 

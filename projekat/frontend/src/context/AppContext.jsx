@@ -264,7 +264,11 @@ export function AppProvider({ children }) {
 
   const addLeague = async (payload) => {
     if (!auth?.token) throw new Error("Niste prijavljeni.");
-    const created = await apiCreateLeague(payload, auth.token);
+    const created = await apiCreateLeague({
+      leagueName: payload.leagueName,
+      season: payload.season,
+      sport: payload.sport || null
+    }, auth.token);
     await loadLeagues();
     return created;
   };
@@ -291,7 +295,16 @@ export function AppProvider({ children }) {
 
   const addMatch = async (payload) => {
     if (!auth?.token) throw new Error("Niste prijavljeni.");
-    return apiCreateMatch(payload, auth.token);
+    return apiCreateMatch({
+      leagueId: payload.leagueId,
+      homeTeamId: payload.homeTeamId,
+      awayTeamId: payload.awayTeamId,
+      matchDate: payload.matchDate,
+      location: payload.location || null,
+      resourceName: payload.resourceName || null,
+      startTime: payload.startTime || null,
+      endTime: payload.endTime || null
+    }, auth.token);
   };
 
   const submitResult = async (matchId, payload) => {

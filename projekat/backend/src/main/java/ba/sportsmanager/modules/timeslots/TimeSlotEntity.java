@@ -1,5 +1,6 @@
 package ba.sportsmanager.modules.timeslots;
 
+import ba.sportsmanager.common.SportType;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -32,6 +33,13 @@ public class TimeSlotEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "availabilitystatus", nullable = false)
     private SlotAvailabilityStatus availabilityStatus = SlotAvailabilityStatus.AVAILABLE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sport")
+    private SportType sport;
+
+    @Column(name = "leaguematchid")
+    private Long leagueMatchId;
 
     public TimeSlotEntity() {
     }
@@ -86,5 +94,21 @@ public class TimeSlotEntity {
 
     public void setAvailabilityStatus(SlotAvailabilityStatus availabilityStatus) {
         this.availabilityStatus = availabilityStatus;
+    }
+
+    public SportType getSport() {
+        return sport;
+    }
+
+    public void setSport(SportType sport) {
+        this.sport = sport;
+    }
+
+    public Long getLeagueMatchId() {
+        return leagueMatchId;
+    }
+
+    public void setLeagueMatchId(Long leagueMatchId) {
+        this.leagueMatchId = leagueMatchId;
     }
 }

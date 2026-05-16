@@ -5,6 +5,7 @@ import ba.sportsmanager.modules.teams.TeamEntity;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "matches")
@@ -39,6 +40,21 @@ public class MatchEntity {
 
     @Column(name = "awayscore")
     private Integer awayScore;
+
+    @Column(name = "location")
+    private String location;
+
+    @Column(name = "resourcename")
+    private String resourceName;
+
+    @Column(name = "starttime")
+    private LocalTime startTime;
+
+    @Column(name = "endtime")
+    private LocalTime endTime;
+
+    @Column(name = "linkedslotid")
+    private Long linkedSlotId;
 
     public MatchEntity() {
     }
@@ -101,5 +117,45 @@ public class MatchEntity {
 
     public void setAwayScore(Integer awayScore) {
         this.awayScore = awayScore;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getResourceName() {
+        return resourceName;
+    }
+
+    public void setResourceName(String resourceName) {
+        this.resourceName = resourceName;
+    }
+
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public Long getLinkedSlotId() {
+        return linkedSlotId;
+    }
+
+    public void setLinkedSlotId(Long linkedSlotId) {
+        this.linkedSlotId = linkedSlotId;
     }
 }

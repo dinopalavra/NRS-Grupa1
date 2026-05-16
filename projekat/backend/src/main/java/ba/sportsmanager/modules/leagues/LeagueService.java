@@ -40,6 +40,7 @@ public class LeagueService {
         league.setLeagueName(request.leagueName());
         league.setSeason(request.season());
         league.setStatus(LeagueStatus.ACTIVE);
+        league.setSport(request.sport());
         return toResponse(leagueRepository.save(league));
     }
 
@@ -77,7 +78,8 @@ public class LeagueService {
                 league.getId(),
                 league.getLeagueName(),
                 league.getSeason(),
-                league.getStatus()
+                league.getStatus(),
+                league.getSport()
         );
     }
 
