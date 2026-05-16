@@ -232,7 +232,8 @@ export function AppProvider({ children }) {
       teamId: Number(payload.teamId),
       slotId: Number(payload.slotId),
       createdByUserId: Number(createdByUserId),
-      note: payload.note?.trim() || null
+      note: payload.note?.trim() || null,
+      sport: payload.sport || null
     };
     const created = await apiCreateReservation(body, auth.token);
     await Promise.all([loadReservations(), loadTimeSlots(), loadAvailableSlots()]);

@@ -115,6 +115,7 @@ public class ReservationService {
         reservation.setCreatedBy(user);
         reservation.setStatus(ReservationStatus.PENDING);
         reservation.setNote(request.note() == null ? null : request.note().trim());
+        reservation.setSport(request.sport());
 
         return toResponse(reservationRepository.save(reservation));
     }
@@ -191,7 +192,8 @@ public class ReservationService {
                 reservation.getCreatedBy().getUsername(),
                 reservation.getStatus(),
                 reservation.getNote(),
-                reservation.getCreatedAt()
+                reservation.getCreatedAt(),
+                reservation.getSport()
         );
     }
 }

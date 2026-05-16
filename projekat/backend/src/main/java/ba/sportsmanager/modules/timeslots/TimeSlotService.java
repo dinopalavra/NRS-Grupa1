@@ -60,7 +60,6 @@ public class TimeSlotService {
         slot.setLocation(location);
         slot.setResourceName(resourceName);
         slot.setAvailabilityStatus(SlotAvailabilityStatus.AVAILABLE);
-        slot.setSport(request.sport());
 
         return toResponse(timeSlotRepository.save(slot));
     }
@@ -82,9 +81,7 @@ public class TimeSlotService {
                 slot.getEndTime(),
                 slot.getLocation(),
                 slot.getResourceName(),
-                slot.getAvailabilityStatus(),
-                slot.getSport(),
-                slot.getLeagueMatchId()
+                slot.getAvailabilityStatus()
         );
     }
 }

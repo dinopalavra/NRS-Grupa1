@@ -1,5 +1,6 @@
 package ba.sportsmanager.modules.reservations;
 
+import ba.sportsmanager.common.SportType;
 import ba.sportsmanager.modules.teams.TeamEntity;
 import ba.sportsmanager.modules.timeslots.TimeSlotEntity;
 import ba.sportsmanager.modules.users.UserEntity;
@@ -37,6 +38,10 @@ public class ReservationEntity {
 
     @Column(length = 500)
     private String note;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sport")
+    private SportType sport;
 
     public ReservationEntity() {
     }
@@ -87,5 +92,13 @@ public class ReservationEntity {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public SportType getSport() {
+        return sport;
+    }
+
+    public void setSport(SportType sport) {
+        this.sport = sport;
     }
 }

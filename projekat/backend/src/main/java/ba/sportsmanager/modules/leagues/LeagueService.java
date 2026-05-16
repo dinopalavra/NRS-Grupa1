@@ -60,6 +60,10 @@ public class LeagueService {
         LeagueEntity league = getEntity(leagueId);
         TeamEntity team = teamService.getTeamEntity(teamId);
 
+        if (league.getSport() != null && team.getSport() != null && !league.getSport().equals(team.getSport())) {
+            throw new BadRequestException("Tim je drugog sporta od lige.");
+        }
+
         if (leagueTeamRepository.existsByLeague_IdAndTeam_Id(leagueId, teamId)) {
             throw new BadRequestException("Tim je već dodan u ovu ligu.");
         }
@@ -90,7 +94,8 @@ public class LeagueService {
                 team.getCity(),
                 team.getCaptainName(),
                 team.getMembersCount(),
-                team.getStatus()
+                team.getStatus(),
+                team.getSport()
         );
     }
 }

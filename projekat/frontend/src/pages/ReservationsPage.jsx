@@ -2,6 +2,16 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useAppContext } from "../context/AppContext.jsx";
 import { formatDate, formatTime, statusLabel } from "../utils/format.js";
 
+const SPORT_OPTIONS = [
+  { value: "FOOTBALL",   label: "⚽ Fudbal" },
+  { value: "BASKETBALL", label: "🏀 Košarka" },
+  { value: "VOLLEYBALL", label: "🏐 Odbojka" },
+  { value: "HANDBALL",   label: "🤾 Rukomet" },
+  { value: "FUTSAL",     label: "🥅 Futsal" },
+  { value: "TENNIS",     label: "🎾 Tenis" },
+  { value: "OTHER",      label: "🏅 Ostalo" },
+];
+
 const STATUS_FILTERS = [
   { value: "all",       label: "Sve" },
   { value: "PENDING",   label: "Na čekanju" },
@@ -31,7 +41,7 @@ function ReservationsPage() {
   const currentUserId = currentUser?.userId ?? currentUser?.id ?? null;
 
   const [filter,     setFilter]     = useState("all");
-  const [form,       setForm]       = useState({ teamId: "", slotId: "", note: "" });
+  const [form,       setForm]       = useState({ teamId: "", slotId: "", note: "", sport: "" });
   const [message,    setMessage]    = useState({ text: "", ok: true });
   const [submitting, setSubmitting] = useState(false);
 
@@ -40,6 +50,7 @@ function ReservationsPage() {
       teamId: prev.teamId || String(teams[0]?.id || ""),
       slotId: prev.slotId || String(availableTimeSlots[0]?.id || ""),
       note:   prev.note || "",
+      sport:  prev.sport || "",
     }));
   }, [teams, availableTimeSlots]);
 
@@ -76,11 +87,12 @@ function ReservationsPage() {
     setSubmitting(true);
     setMessage({ text: "", ok: true });
     try {
-      await addReservation(form);
+      await addReservation({ ...form, sport: form.sport || null });
       setForm({
         teamId: String(teams[0]?.id || ""),
         slotId: String(availableTimeSlots[0]?.id || ""),
         note:   "",
+        sport:  "",
       });
       setMessage({ text: "Rezervacija je uspješno kreirana i čeka odobrenje.", ok: true });
     } catch (err) {
@@ -139,10 +151,17 @@ function ReservationsPage() {
             <form onSubmit={onSubmit} className="inline-form">
               <div className="form-row">
                 <div className="field field-grow">
+                  <label className="field-label">Sport</label>
+                  <select className="field-input" name="sport" value={form.sport} onChange={onChange}>
+                    <option value="">Odaberi sport...</option>
+                    {SPORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
+                <div className="field field-grow">
                   <label className="field-label">Tim</label>
                   <select className="field-input" name="teamId" value={form.teamId} onChange={onChange}>
                     <option value="">— Odaberi tim —</option>
-                    {teams.map(t => (
+                    {teams.filter(t => !form.sport || !t.sport || t.sport === form.sport).map(t => (
                       <option key={t.id} value={t.id}>{t.name}</option>
                     ))}
                   </select>
@@ -235,6 +254,7 @@ function ReservationsPage() {
                     <th>Termin / Lokacija</th>
                     <th>Tim</th>
                     <th>Datum</th>
+                    <th>Sport</th>
                     <th>Kreirao</th>
                     <th>Status</th>
                     <th>Akcije</th>
@@ -255,6 +275,11 @@ function ReservationsPage() {
                         </td>
                         <td>{r.teamName || "—"}</td>
                         <td>{formatDate(r.slotDate)}</td>
+                        <td>
+                          {r.sport
+                            ? (SPORT_OPTIONS.find(o => o.value === r.sport)?.label || r.sport)
+                            : <span style={{ color: "var(--color-text-muted)" }}>—</span>}
+                        </td>
                         <td>{r.createdByUsername || "—"}</td>
                         <td>
                           <span className={`status-chip status-${String(r.status).toLowerCase()}`}>

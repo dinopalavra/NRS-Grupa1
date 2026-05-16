@@ -63,11 +63,7 @@ const IconTrophy = ({ className = "nav-icon" }) => (
 );
 
 const IconBall = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10"/>
-    <path d="M12 2a10 10 0 0 1 6.88 2.74L12 12 5.12 4.74A10 10 0 0 1 12 2z" strokeWidth="0" fill="white" fillOpacity="0.25"/>
-    <path d="M12 12l6.88-7.26M12 12l-6.88-7.26M12 12v10M12 12l8.66 5M12 12l-8.66 5"/>
-  </svg>
+  <span style={{ fontSize: 20, lineHeight: 1 }}>🏅</span>
 );
 
 /* ── Role-based nav items ──────────────────────────────────── */
@@ -111,7 +107,7 @@ function Layout({ children }) {
             </div>
             <div>
               <div className="brand-title">Pitch Manager</div>
-              <div className="brand-tagline">Fudbalski termini</div>
+              <div className="brand-tagline">Sportski menadžer</div>
             </div>
           </div>
           <div className="brand-role-pill">

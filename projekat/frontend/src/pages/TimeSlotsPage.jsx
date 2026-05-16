@@ -9,16 +9,6 @@ const FILTERS = [
   { value: "BLOCKED",   label: "Blokirani" },
 ];
 
-const SPORT_LABELS = {
-  FOOTBALL:   "⚽ Fudbal",
-  BASKETBALL: "🏀 Košarka",
-  VOLLEYBALL: "🏐 Odbojka",
-  HANDBALL:   "🤾 Rukomet",
-  FUTSAL:     "🥅 Futsal",
-  TENNIS:     "🎾 Tenis",
-  OTHER:      "🏅 Ostalo",
-};
-
 function TimeSlotsPage() {
   const {
     timeSlots,
@@ -33,7 +23,7 @@ function TimeSlotsPage() {
   const [message, setMessage] = useState({ text: "", ok: true });
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
-    slotDate: "", startTime: "", endTime: "", location: "", resourceName: "", sport: "",
+    slotDate: "", startTime: "", endTime: "", location: "", resourceName: "",
   });
 
   const stats = useMemo(() => ({
@@ -68,9 +58,8 @@ function TimeSlotsPage() {
         endTime:      form.endTime.length   === 5 ? `${form.endTime}:00`   : form.endTime,
         location:     form.location.trim(),
         resourceName: form.resourceName.trim(),
-        sport:        form.sport || null,
       });
-      setForm({ slotDate: "", startTime: "", endTime: "", location: "", resourceName: "", sport: "" });
+      setForm({ slotDate: "", startTime: "", endTime: "", location: "", resourceName: "" });
       setMessage({ text: "Termin je uspješno kreiran.", ok: true });
     } catch (err) {
       setMessage({ text: err.message || "Greška pri kreiranju termina.", ok: false });
@@ -130,19 +119,6 @@ function TimeSlotsPage() {
                   <label className="field-label">Naziv resursa</label>
                   <input className="field-input" name="resourceName" placeholder="npr. Teren 1" value={form.resourceName} onChange={onChange} />
                 </div>
-                <div className="field field-grow">
-                  <label className="field-label">Sport</label>
-                  <select className="field-input" name="sport" value={form.sport} onChange={onChange}>
-                    <option value="">Odaberi...</option>
-                    <option value="FOOTBALL">Fudbal</option>
-                    <option value="BASKETBALL">Košarka</option>
-                    <option value="VOLLEYBALL">Odbojka</option>
-                    <option value="HANDBALL">Rukomet</option>
-                    <option value="FUTSAL">Futsal</option>
-                    <option value="TENNIS">Tenis</option>
-                    <option value="OTHER">Ostalo</option>
-                  </select>
-                </div>
                 <div className="field field-action">
                   <label className="field-label">&nbsp;</label>
                   <button className="btn btn-primary" type="submit" disabled={submitting}>
@@ -197,7 +173,6 @@ function TimeSlotsPage() {
                     <th>Resurs / Lokacija</th>
                     <th>Datum</th>
                     <th>Termin</th>
-                    <th>Sport</th>
                     <th>Status</th>
                   </tr>
                 </thead>
@@ -210,18 +185,6 @@ function TimeSlotsPage() {
                       </td>
                       <td>{formatDate(slot.slotDate)}</td>
                       <td className="slot-time">{formatTime(slot.startTime)} – {formatTime(slot.endTime)}</td>
-                      <td>
-                        {slot.sport ? (
-                          <span style={{ fontSize: "0.82rem" }}>{SPORT_LABELS[slot.sport] || slot.sport}</span>
-                        ) : (
-                          <span style={{ color: "var(--color-text-muted)", fontSize: "0.82rem" }}>—</span>
-                        )}
-                        {slot.leagueMatchId && (
-                          <span className="status-chip status-reserved" style={{ marginLeft: 6, fontSize: "0.7rem" }}>
-                            Liga
-                          </span>
-                        )}
-                      </td>
                       <td>
                         <span className={`status-chip status-${String(slot.availabilityStatus).toLowerCase()}`}>
                           {statusLabel(slot.availabilityStatus)}

@@ -1,5 +1,6 @@
 package ba.sportsmanager.modules.teams;
 
+import ba.sportsmanager.common.SportType;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -31,6 +32,10 @@ public class TeamEntity {
 
     @Column(name = "createdat", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sport")
+    private SportType sport;
 
     public TeamEntity() {
     }
@@ -81,5 +86,13 @@ public class TeamEntity {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public SportType getSport() {
+        return sport;
+    }
+
+    public void setSport(SportType sport) {
+        this.sport = sport;
     }
 }

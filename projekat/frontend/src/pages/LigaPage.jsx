@@ -1,15 +1,26 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useAppContext } from "../context/AppContext.jsx";
 
-const SPORT_LABELS = {
-  FOOTBALL:   "⚽ Fudbal",
-  BASKETBALL: "🏀 Košarka",
-  VOLLEYBALL: "🏐 Odbojka",
-  HANDBALL:   "🤾 Rukomet",
-  FUTSAL:     "🥅 Futsal",
-  TENNIS:     "🎾 Tenis",
-  OTHER:      "🏅 Ostalo",
+const SPORT_ICONS = {
+  FOOTBALL: "⚽", BASKETBALL: "🏀", VOLLEYBALL: "🏐",
+  HANDBALL: "🤾", FUTSAL: "🥅", TENNIS: "🎾", OTHER: "🏅",
 };
+const SPORT_LABELS = {
+  FOOTBALL: "Fudbal", BASKETBALL: "Košarka", VOLLEYBALL: "Odbojka",
+  HANDBALL: "Rukomet", FUTSAL: "Futsal", TENNIS: "Tenis", OTHER: "Ostalo",
+};
+
+function getScoreLabels(sport) {
+  switch (sport) {
+    case "BASKETBALL": return { for: "Koševi+", against: "Koševi-", diff: "+/-" };
+    case "VOLLEYBALL": return { for: "Setovi+", against: "Setovi-", diff: "+/-" };
+    case "TENNIS":     return { for: "Gem+",    against: "Gem-",    diff: "+/-" };
+    case "HANDBALL":
+    case "FUTSAL":
+    case "FOOTBALL":
+    default:           return { for: "G+",      against: "G-",      diff: "+/-" };
+  }
+}
 
 /* ── Icons ─────────────────────────────────────────────────── */
 
@@ -182,7 +193,9 @@ function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeagu
               >
                 <div className="liga-list-item-avatar">{lg.leagueName[0]?.toUpperCase()}</div>
                 <div className="liga-list-item-body">
-                  <div className="liga-list-item-name">{lg.leagueName}</div>
+                  <div className="liga-list-item-name">
+                    {lg.sport ? (SPORT_ICONS[lg.sport] || "🏅") : "🏅"} {lg.leagueName}
+                  </div>
                   <div className="liga-list-item-sub">
                     {lg.season}
                     {lg.sport && <span style={{ marginLeft: 6 }}>{SPORT_LABELS[lg.sport] || lg.sport}</span>}
@@ -222,7 +235,7 @@ function Tabs({ tabs, active, onChange }) {
 
 /* ── Teams Tab ──────────────────────────────────────────────── */
 
-function TeamsTab({ leagueId, allTeams }) {
+function TeamsTab({ leagueId, allTeams, league }) {
   const { getLeagueTeams, addTeamToLeague, removeTeamFromLeague } = useAppContext();
   const [leagueTeams, setLeagueTeams] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -247,7 +260,10 @@ function TeamsTab({ leagueId, allTeams }) {
   useEffect(() => { load(); }, [load]);
 
   const leagueTeamIds = new Set(leagueTeams.map(t => t.id));
-  const availableToAdd = allTeams.filter(t => !leagueTeamIds.has(t.id));
+  const availableToAdd = allTeams.filter(t =>
+    !leagueTeamIds.has(t.id) &&
+    (!league?.sport || !t.sport || t.sport === league?.sport)
+  );
 
   const handleAdd = async () => {
     if (!selectedTeamId) return;
@@ -547,7 +563,7 @@ function MatchesTab({ leagueId, leagueTeams }) {
 
 /* ── Standings Tab ──────────────────────────────────────────── */
 
-function StandingsTab({ leagueId }) {
+function StandingsTab({ leagueId, league }) {
   const { getLeagueStandings } = useAppContext();
   const [standings, setStandings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -570,6 +586,8 @@ function StandingsTab({ leagueId }) {
 
   if (loading) return <div className="liga-tab-body liga-center"><Spinner /></div>;
 
+  const scoreLabels = getScoreLabels(league?.sport);
+
   return (
     <div className="liga-tab-body">
       <Alert type="error" message={error} onDismiss={() => setError(null)} />
@@ -586,7 +604,9 @@ function StandingsTab({ leagueId }) {
                 <th className="liga-th liga-th--num" title="Pobjede">P</th>
                 <th className="liga-th liga-th--num" title="Remiji">R</th>
                 <th className="liga-th liga-th--num" title="Porazi">Pr</th>
-                <th className="liga-th liga-th--num" title="Gol razlika">GR</th>
+                <th className="liga-th liga-th--num" title={scoreLabels.for}>{scoreLabels.for}</th>
+                <th className="liga-th liga-th--num" title={scoreLabels.against}>{scoreLabels.against}</th>
+                <th className="liga-th liga-th--num" title={scoreLabels.diff}>{scoreLabels.diff}</th>
                 <th className="liga-th liga-th--pts">Bod</th>
               </tr>
             </thead>
@@ -608,6 +628,8 @@ function StandingsTab({ leagueId }) {
                     <td className="liga-td liga-td--num">{s.wins}</td>
                     <td className="liga-td liga-td--num">{s.draws}</td>
                     <td className="liga-td liga-td--num">{s.losses}</td>
+                    <td className="liga-td liga-td--num">{s.goalsFor}</td>
+                    <td className="liga-td liga-td--num">{s.goalsAgainst}</td>
                     <td className="liga-td liga-td--num">{gd > 0 ? `+${gd}` : gd}</td>
                     <td className="liga-td liga-td--pts"><strong>{s.points}</strong></td>
                   </tr>
@@ -652,7 +674,9 @@ function LeagueDetailPanel({ league, onBack }) {
         <div className="liga-detail-title">
           <div className="liga-detail-avatar">{league.leagueName[0]?.toUpperCase()}</div>
           <div>
-            <h2 className="liga-panel-title">{league.leagueName}</h2>
+            <h2 className="liga-panel-title">
+              {league.sport ? (SPORT_ICONS[league.sport] || "🏅") : "🏅"} {league.leagueName}
+            </h2>
             <div className="liga-detail-sub">{league.season}</div>
           </div>
         </div>
@@ -664,13 +688,13 @@ function LeagueDetailPanel({ league, onBack }) {
       <Tabs tabs={TABS} active={activeTab} onChange={t => { setActiveTab(t); refreshLeagueTeams(); }} />
 
       {activeTab === "timovi" && (
-        <TeamsTab leagueId={league.id} allTeams={teams} />
+        <TeamsTab leagueId={league.id} allTeams={teams} league={league} />
       )}
       {activeTab === "utakmice" && (
         <MatchesTab leagueId={league.id} leagueTeams={leagueTeams} />
       )}
       {activeTab === "tabela" && (
-        <StandingsTab leagueId={league.id} />
+        <StandingsTab leagueId={league.id} league={league} />
       )}
     </div>
   );

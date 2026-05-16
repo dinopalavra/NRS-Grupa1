@@ -29,7 +29,7 @@ const ALL_FEATURE_CARDS = [
     key: "teams",
     Icon: IconShield,
     title: "Timovi",
-    desc: "Kreiraj i upravljaj fudbalskim timovima. Pregled registrovanih timova i njihovih članova.",
+    desc: "Kreiraj i upravljaj sportskim timovima. Pregled registrovanih timova i njihovih članova.",
     label: "Otvori timove",
     roles: ["ADMIN", "CAPTAIN"],
     color: "card-purple",

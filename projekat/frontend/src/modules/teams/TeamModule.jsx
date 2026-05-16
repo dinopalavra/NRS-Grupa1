@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useAppContext } from "../../context/AppContext.jsx";
 
+const SPORT_OPTIONS = [
+  { value: "FOOTBALL",   label: "⚽ Fudbal" },
+  { value: "BASKETBALL", label: "🏀 Košarka" },
+  { value: "VOLLEYBALL", label: "🏐 Odbojka" },
+  { value: "HANDBALL",   label: "🤾 Rukomet" },
+  { value: "FUTSAL",     label: "🥅 Futsal" },
+  { value: "TENNIS",     label: "🎾 Tenis" },
+  { value: "OTHER",      label: "🏅 Ostalo" },
+];
+
 function TeamModule() {
   const { teams, registerTeam, loadTeams, loadingTeams } = useAppContext();
 
-  const [form, setForm] = useState({ name: "", city: "", captainName: "", membersCount: 1 });
+  const [form, setForm] = useState({ name: "", city: "", captainName: "", membersCount: 1, sport: "" });
   const [message, setMessage]   = useState({ text: "", ok: true });
   const [submitting, setSubmitting] = useState(false);
 
@@ -32,10 +42,11 @@ function TeamModule() {
         name: form.name.trim(),
         city: form.city.trim(),
         captainName: form.captainName.trim(),
-        membersCount: Number(form.membersCount)
+        membersCount: Number(form.membersCount),
+        sport: form.sport || null
       });
       setMessage({ text: "Tim je uspješno kreiran.", ok: true });
-      setForm({ name: "", city: "", captainName: "", membersCount: 1 });
+      setForm({ name: "", city: "", captainName: "", membersCount: 1, sport: "" });
     } catch (err) {
       setMessage({ text: err.message || "Kreiranje tima nije uspjelo.", ok: false });
     } finally {
@@ -69,6 +80,13 @@ function TeamModule() {
             <div className="field" style={{ width: 130 }}>
               <label className="field-label">Broj članova</label>
               <input className="field-input" type="number" min="1" name="membersCount" value={form.membersCount} onChange={onChange} />
+            </div>
+            <div className="field">
+              <label className="field-label">Sport</label>
+              <select className="field-input" name="sport" value={form.sport} onChange={onChange}>
+                <option value="">Odaberi sport...</option>
+                {SPORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
             </div>
             <div className="field field-action">
               <label className="field-label">&nbsp;</label>
@@ -112,6 +130,7 @@ function TeamModule() {
                   <th>Grad</th>
                   <th>Kapiten</th>
                   <th>Članova</th>
+                  <th>Sport</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -125,6 +144,11 @@ function TeamModule() {
                     <td>{team.city}</td>
                     <td>{team.captainName}</td>
                     <td>{team.membersCount}</td>
+                    <td>
+                      {team.sport
+                        ? (SPORT_OPTIONS.find(o => o.value === team.sport)?.label || team.sport)
+                        : <span style={{ color: "var(--color-text-muted)" }}>—</span>}
+                    </td>
                     <td>
                       <span className={`status-chip status-${String(team.status).toLowerCase()}`}>
                         {team.status === "ACTIVE" ? "Aktivan" : team.status}

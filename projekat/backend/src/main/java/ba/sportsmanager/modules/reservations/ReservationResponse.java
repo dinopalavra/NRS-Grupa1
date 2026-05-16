@@ -1,5 +1,7 @@
 package ba.sportsmanager.modules.reservations;
 
+import ba.sportsmanager.common.SportType;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -18,6 +20,7 @@ public record ReservationResponse(
         String createdByUsername,
         ReservationStatus status,
         String note,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        SportType sport
 ) {
 }

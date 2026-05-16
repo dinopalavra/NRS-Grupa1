@@ -28,6 +28,7 @@ public class TeamService {
         team.setCaptainName(request.captainName());
         team.setMembersCount(request.membersCount());
         team.setStatus(TeamStatus.ACTIVE);
+        team.setSport(request.sport());
 
         return toResponse(teamRepository.save(team));
     }
@@ -44,7 +45,8 @@ public class TeamService {
                 team.getCity(),
                 team.getCaptainName(),
                 team.getMembersCount(),
-                team.getStatus()
+                team.getStatus(),
+                team.getSport()
         );
     }
 }
