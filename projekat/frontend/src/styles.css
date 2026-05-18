@@ -384,23 +384,41 @@ button, input, select, textarea { font: inherit; }
 .layout-content > * { position: relative; z-index: 1; }
 
 /* Per-page background images */
+
+/* Dashboard — golf ball & putter closeup, green, luxury minimal */
 .layout-bg--dashboard {
-  background-image: url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1920&q=80&fit=crop');
+  background-image: url('https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=1920&q=85&fit=crop');
+  background-position: center;
 }
+
+/* Korisnici — dumbbells / gym equipment */
 .layout-bg--users {
-  background-image: url('https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=1920&q=80&fit=crop');
+  background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1920&q=85&fit=crop');
+  background-position: center;
 }
+
+/* Timovi — athletics / sport team training */
 .layout-bg--teams {
-  background-image: url('https://images.unsplash.com/photo-1546519638778-c51957a6d7c2?w=1920&q=80&fit=crop');
+  background-image: url('https://images.unsplash.com/photo-1526676037777-05a232554f77?w=1920&q=85&fit=crop');
+  background-position: center top;
 }
+
+/* Termini — aerial tennis court, green, dramatic shadows */
 .layout-bg--timeslots {
-  background-image: url('https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=1920&q=80&fit=crop');
+  background-image: url('https://images.unsplash.com/photo-1554068865-24ceec92fb37?w=1920&q=85&fit=crop');
+  background-position: center;
 }
+
+/* Rezervacije — pickleball / paddle rackets on court */
 .layout-bg--reservations {
-  background-image: url('https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=1920&q=80&fit=crop');
+  background-image: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=85&fit=crop');
+  background-position: center;
 }
+
+/* Liga — football stadium at night, epic atmosphere */
 .layout-bg--liga {
-  background-image: url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1920&q=80&fit=crop');
+  background-image: url('https://images.unsplash.com/photo-1519766304817-4f37bda74b38?w=1920&q=85&fit=crop');
+  background-position: center;
 }
 
 /* ============================================================
@@ -412,7 +430,7 @@ button, input, select, textarea { font: inherit; }
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=1920&q=80&fit=crop');
+  background-image: url('https://images.unsplash.com/photo-1554068865-24ceec92fb37?w=1920&q=85&fit=crop');
   background-size: cover;
   background-position: center;
   position: relative;
