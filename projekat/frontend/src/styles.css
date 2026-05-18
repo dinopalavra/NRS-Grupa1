@@ -358,9 +358,11 @@ button, input, select, textarea { font: inherit; }
   min-height: 100vh;
   padding: 36px 40px;
   position: relative;
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+  background-color: var(--dark-900);
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
   transition: background-image var(--tr-slow);
 }
 
