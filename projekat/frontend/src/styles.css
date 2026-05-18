@@ -385,39 +385,39 @@ button, input, select, textarea { font: inherit; }
 
 /* Per-page background images */
 
-/* Dashboard — golf ball & putter closeup, green, luxury minimal */
+/* Dashboard — golf ball & putter, luxury minimal */
 .layout-bg--dashboard {
-  background-image: url('https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=1920&q=85&fit=crop');
+  background-image: url('/bg/golf.jpg');
   background-position: center;
 }
 
-/* Korisnici — dumbbells / gym equipment */
+/* Korisnici — gym dumbbells */
 .layout-bg--users {
-  background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1920&q=85&fit=crop');
+  background-image: url('/bg/gym.jpg');
   background-position: center;
 }
 
-/* Timovi — athletics / sport team training */
+/* Timovi — gym dumbbells (dijeli sa users dok nema zasebne) */
 .layout-bg--teams {
-  background-image: url('https://images.unsplash.com/photo-1526676037777-05a232554f77?w=1920&q=85&fit=crop');
+  background-image: url('/bg/gym.jpg');
   background-position: center top;
 }
 
-/* Termini — aerial tennis court, green, dramatic shadows */
+/* Termini — aerial tennis court */
 .layout-bg--timeslots {
-  background-image: url('https://images.unsplash.com/photo-1554068865-24ceec92fb37?w=1920&q=85&fit=crop');
+  background-image: url('/bg/tennis1.jpg');
   background-position: center;
 }
 
-/* Rezervacije — pickleball / paddle rackets on court */
+/* Rezervacije — pickleball raketi */
 .layout-bg--reservations {
-  background-image: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=85&fit=crop');
+  background-image: url('/bg/pickleball.jpg');
   background-position: center;
 }
 
-/* Liga — football stadium at night, epic atmosphere */
+/* Liga — stadion noću */
 .layout-bg--liga {
-  background-image: url('https://images.unsplash.com/photo-1519766304817-4f37bda74b38?w=1920&q=85&fit=crop');
+  background-image: url('/bg/stadium.jpg');
   background-position: center;
 }
 
@@ -430,7 +430,7 @@ button, input, select, textarea { font: inherit; }
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('https://images.unsplash.com/photo-1554068865-24ceec92fb37?w=1920&q=85&fit=crop');
+  background-image: url('/bg/tennis1.jpg');
   background-size: cover;
   background-position: center;
   position: relative;
