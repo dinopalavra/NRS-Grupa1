@@ -59,4 +59,12 @@ public class ReservationController {
     public ReservationResponse cancel(@PathVariable Long id) {
         return reservationService.cancel(id);
     }
+
+    @PatchMapping("/{id}/reschedule")
+    public ReservationResponse reschedule(
+            @PathVariable Long id,
+            @Valid @RequestBody RescheduleReservationRequest request
+    ) {
+        return reservationService.reschedule(id, request);
+    }
 }

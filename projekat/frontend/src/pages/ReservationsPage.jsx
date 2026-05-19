@@ -33,6 +33,7 @@ function ReservationsPage() {
     approveReservation,
     rejectReservation,
     cancelReservation,
+    rescheduleReservation,
   } = useAppContext();
 
   const isAdmin   = selectedRole === "ADMIN";
@@ -44,6 +45,12 @@ function ReservationsPage() {
   const [form,       setForm]       = useState({ teamId: "", slotId: "", note: "", sport: "" });
   const [message,    setMessage]    = useState({ text: "", ok: true });
   const [submitting, setSubmitting] = useState(false);
+
+  const [rescheduleTarget,   setRescheduleTarget]   = useState(null);
+  const [rescheduleSlotId,   setRescheduleSlotId]   = useState("");
+  const [rescheduleNote,     setRescheduleNote]     = useState("");
+  const [rescheduleError,    setRescheduleError]    = useState("");
+  const [rescheduleSubmitting, setRescheduleSubmitting] = useState(false);
 
   useEffect(() => {
     setForm(prev => ({
@@ -107,6 +114,44 @@ function ReservationsPage() {
       await fn(id);
     } catch (err) {
       setMessage({ text: `${label} nije uspjelo: ${err.message || "nepoznata greška"}`, ok: false });
+    }
+  };
+
+  const openReschedule = (reservation) => {
+    setRescheduleTarget(reservation);
+    setRescheduleSlotId("");
+    setRescheduleNote(reservation.note || "");
+    setRescheduleError("");
+  };
+
+  const closeReschedule = () => {
+    setRescheduleTarget(null);
+    setRescheduleSlotId("");
+    setRescheduleNote("");
+    setRescheduleError("");
+    setRescheduleSubmitting(false);
+  };
+
+  const submitReschedule = async (e) => {
+    e.preventDefault();
+    if (!rescheduleTarget) return;
+    if (!rescheduleSlotId) {
+      setRescheduleError("Odaberite novi termin.");
+      return;
+    }
+    setRescheduleSubmitting(true);
+    setRescheduleError("");
+    try {
+      await rescheduleReservation(rescheduleTarget.id, {
+        newSlotId: rescheduleSlotId,
+        note: rescheduleNote
+      });
+      setMessage({ text: "Rezervacija je uspješno premještena na novi termin.", ok: true });
+      closeReschedule();
+    } catch (err) {
+      setRescheduleError(err.message || "Greška pri izmjeni termina.");
+    } finally {
+      setRescheduleSubmitting(false);
     }
   };
 
@@ -262,10 +307,12 @@ function ReservationsPage() {
                 </thead>
                 <tbody>
                   {filtered.map(r => {
-                    const isPending   = r.status === "PENDING";
-                    const isActive    = r.status === "PENDING" || r.status === "APPROVED";
-                    const isOwn       = r.createdByUserId === currentUserId;
-                    const canCancel   = isActive && (isAdmin || isOwn);
+                    const isPending      = r.status === "PENDING";
+                    const isActive       = r.status === "PENDING" || r.status === "APPROVED";
+                    const isOwn          = r.createdByUserId === currentUserId;
+                    const isLeagueLinked = Boolean(r.linkedMatchId);
+                    const canCancel      = isActive && !isLeagueLinked && (isAdmin || isOwn);
+                    const canReschedule  = isActive && !isLeagueLinked && (isAdmin || isOwn);
 
                     return (
                       <tr key={r.id}>
@@ -285,6 +332,15 @@ function ReservationsPage() {
                           <span className={`status-chip status-${String(r.status).toLowerCase()}`}>
                             {statusLabel(r.status)}
                           </span>
+                          {isLeagueLinked && (
+                            <span
+                              className="status-chip status-league"
+                              title="Termin je vezan za ligašku utakmicu i ne može se direktno otkazati ili izmijeniti."
+                              style={{ marginLeft: 6 }}
+                            >
+                              Liga
+                            </span>
+                          )}
                         </td>
                         <td>
                           <div className="row-actions">
@@ -300,13 +356,19 @@ function ReservationsPage() {
                                 >Odbij</button>
                               </>
                             )}
-                            {canCancel && (
+                            {canReschedule && (
                               <button
                                 className="btn btn-xs btn-secondary"
+                                onClick={() => openReschedule(r)}
+                              >Izmijeni</button>
+                            )}
+                            {canCancel && (
+                              <button
+                                className="btn btn-xs btn-danger"
                                 onClick={() => handleAction(cancelReservation, r.id, "Otkazivanje")}
                               >Otkaži</button>
                             )}
-                            {!isAdmin && !isPending && !canCancel && (
+                            {!isAdmin && !isPending && !canCancel && !canReschedule && (
                               <span className="no-action">—</span>
                             )}
                           </div>
@@ -321,6 +383,64 @@ function ReservationsPage() {
         </div>
 
       </div>
+
+      {rescheduleTarget && (
+        <div className="modal-overlay" onClick={closeReschedule}>
+          <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">Izmjena termina</h3>
+              <button type="button" className="modal-close" onClick={closeReschedule}>×</button>
+            </div>
+            <form onSubmit={submitReschedule}>
+              <div className="modal-body">
+                <p className="modal-subtitle">
+                  <strong>Trenutni termin:</strong> {rescheduleTarget.resourceName || "—"} · {rescheduleTarget.location || "—"} · {formatDate(rescheduleTarget.slotDate)} · {formatTime(rescheduleTarget.startTime)}–{formatTime(rescheduleTarget.endTime)}
+                </p>
+                <div className="field">
+                  <label className="field-label">Novi slobodan termin</label>
+                  <select
+                    className="field-input"
+                    value={rescheduleSlotId}
+                    onChange={(e) => setRescheduleSlotId(e.target.value)}
+                    disabled={!availableTimeSlots.length}
+                  >
+                    <option value="">
+                      {availableTimeSlots.length === 0 ? "Nema slobodnih termina" : "— Odaberi termin —"}
+                    </option>
+                    {availableTimeSlots
+                      .filter(s => s.id !== rescheduleTarget.slotId)
+                      .map(s => (
+                        <option key={s.id} value={s.id}>
+                          {s.resourceName} · {s.location} · {formatDate(s.slotDate)} · {formatTime(s.startTime)}–{formatTime(s.endTime)}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                <div className="field">
+                  <label className="field-label">Napomena <span className="field-optional">(opcionalno)</span></label>
+                  <input
+                    className="field-input"
+                    placeholder="Kratka napomena..."
+                    value={rescheduleNote}
+                    onChange={(e) => setRescheduleNote(e.target.value)}
+                  />
+                </div>
+                {rescheduleError && (
+                  <div className="inline-error">{rescheduleError}</div>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={closeReschedule} disabled={rescheduleSubmitting}>
+                  Odustani
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={rescheduleSubmitting || !availableTimeSlots.length}>
+                  {rescheduleSubmitting ? "Spremam..." : "Premjesti termin"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

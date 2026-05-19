@@ -15,6 +15,7 @@ import {
   approveReservation as apiApproveReservation,
   rejectReservation as apiRejectReservation,
   cancelReservation as apiCancelReservation,
+  rescheduleReservation as apiRescheduleReservation,
   fetchAvailableTimeSlots,
   fetchReservations,
   fetchTeams,
@@ -261,6 +262,17 @@ export function AppProvider({ children }) {
     return updated;
   };
 
+  const rescheduleReservation = async (id, payload) => {
+    if (!auth?.token) throw new Error("Niste prijavljeni.");
+    const body = {
+      newSlotId: Number(payload.newSlotId),
+      note: payload.note?.trim() || null
+    };
+    const updated = await apiRescheduleReservation(id, body, auth.token);
+    await Promise.all([loadReservations(), loadTimeSlots(), loadAvailableSlots()]);
+    return updated;
+  };
+
   /* ── Liga akcije ──────────────────────────────────────────── */
 
   const addLeague = async (payload) => {
@@ -354,6 +366,7 @@ export function AppProvider({ children }) {
       approveReservation,
       rejectReservation,
       cancelReservation,
+      rescheduleReservation,
       addLeague,
       getLeagueTeams,
       addTeamToLeague,
