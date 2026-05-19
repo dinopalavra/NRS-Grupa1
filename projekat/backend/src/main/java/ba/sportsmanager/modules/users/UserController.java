@@ -30,4 +30,17 @@ public class UserController {
     public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
     }
+
+    @PatchMapping("/{id}/profile")
+    public UserResponse updateProfile(@PathVariable Long id,
+                                      @Valid @RequestBody UpdateProfileRequest request) {
+        return userService.updateProfile(id, request);
+    }
+
+    @PatchMapping("/{id}/password")
+    @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
+    public void changePassword(@PathVariable Long id,
+                               @Valid @RequestBody ChangePasswordRequest request) {
+        userService.changePassword(id, request);
+    }
 }

@@ -31,7 +31,14 @@ import {
   fetchLeagueMatches as apiFetchLeagueMatches,
   createMatch as apiCreateMatch,
   recordMatchResult as apiRecordMatchResult,
-  fetchStandings as apiFetchStandings
+  fetchStandings as apiFetchStandings,
+  fetchTeamStats as apiFetchTeamStats,
+  fetchNotifications as apiFetchNotifications,
+  fetchUnreadNotificationCount as apiFetchUnreadNotificationCount,
+  markNotificationRead as apiMarkNotificationRead,
+  markAllNotificationsRead as apiMarkAllNotificationsRead,
+  updateUserProfile as apiUpdateUserProfile,
+  changeUserPassword as apiChangeUserPassword
 } from "../services/api.js";
 
 const AppContext = createContext(null);
@@ -62,6 +69,8 @@ export function AppProvider({ children }) {
   const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [leagues, setLeagues] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingTeams, setLoadingTeams] = useState(false);
@@ -151,6 +160,26 @@ export function AppProvider({ children }) {
     } finally { setLoadingReservations(false); }
   }, [auth?.token]);
 
+  const loadNotifications = useCallback(async () => {
+    if (!auth?.token) { setNotifications([]); setUnreadCount(0); return []; }
+    const uid = resolveCurrentUserId(auth);
+    if (!uid) return [];
+    try {
+      const [list, countResp] = await Promise.all([
+        apiFetchNotifications(uid, auth.token),
+        apiFetchUnreadNotificationCount(uid, auth.token)
+      ]);
+      const normalized = Array.isArray(list) ? list : [];
+      setNotifications(normalized);
+      setUnreadCount(Number(countResp?.unread || 0));
+      return normalized;
+    } catch {
+      setNotifications([]);
+      setUnreadCount(0);
+      return [];
+    }
+  }, [auth]);
+
   const loadLeagues = useCallback(async () => {
     if (!auth?.token) { setLeagues([]); return []; }
     setLoadingLeagues(true);
@@ -170,6 +199,7 @@ export function AppProvider({ children }) {
       loadAvailableSlots();
       loadReservations();
       loadLeagues();
+      loadNotifications();
     } else {
       setUsers([]);
       setTeams([]);
@@ -177,8 +207,16 @@ export function AppProvider({ children }) {
       setAvailableTimeSlots([]);
       setReservations([]);
       setLeagues([]);
+      setNotifications([]);
+      setUnreadCount(0);
     }
-  }, [auth?.token, loadUsers, loadTeams, loadTimeSlots, loadAvailableSlots, loadReservations, loadLeagues]);
+  }, [auth?.token, loadUsers, loadTeams, loadTimeSlots, loadAvailableSlots, loadReservations, loadLeagues, loadNotifications]);
+
+  useEffect(() => {
+    if (!auth?.token) return undefined;
+    const handle = setInterval(() => loadNotifications(), 30000);
+    return () => clearInterval(handle);
+  }, [auth?.token, loadNotifications]);
 
   const login = async (payload) => {
     const result = await loginUser(payload);
@@ -237,28 +275,28 @@ export function AppProvider({ children }) {
       sport: payload.sport || null
     };
     const created = await apiCreateReservation(body, auth.token);
-    await Promise.all([loadReservations(), loadTimeSlots(), loadAvailableSlots()]);
+    await Promise.all([loadReservations(), loadTimeSlots(), loadAvailableSlots(), loadNotifications()]);
     return created;
   };
 
   const approveReservation = async (id) => {
     if (!auth?.token) throw new Error("Niste prijavljeni.");
     const updated = await apiApproveReservation(id, auth.token);
-    await Promise.all([loadReservations(), loadTimeSlots(), loadAvailableSlots()]);
+    await Promise.all([loadReservations(), loadTimeSlots(), loadAvailableSlots(), loadNotifications()]);
     return updated;
   };
 
   const rejectReservation = async (id) => {
     if (!auth?.token) throw new Error("Niste prijavljeni.");
     const updated = await apiRejectReservation(id, auth.token);
-    await Promise.all([loadReservations(), loadTimeSlots(), loadAvailableSlots()]);
+    await Promise.all([loadReservations(), loadTimeSlots(), loadAvailableSlots(), loadNotifications()]);
     return updated;
   };
 
   const cancelReservation = async (id) => {
     if (!auth?.token) throw new Error("Niste prijavljeni.");
     const updated = await apiCancelReservation(id, auth.token);
-    await Promise.all([loadReservations(), loadTimeSlots(), loadAvailableSlots()]);
+    await Promise.all([loadReservations(), loadTimeSlots(), loadAvailableSlots(), loadNotifications()]);
     return updated;
   };
 
@@ -269,7 +307,7 @@ export function AppProvider({ children }) {
       note: payload.note?.trim() || null
     };
     const updated = await apiRescheduleReservation(id, body, auth.token);
-    await Promise.all([loadReservations(), loadTimeSlots(), loadAvailableSlots()]);
+    await Promise.all([loadReservations(), loadTimeSlots(), loadAvailableSlots(), loadNotifications()]);
     return updated;
   };
 
@@ -330,6 +368,46 @@ export function AppProvider({ children }) {
     return apiFetchStandings(leagueId, auth.token);
   };
 
+  const getTeamStats = (teamId, leagueId) => {
+    if (!auth?.token) return Promise.resolve(null);
+    return apiFetchTeamStats(teamId, leagueId, auth.token);
+  };
+
+  /* ── Notifications ────────────────────────────────────────── */
+
+  const markNotificationRead = async (id) => {
+    if (!auth?.token) throw new Error("Niste prijavljeni.");
+    await apiMarkNotificationRead(id, auth.token);
+    await loadNotifications();
+  };
+
+  const markAllNotificationsRead = async () => {
+    if (!auth?.token) throw new Error("Niste prijavljeni.");
+    const uid = resolveCurrentUserId(auth);
+    if (!uid) return;
+    await apiMarkAllNotificationsRead(uid, auth.token);
+    await loadNotifications();
+  };
+
+  /* ── Profile / Password ───────────────────────────────────── */
+
+  const updateProfile = async (payload) => {
+    if (!auth?.token) throw new Error("Niste prijavljeni.");
+    const uid = resolveCurrentUserId(auth);
+    if (!uid) throw new Error("Nedostaje userId.");
+    const updated = await apiUpdateUserProfile(uid, payload, auth.token);
+    setAuth(prev => prev ? { ...prev, fullName: updated.fullName, email: updated.email } : prev);
+    await loadUsers();
+    return updated;
+  };
+
+  const changePassword = async (payload) => {
+    if (!auth?.token) throw new Error("Niste prijavljeni.");
+    const uid = resolveCurrentUserId(auth);
+    if (!uid) throw new Error("Nedostaje userId.");
+    await apiChangeUserPassword(uid, payload, auth.token);
+  };
+
   const value = useMemo(
     () => ({
       auth,
@@ -367,6 +445,14 @@ export function AppProvider({ children }) {
       rejectReservation,
       cancelReservation,
       rescheduleReservation,
+      notifications,
+      unreadCount,
+      loadNotifications,
+      markNotificationRead,
+      markAllNotificationsRead,
+      getTeamStats,
+      updateProfile,
+      changePassword,
       addLeague,
       getLeagueTeams,
       addTeamToLeague,
@@ -388,6 +474,8 @@ export function AppProvider({ children }) {
       availableTimeSlots,
       reservations,
       leagues,
+      notifications,
+      unreadCount,
       loadingUsers,
       loadingTeams,
       loadingTimeSlots,
@@ -398,7 +486,8 @@ export function AppProvider({ children }) {
       loadTimeSlots,
       loadAvailableSlots,
       loadReservations,
-      loadLeagues
+      loadLeagues,
+      loadNotifications
     ]
   );
 

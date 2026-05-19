@@ -3,6 +3,8 @@ package ba.sportsmanager.modules.reservations;
 import ba.sportsmanager.exception.BadRequestException;
 import ba.sportsmanager.exception.ConflictException;
 import ba.sportsmanager.exception.ResourceNotFoundException;
+import ba.sportsmanager.modules.notifications.NotificationService;
+import ba.sportsmanager.modules.notifications.NotificationType;
 import ba.sportsmanager.modules.teams.TeamEntity;
 import ba.sportsmanager.modules.teams.TeamService;
 import ba.sportsmanager.modules.timeslots.SlotAvailabilityStatus;
@@ -10,6 +12,7 @@ import ba.sportsmanager.modules.timeslots.TimeSlotEntity;
 import ba.sportsmanager.modules.timeslots.TimeSlotService;
 import ba.sportsmanager.modules.users.UserEntity;
 import ba.sportsmanager.modules.users.UserRepository;
+import ba.sportsmanager.modules.users.UserRole;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,17 +26,20 @@ public class ReservationService {
     private final TeamService teamService;
     private final TimeSlotService timeSlotService;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public ReservationService(
             ReservationRepository reservationRepository,
             TeamService teamService,
             TimeSlotService timeSlotService,
-            UserRepository userRepository
+            UserRepository userRepository,
+            NotificationService notificationService
     ) {
         this.reservationRepository = reservationRepository;
         this.teamService = teamService;
         this.timeSlotService = timeSlotService;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     public List<ReservationResponse> getAll() {
@@ -117,7 +123,13 @@ public class ReservationService {
         reservation.setNote(request.note() == null ? null : request.note().trim());
         reservation.setSport(request.sport());
 
-        return toResponse(reservationRepository.save(reservation));
+        ReservationEntity saved = reservationRepository.save(reservation);
+
+        String adminMsg = "Nova rezervacija (tim: " + team.getName() + ", termin: "
+                + slot.getResourceName() + " " + slot.getSlotDate() + ") čeka odobrenje.";
+        notificationService.createForRole(UserRole.ADMIN, adminMsg, NotificationType.RESERVATION_CREATED);
+
+        return toResponse(saved);
     }
 
     @Transactional
@@ -134,7 +146,14 @@ public class ReservationService {
         slot.setAvailabilityStatus(SlotAvailabilityStatus.RESERVED);
         timeSlotService.save(slot);
 
-        return toResponse(reservationRepository.save(reservation));
+        ReservationEntity saved = reservationRepository.save(reservation);
+        notificationService.createForUser(
+                saved.getCreatedBy().getId(),
+                "Vaša rezervacija za " + slot.getResourceName() + " (" + slot.getSlotDate()
+                        + ") je odobrena.",
+                NotificationType.RESERVATION_APPROVED);
+
+        return toResponse(saved);
     }
 
     @Transactional
@@ -151,7 +170,14 @@ public class ReservationService {
         slot.setAvailabilityStatus(SlotAvailabilityStatus.AVAILABLE);
         timeSlotService.save(slot);
 
-        return toResponse(reservationRepository.save(reservation));
+        ReservationEntity saved = reservationRepository.save(reservation);
+        notificationService.createForUser(
+                saved.getCreatedBy().getId(),
+                "Vaša rezervacija za " + slot.getResourceName() + " (" + slot.getSlotDate()
+                        + ") je odbijena.",
+                NotificationType.RESERVATION_REJECTED);
+
+        return toResponse(saved);
     }
 
     @Transactional
@@ -175,7 +201,14 @@ public class ReservationService {
         slot.setAvailabilityStatus(SlotAvailabilityStatus.AVAILABLE);
         timeSlotService.save(slot);
 
-        return toResponse(reservationRepository.save(reservation));
+        ReservationEntity saved = reservationRepository.save(reservation);
+        notificationService.createForUser(
+                saved.getCreatedBy().getId(),
+                "Vaša rezervacija za " + slot.getResourceName() + " (" + slot.getSlotDate()
+                        + ") je otkazana.",
+                NotificationType.RESERVATION_CANCELLED);
+
+        return toResponse(saved);
     }
 
     @Transactional
@@ -252,7 +285,14 @@ public class ReservationService {
             reservation.setNote(request.note().trim());
         }
 
-        return toResponse(reservationRepository.save(reservation));
+        ReservationEntity saved = reservationRepository.save(reservation);
+        notificationService.createForUser(
+                saved.getCreatedBy().getId(),
+                "Vaša rezervacija je premještena na " + newSlot.getResourceName()
+                        + " (" + newSlot.getSlotDate() + ").",
+                NotificationType.RESERVATION_RESCHEDULED);
+
+        return toResponse(saved);
     }
 
     private ReservationEntity getEntity(Long id) {

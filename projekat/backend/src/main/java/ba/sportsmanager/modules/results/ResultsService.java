@@ -5,11 +5,14 @@ import ba.sportsmanager.exception.ConflictException;
 import ba.sportsmanager.exception.ResourceNotFoundException;
 import ba.sportsmanager.modules.leagues.LeagueEntity;
 import ba.sportsmanager.modules.leagues.LeagueService;
+import ba.sportsmanager.modules.notifications.NotificationService;
+import ba.sportsmanager.modules.notifications.NotificationType;
 import ba.sportsmanager.modules.teams.TeamEntity;
 import ba.sportsmanager.modules.teams.TeamService;
 import ba.sportsmanager.modules.timeslots.SlotAvailabilityStatus;
 import ba.sportsmanager.modules.timeslots.TimeSlotEntity;
 import ba.sportsmanager.modules.timeslots.TimeSlotRepository;
+import ba.sportsmanager.modules.users.UserRole;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,17 +28,20 @@ public class ResultsService {
     private final LeagueService leagueService;
     private final TeamService teamService;
     private final TimeSlotRepository timeSlotRepository;
+    private final NotificationService notificationService;
 
     public ResultsService(MatchRepository matchRepository,
                           StandingRepository standingRepository,
                           LeagueService leagueService,
                           TeamService teamService,
-                          TimeSlotRepository timeSlotRepository) {
+                          TimeSlotRepository timeSlotRepository,
+                          NotificationService notificationService) {
         this.matchRepository = matchRepository;
         this.standingRepository = standingRepository;
         this.leagueService = leagueService;
         this.teamService = teamService;
         this.timeSlotRepository = timeSlotRepository;
+        this.notificationService = notificationService;
     }
 
     public List<MatchResponse> getMatches() {
@@ -121,6 +127,11 @@ public class ResultsService {
             savedMatch = matchRepository.save(savedMatch);
         }
 
+        String msg = "Zakazana utakmica: " + homeTeam.getName() + " vs " + awayTeam.getName()
+                + " (" + savedMatch.getMatchDate() + ") u ligi " + league.getLeagueName() + ".";
+        notificationService.createForRole(UserRole.ADMIN, msg, NotificationType.MATCH_SCHEDULED);
+        notificationService.createForRole(UserRole.CAPTAIN, msg, NotificationType.MATCH_SCHEDULED);
+
         return toMatchResponse(savedMatch);
     }
 
@@ -146,6 +157,12 @@ public class ResultsService {
 
         standingRepository.save(homeStanding);
         standingRepository.save(awayStanding);
+
+        String msg = "Rezultat unesen: " + match.getHomeTeam().getName() + " "
+                + request.homeScore() + " - " + request.awayScore() + " "
+                + match.getAwayTeam().getName() + " (" + match.getLeague().getLeagueName() + ").";
+        notificationService.createForRole(UserRole.ADMIN, msg, NotificationType.MATCH_RESULT_RECORDED);
+        notificationService.createForRole(UserRole.CAPTAIN, msg, NotificationType.MATCH_RESULT_RECORDED);
 
         return toMatchResponse(match);
     }

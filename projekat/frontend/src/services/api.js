@@ -59,6 +59,14 @@ export function deleteUser(id, token) {
   return request(`/api/users/${id}`, { method: "DELETE", token });
 }
 
+export function updateUserProfile(id, payload, token) {
+  return request(`/api/users/${id}/profile`, { method: "PATCH", body: payload, token });
+}
+
+export function changeUserPassword(id, payload, token) {
+  return request(`/api/users/${id}/password`, { method: "PATCH", body: payload, token });
+}
+
 /* ── Teams ────────────────────────────────────────────────── */
 
 export function fetchTeams(token) {
@@ -172,4 +180,29 @@ export function recordMatchResult(matchId, payload, token) {
 
 export function fetchStandings(leagueId, token) {
   return request(`/api/results/leagues/${leagueId}/standings`, { token });
+}
+
+/* ── Team Stats ───────────────────────────────────────────── */
+
+export function fetchTeamStats(teamId, leagueId, token) {
+  const query = leagueId ? `?leagueId=${leagueId}` : "";
+  return request(`/api/teams/${teamId}/stats${query}`, { token });
+}
+
+/* ── Notifications ────────────────────────────────────────── */
+
+export function fetchNotifications(userId, token) {
+  return request(`/api/notifications/user/${userId}`, { token });
+}
+
+export function fetchUnreadNotificationCount(userId, token) {
+  return request(`/api/notifications/user/${userId}/unread-count`, { token });
+}
+
+export function markNotificationRead(id, token) {
+  return request(`/api/notifications/${id}/read`, { method: "PATCH", token });
+}
+
+export function markAllNotificationsRead(userId, token) {
+  return request(`/api/notifications/user/${userId}/read-all`, { method: "PATCH", token });
 }
