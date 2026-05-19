@@ -105,6 +105,14 @@ export function cancelReservation(id, token) {
   return request(`/api/reservations/${id}/cancel`, { method: "PATCH", token });
 }
 
+export function rescheduleReservation(id, payload, token) {
+  return request(`/api/reservations/${id}/reschedule`, {
+    method: "PATCH",
+    body: payload,
+    token
+  });
+}
+
 /* ── Leagues ──────────────────────────────────────────────── */
 
 export function fetchLeagues(token) {

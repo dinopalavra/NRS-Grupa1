@@ -21,6 +21,7 @@ public record ReservationResponse(
         ReservationStatus status,
         String note,
         LocalDateTime createdAt,
-        SportType sport
+        SportType sport,
+        Long linkedMatchId
 ) {
 }
