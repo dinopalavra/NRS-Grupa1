@@ -24,4 +24,10 @@ public class TeamController {
     public TeamResponse createTeam(@Valid @RequestBody CreateTeamRequest request) {
         return teamService.createTeam(request);
     }
+
+    @GetMapping("/{id}/stats")
+    public TeamStatsResponse getStats(@PathVariable Long id,
+                                      @RequestParam(value = "leagueId", required = false) Long leagueId) {
+        return teamService.getTeamStats(id, leagueId);
+    }
 }

@@ -20,6 +20,8 @@ function TimeSlotsPage() {
   const isAdmin = selectedRole === "ADMIN";
 
   const [filter, setFilter]   = useState("all");
+  const [search, setSearch]   = useState("");
+  const [dateFilter, setDateFilter] = useState("");
   const [message, setMessage] = useState({ text: "", ok: true });
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -34,12 +36,21 @@ function TimeSlotsPage() {
   }), [timeSlots]);
 
   const filtered = useMemo(() => {
-    const base = filter === "all" ? timeSlots : timeSlots.filter(s => s.availabilityStatus === filter);
+    const q = search.trim().toLowerCase();
+    const base = timeSlots.filter(s => {
+      if (filter !== "all" && s.availabilityStatus !== filter) return false;
+      if (dateFilter && s.slotDate !== dateFilter) return false;
+      if (q) {
+        const haystack = `${s.resourceName || ""} ${s.location || ""}`.toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
+      return true;
+    });
     return [...base].sort((a, b) => {
       if (a.slotDate !== b.slotDate) return a.slotDate < b.slotDate ? -1 : 1;
       return a.startTime < b.startTime ? -1 : 1;
     });
-  }, [timeSlots, filter]);
+  }, [timeSlots, filter, search, dateFilter]);
 
   const onChange = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -154,6 +165,34 @@ function TimeSlotsPage() {
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="form-row" style={{ padding: "0 0 16px 0", gap: 12 }}>
+            <div className="field field-grow">
+              <input
+                className="field-input"
+                placeholder="🔍 Pretraga po nazivu resursa ili lokaciji..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+            <div className="field" style={{ width: 200 }}>
+              <input
+                className="field-input"
+                type="date"
+                value={dateFilter}
+                onChange={e => setDateFilter(e.target.value)}
+              />
+            </div>
+            {(search || dateFilter) && (
+              <div className="field field-action">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => { setSearch(""); setDateFilter(""); }}
+                >Resetuj</button>
+              </div>
+            )}
           </div>
 
           {loadingTimeSlots ? (

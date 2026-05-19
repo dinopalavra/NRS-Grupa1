@@ -1,5 +1,6 @@
 import React from "react";
 import { useAppContext } from "../context/AppContext.jsx";
+import NotificationBell from "./NotificationBell.jsx";
 
 /* ── SVG Icon components ───────────────────────────────────── */
 
@@ -62,6 +63,21 @@ const IconTrophy = ({ className = "nav-icon" }) => (
   </svg>
 );
 
+const IconUser = ({ className = "nav-icon" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+);
+
+const IconMenu = ({ className = "nav-icon" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="3" y1="6" x2="21" y2="6"/>
+    <line x1="3" y1="12" x2="21" y2="12"/>
+    <line x1="3" y1="18" x2="21" y2="18"/>
+  </svg>
+);
+
 const Logo = () => (
   <svg
     width="22" height="22"
@@ -93,6 +109,7 @@ const ALL_NAV = [
   { key: "timeslots",    label: "Termini",     Icon: IconClock,    roles: null,                       badge: null },
   { key: "reservations", label: "Rezervacije", Icon: IconCalendar, roles: null,                       badge: null },
   { key: "liga",         label: "Liga",        Icon: IconTrophy,   roles: null,                       badge: null  },
+  { key: "profile",      label: "Profil",      Icon: IconUser,     roles: null,                       badge: null  },
 ];
 
 function getNavItems(role) {
@@ -108,14 +125,34 @@ function getInitials(name) {
 
 function Layout({ children }) {
   const { currentPage, navigate, selectedRole, isAuthenticated, logout, currentUser } = useAppContext();
+  const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
 
   if (!isAuthenticated) return children;
 
   const displayName = currentUser?.fullName || currentUser?.username || "Korisnik";
   const navItems = getNavItems(selectedRole);
 
+  const handleNavigate = (key) => {
+    navigate(key);
+    setMobileNavOpen(false);
+  };
+
   return (
-    <div className="layout-shell">
+    <div className={`layout-shell ${mobileNavOpen ? "is-mobile-nav-open" : ""}`}>
+      <button
+        type="button"
+        className="layout-mobile-toggle"
+        aria-label="Otvori meni"
+        onClick={() => setMobileNavOpen(true)}
+      >
+        <IconMenu />
+      </button>
+      <div className="layout-mobile-topbar">
+        <NotificationBell />
+      </div>
+      {mobileNavOpen && (
+        <div className="layout-mobile-backdrop" onClick={() => setMobileNavOpen(false)} />
+      )}
       <aside className="layout-sidebar">
 
         <div className="layout-brand">
@@ -140,7 +177,7 @@ function Layout({ children }) {
             <button
               key={key}
               type="button"
-              onClick={() => navigate(key)}
+              onClick={() => handleNavigate(key)}
               className={`nav-item ${currentPage === key ? "is-active" : ""}`}
             >
               <Icon />
@@ -148,6 +185,9 @@ function Layout({ children }) {
               {badge && <span className="nav-badge">{badge}</span>}
             </button>
           ))}
+          <div className="nav-bell-row">
+            <NotificationBell />
+          </div>
         </nav>
 
         <div className="layout-sidebar-footer">

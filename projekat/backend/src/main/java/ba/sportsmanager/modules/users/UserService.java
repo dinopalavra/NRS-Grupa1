@@ -89,6 +89,36 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    public UserResponse updateProfile(Long id, UpdateProfileRequest request) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
+
+        String newEmail = request.email().trim();
+        if (!newEmail.equalsIgnoreCase(user.getEmail()) && userRepository.existsByEmail(newEmail)) {
+            throw new BadRequestException("Email already exists.");
+        }
+
+        user.setFullName(request.fullName().trim());
+        user.setEmail(newEmail);
+        return toResponse(userRepository.save(user));
+    }
+
+    public void changePassword(Long id, ChangePasswordRequest request) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
+
+        boolean matches = user.getPasswordHash().startsWith("$2")
+                ? passwordEncoder.matches(request.oldPassword(), user.getPasswordHash())
+                : user.getPasswordHash().equals(request.oldPassword());
+
+        if (!matches) {
+            throw new BadRequestException("Old password is incorrect.");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+    }
+
     private UserResponse toResponse(UserEntity user) {
         return new UserResponse(
                 user.getId(),

@@ -1,0 +1,12 @@
+package ba.sportsmanager.modules.notifications;
+
+public enum NotificationType {
+    RESERVATION_CREATED,
+    RESERVATION_APPROVED,
+    RESERVATION_REJECTED,
+    RESERVATION_CANCELLED,
+    RESERVATION_RESCHEDULED,
+    MATCH_SCHEDULED,
+    MATCH_RESULT_RECORDED,
+    INFO
+}

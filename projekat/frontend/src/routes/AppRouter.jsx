@@ -7,6 +7,7 @@ import TeamsPage from "../pages/TeamsPage.jsx";
 import ReservationsPage from "../pages/ReservationsPage.jsx";
 import TimeSlotsPage from "../pages/TimeSlotsPage.jsx";
 import LigaPage from "../pages/LigaPage.jsx";
+import ProfilePage from "../pages/ProfilePage.jsx";
 
 function AppRouter() {
   const { currentPage, isAuthenticated } = useAppContext();
@@ -21,6 +22,7 @@ function AppRouter() {
     case "timeslots":    return <TimeSlotsPage />;
     case "reservations": return <ReservationsPage />;
     case "liga":         return <LigaPage />;
+    case "profile":      return <ProfilePage />;
     case "dashboard":
     default:             return <DashboardPage />;
   }

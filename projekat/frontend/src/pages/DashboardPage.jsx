@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useAppContext } from "../context/AppContext.jsx";
 import { IconUsers, IconShield, IconClock, IconCalendar, IconTrophy } from "../components/Layout.jsx";
+import { formatDate, formatTime } from "../utils/format.js";
+import { fetchAllMatches } from "../services/api.js";
 
 const IconCheckCircle = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 20, height: 20 }}>
@@ -16,81 +18,72 @@ const IconHourglass = () => (
 );
 
 const ALL_FEATURE_CARDS = [
-  {
-    key: "users",
-    Icon: IconUsers,
-    title: "Korisnici",
-    desc: "Pregled i upravljanje svim korisničkim nalozima. Dodaj novog korisnika ili provjeri postojeće.",
-    label: "Otvori korisnike",
-    roles: ["ADMIN"],
-    color: "card-blue",
-  },
-  {
-    key: "teams",
-    Icon: IconShield,
-    title: "Timovi",
-    desc: "Kreiraj i upravljaj sportskim timovima. Pregled registrovanih timova i njihovih članova.",
-    label: "Otvori timove",
-    roles: ["ADMIN", "CAPTAIN"],
-    color: "card-purple",
-  },
-  {
-    key: "timeslots",
-    Icon: IconClock,
-    title: "Termini",
-    desc: "Pregled raspoloživih termina za rezervaciju. Administratori dodaju nove termine.",
-    label: "Otvori termine",
-    roles: null,
-    color: "card-green",
-  },
-  {
-    key: "reservations",
-    Icon: IconCalendar,
-    title: "Rezervacije",
-    desc: "Kreiraj rezervacije i prati njihov status. Admin odobrava ili odbija zahtjeve.",
-    label: "Otvori rezervacije",
-    roles: null,
-    color: "card-orange",
-  },
-  {
-    key: "liga",
-    Icon: IconTrophy,
-    title: "Liga",
-    desc: "Kreiranje liga, dodavanje timova, zakazivanje utakmica i automatska tabela poretka.",
-    label: "Otvori ligu",
-    roles: null,
-    color: "card-gold",
-  },
+  { key: "users",        Icon: IconUsers,    title: "Korisnici",   desc: "Pregled i upravljanje svim korisničkim nalozima.",             label: "Otvori korisnike",   roles: ["ADMIN"],            color: "card-blue"   },
+  { key: "teams",        Icon: IconShield,   title: "Timovi",      desc: "Kreiraj i upravljaj sportskim timovima.",                       label: "Otvori timove",      roles: ["ADMIN", "CAPTAIN"], color: "card-purple" },
+  { key: "timeslots",    Icon: IconClock,    title: "Termini",     desc: "Pregled raspoloživih termina za rezervaciju.",                  label: "Otvori termine",     roles: null,                 color: "card-green"  },
+  { key: "reservations", Icon: IconCalendar, title: "Rezervacije", desc: "Kreiraj rezervacije i prati njihov status.",                    label: "Otvori rezervacije", roles: null,                 color: "card-orange" },
+  { key: "liga",         Icon: IconTrophy,   title: "Liga",        desc: "Kreiranje liga, zakazivanje utakmica i tabela poretka.",        label: "Otvori ligu",        roles: null,                 color: "card-gold"   },
 ];
+
+const ROLE_LABEL = {
+  ADMIN:               "Administrator",
+  CAPTAIN:             "Kapiten tima",
+  PLAYER:              "Igrač",
+  REFEREE_SCOREKEEPER: "Sudija / Zapisničar",
+};
 
 function DashboardPage() {
   const {
+    auth,
     currentUser,
     selectedRole,
     users,
     teams,
     timeSlots,
     reservations,
+    leagues,
     backendStatus,
     navigate,
+    notifications,
+    unreadCount,
   } = useAppContext();
+
+  const [matches, setMatches] = useState([]);
+
+  useEffect(() => {
+    if (!auth?.token) return;
+    fetchAllMatches(auth.token).then(d => setMatches(Array.isArray(d) ? d : []))
+      .catch(() => setMatches([]));
+  }, [auth?.token]);
 
   const availableSlots = timeSlots.filter(s => s.availabilityStatus === "AVAILABLE").length;
   const pendingRes     = reservations.filter(r => r.status === "PENDING").length;
   const approvedRes    = reservations.filter(r => r.status === "APPROVED").length;
+  const visibleCards   = ALL_FEATURE_CARDS.filter(c => c.roles === null || c.roles.includes(selectedRole));
+  const displayName    = currentUser?.fullName || currentUser?.username || "korisnik";
+  const userId         = currentUser?.userId || currentUser?.id;
 
-  const visibleCards = ALL_FEATURE_CARDS.filter(
-    c => c.roles === null || c.roles.includes(selectedRole)
-  );
+  const upcomingMatches = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    return matches
+      .filter(m => m.status === "SCHEDULED" && m.matchDate >= today)
+      .sort((a, b) => a.matchDate < b.matchDate ? -1 : 1)
+      .slice(0, 5);
+  }, [matches]);
 
-  const displayName = currentUser?.fullName || currentUser?.username || "korisnik";
+  const myReservations = useMemo(() => {
+    if (!userId) return [];
+    return reservations
+      .filter(r => r.createdByUserId === userId)
+      .sort((a, b) => a.slotDate < b.slotDate ? 1 : -1)
+      .slice(0, 5);
+  }, [reservations, userId]);
 
-  const ROLE_LABEL = {
-    ADMIN:               "Administrator",
-    CAPTAIN:             "Kapiten tima",
-    PLAYER:              "Igrač",
-    REFEREE_SCOREKEEPER: "Sudija / Zapisničar",
-  };
+  const recompletedMatches = useMemo(() => {
+    return matches
+      .filter(m => m.status === "COMPLETED")
+      .slice(0, 5);
+  }, [matches]);
 
   return (
     <div className="app-page">
@@ -103,6 +96,14 @@ function DashboardPage() {
             <span className={`inline-status ${backendStatus.ok ? "online" : "offline"}`}>
               {backendStatus.ok ? "● Backend online" : "● Backend offline"}
             </span>
+            {unreadCount > 0 && (
+              <>
+                {" · "}
+                <span style={{ color: "var(--gold-light, #c9a87c)" }}>
+                  {unreadCount} {unreadCount === 1 ? "nova notifikacija" : "novih notifikacija"}
+                </span>
+              </>
+            )}
           </p>
         </div>
       </div>
@@ -146,6 +147,170 @@ function DashboardPage() {
             <div className="dash-stat-body">
               <div className="dash-stat-val">{approvedRes}</div>
               <div className="dash-stat-label">Odobrenih</div>
+            </div>
+          </div>
+        )}
+        {selectedRole === "ADMIN" && (
+          <div className="dash-stat dash-stat-gold">
+            <div className="dash-stat-icon"><IconTrophy className="dash-stat-svg" /></div>
+            <div className="dash-stat-body">
+              <div className="dash-stat-val">{leagues.length}</div>
+              <div className="dash-stat-label">Lige</div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Role-specific section */}
+      <div className="dashboard-role-section">
+        {selectedRole === "ADMIN" && (
+          <div className="dashboard-two-col">
+            <div className="content-card">
+              <div className="content-card-header">
+                <h2 className="content-card-title">Rezervacije na čekanju</h2>
+                <p className="content-card-subtitle">{pendingRes} čeka vašu akciju</p>
+              </div>
+              {pendingRes === 0 ? (
+                <div className="empty-state-mini">Nema rezervacija na čekanju.</div>
+              ) : (
+                <ul className="dash-list">
+                  {reservations.filter(r => r.status === "PENDING").slice(0, 5).map(r => (
+                    <li key={r.id} className="dash-list-item">
+                      <div className="dash-list-main">{r.teamName} · {r.resourceName}</div>
+                      <div className="dash-list-sub">{formatDate(r.slotDate)} {formatTime(r.startTime)}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className="content-card">
+              <div className="content-card-header">
+                <h2 className="content-card-title">Nedavna obavještenja</h2>
+                <p className="content-card-subtitle">{unreadCount} nepročitanih</p>
+              </div>
+              {notifications.length === 0 ? (
+                <div className="empty-state-mini">Nema obavještenja.</div>
+              ) : (
+                <ul className="dash-list">
+                  {notifications.slice(0, 5).map(n => (
+                    <li key={n.id} className="dash-list-item">
+                      <div className="dash-list-main">{n.message}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        )}
+
+        {selectedRole === "CAPTAIN" && (
+          <div className="dashboard-two-col">
+            <div className="content-card">
+              <div className="content-card-header">
+                <h2 className="content-card-title">Moje rezervacije</h2>
+                <p className="content-card-subtitle">Posljednje rezervacije koje sam kreirao</p>
+              </div>
+              {myReservations.length === 0 ? (
+                <div className="empty-state-mini">Još nemate rezervacija.</div>
+              ) : (
+                <ul className="dash-list">
+                  {myReservations.map(r => (
+                    <li key={r.id} className="dash-list-item">
+                      <div className="dash-list-main">{r.teamName} · {r.resourceName}</div>
+                      <div className="dash-list-sub">
+                        {formatDate(r.slotDate)} {formatTime(r.startTime)} ·{" "}
+                        <span className={`status-chip status-${String(r.status).toLowerCase()}`} style={{ marginLeft: 4 }}>
+                          {r.status}
+                        </span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className="content-card">
+              <div className="content-card-header">
+                <h2 className="content-card-title">Nadolazeće utakmice</h2>
+                <p className="content-card-subtitle">Sljedećih 5 zakazanih</p>
+              </div>
+              {upcomingMatches.length === 0 ? (
+                <div className="empty-state-mini">Nema nadolazećih utakmica.</div>
+              ) : (
+                <ul className="dash-list">
+                  {upcomingMatches.map(m => (
+                    <li key={m.id} className="dash-list-item">
+                      <div className="dash-list-main">{m.homeTeamName} vs {m.awayTeamName}</div>
+                      <div className="dash-list-sub">
+                        {formatDate(m.matchDate)} {m.startTime ? formatTime(m.startTime) : ""} · {m.leagueName}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        )}
+
+        {selectedRole === "PLAYER" && (
+          <div className="content-card">
+            <div className="content-card-header">
+              <h2 className="content-card-title">Nadolazeće utakmice</h2>
+              <p className="content-card-subtitle">Predstojeće utakmice u sistemu</p>
+            </div>
+            {upcomingMatches.length === 0 ? (
+              <div className="empty-state-mini">Nema nadolazećih utakmica.</div>
+            ) : (
+              <ul className="dash-list">
+                {upcomingMatches.map(m => (
+                  <li key={m.id} className="dash-list-item">
+                    <div className="dash-list-main">{m.homeTeamName} vs {m.awayTeamName}</div>
+                    <div className="dash-list-sub">
+                      {formatDate(m.matchDate)} {m.startTime ? formatTime(m.startTime) : ""} · {m.leagueName}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
+        {selectedRole === "REFEREE_SCOREKEEPER" && (
+          <div className="dashboard-two-col">
+            <div className="content-card">
+              <div className="content-card-header">
+                <h2 className="content-card-title">Utakmice bez rezultata</h2>
+                <p className="content-card-subtitle">Zakazane utakmice koje čekaju rezultat</p>
+              </div>
+              {upcomingMatches.length === 0 ? (
+                <div className="empty-state-mini">Nema utakmica.</div>
+              ) : (
+                <ul className="dash-list">
+                  {upcomingMatches.map(m => (
+                    <li key={m.id} className="dash-list-item">
+                      <div className="dash-list-main">{m.homeTeamName} vs {m.awayTeamName}</div>
+                      <div className="dash-list-sub">{formatDate(m.matchDate)} · {m.leagueName}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className="content-card">
+              <div className="content-card-header">
+                <h2 className="content-card-title">Nedavno odigrane</h2>
+                <p className="content-card-subtitle">Rezultati koje ste možda zabilježili</p>
+              </div>
+              {recompletedMatches.length === 0 ? (
+                <div className="empty-state-mini">Nema završenih utakmica.</div>
+              ) : (
+                <ul className="dash-list">
+                  {recompletedMatches.map(m => (
+                    <li key={m.id} className="dash-list-item">
+                      <div className="dash-list-main">{m.homeTeamName} {m.homeScore} : {m.awayScore} {m.awayTeamName}</div>
+                      <div className="dash-list-sub">{formatDate(m.matchDate)} · {m.leagueName}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         )}

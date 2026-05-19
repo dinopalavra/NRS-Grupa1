@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface MatchRepository extends JpaRepository<MatchEntity, Long> {
     List<MatchEntity> findByLeague_IdOrderByMatchDateAsc(Long leagueId);
+
+    List<MatchEntity> findByHomeTeam_IdOrAwayTeam_IdOrderByMatchDateDesc(Long homeId, Long awayId);
 }

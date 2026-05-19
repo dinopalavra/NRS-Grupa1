@@ -98,6 +98,17 @@ function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeagu
   const [form, setForm] = useState({ leagueName: "", season: "", sport: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [search, setSearch] = useState("");
+  const [sportFilter, setSportFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+
+  const filteredLeagues = leagues.filter(lg => {
+    const q = search.trim().toLowerCase();
+    if (q && !(`${lg.leagueName} ${lg.season}`).toLowerCase().includes(q)) return false;
+    if (sportFilter && lg.sport !== sportFilter) return false;
+    if (statusFilter && lg.status !== statusFilter) return false;
+    return true;
+  });
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -174,17 +185,49 @@ function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeagu
         </form>
       )}
 
+      <div className="liga-search-row">
+        <input
+          className="liga-input"
+          placeholder="🔍 Pretraga lige..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+        <select
+          className="liga-input liga-select"
+          value={sportFilter}
+          onChange={e => setSportFilter(e.target.value)}
+        >
+          <option value="">Svi sportovi</option>
+          <option value="FOOTBALL">Fudbal</option>
+          <option value="BASKETBALL">Košarka</option>
+          <option value="VOLLEYBALL">Odbojka</option>
+          <option value="HANDBALL">Rukomet</option>
+          <option value="FUTSAL">Futsal</option>
+          <option value="TENNIS">Tenis</option>
+          <option value="OTHER">Ostalo</option>
+        </select>
+        <select
+          className="liga-input liga-select"
+          value={statusFilter}
+          onChange={e => setStatusFilter(e.target.value)}
+        >
+          <option value="">Svi statusi</option>
+          <option value="ACTIVE">Aktivne</option>
+          <option value="INACTIVE">Neaktivne</option>
+        </select>
+      </div>
+
       {loading ? (
         <div className="liga-list-loading"><Spinner /></div>
-      ) : leagues.length === 0 ? (
+      ) : filteredLeagues.length === 0 ? (
         <EmptyState
           icon={<IconTrophy />}
-          title="Nema liga"
-          subtitle="Kreirajte prvu ligu."
+          title={leagues.length === 0 ? "Nema liga" : "Nema rezultata"}
+          subtitle={leagues.length === 0 ? "Kreirajte prvu ligu." : "Pokušajte sa drugim filterom."}
         />
       ) : (
         <ul className="liga-list">
-          {leagues.map(lg => (
+          {filteredLeagues.map(lg => (
             <li key={lg.id}>
               <button
                 type="button"
