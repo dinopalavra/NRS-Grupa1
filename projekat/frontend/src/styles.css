@@ -385,62 +385,48 @@ button, input, select, textarea { font: inherit; }
 
 .layout-content > * { position: relative; z-index: 1; }
 
-/* Per-page background images — landscape 4K Unsplash, green sport palette */
+/* Per-page background images — verified Unsplash IDs, green sport palette */
 
-/* Dashboard — luxury golf course fairway, deep green */
 .layout-bg--dashboard {
   background-image:
-    linear-gradient(rgba(6,16,10,0.72), rgba(6,16,10,0.72)),
-    url('https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=3840&q=90&fit=crop&auto=format');
-  background-position: center;
+    linear-gradient(rgba(6,16,10,0.62), rgba(6,16,10,0.62)),
+    url('https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1920&q=85&fit=crop&auto=format');
 }
 
-/* Korisnici — fitness/gym training, dark athletic */
 .layout-bg--users {
   background-image:
-    linear-gradient(rgba(6,16,10,0.72), rgba(6,16,10,0.72)),
-    url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=3840&q=90&fit=crop&auto=format');
-  background-position: center;
+    linear-gradient(rgba(6,16,10,0.62), rgba(6,16,10,0.62)),
+    url('https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=1920&q=85&fit=crop&auto=format');
 }
 
-/* Timovi — sport team, athletic green */
 .layout-bg--teams {
   background-image:
-    linear-gradient(rgba(6,16,10,0.72), rgba(6,16,10,0.72)),
-    url('https://images.unsplash.com/photo-1526676037777-05a232554f77?w=3840&q=90&fit=crop&auto=format');
-  background-position: center;
+    linear-gradient(rgba(6,16,10,0.62), rgba(6,16,10,0.62)),
+    url('https://images.unsplash.com/photo-1546519638778-c51957a6d7c2?w=1920&q=85&fit=crop&auto=format');
 }
 
-/* Termini — aerial tennis court, vivid green */
 .layout-bg--timeslots {
   background-image:
-    linear-gradient(rgba(6,16,10,0.68), rgba(6,16,10,0.68)),
-    url('https://images.unsplash.com/photo-1554068865-24ceec92fb37?w=3840&q=90&fit=crop&auto=format');
-  background-position: center;
+    linear-gradient(rgba(6,16,10,0.58), rgba(6,16,10,0.58)),
+    url('https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=1920&q=85&fit=crop&auto=format');
 }
 
-/* Rezervacije — sport court, green tones */
 .layout-bg--reservations {
   background-image:
-    linear-gradient(rgba(6,16,10,0.72), rgba(6,16,10,0.72)),
-    url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=3840&q=90&fit=crop&auto=format');
-  background-position: center;
+    linear-gradient(rgba(6,16,10,0.60), rgba(6,16,10,0.60)),
+    url('https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=1920&q=85&fit=crop&auto=format');
 }
 
-/* Liga — aerial football stadium, green pitch */
 .layout-bg--liga {
   background-image:
-    linear-gradient(rgba(6,16,10,0.65), rgba(6,16,10,0.65)),
-    url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=3840&q=90&fit=crop&auto=format');
-  background-position: center;
+    linear-gradient(rgba(6,16,10,0.55), rgba(6,16,10,0.55)),
+    url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1920&q=85&fit=crop&auto=format');
 }
 
-/* Profil — golf course landscape, serene green */
 .layout-bg--profile {
   background-image:
-    linear-gradient(rgba(6,16,10,0.72), rgba(6,16,10,0.72)),
-    url('https://images.unsplash.com/photo-1593111774240-d529f12cf4d1?w=3840&q=90&fit=crop&auto=format');
-  background-position: center;
+    linear-gradient(rgba(6,16,10,0.62), rgba(6,16,10,0.62)),
+    url('https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=1920&q=85&fit=crop&auto=format');
 }
 
 /* ============================================================
@@ -452,7 +438,7 @@ button, input, select, textarea { font: inherit; }
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('https://images.unsplash.com/photo-1554068865-24ceec92fb37?w=3840&q=90&fit=crop&auto=format');
+  background-image: url('https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=1920&q=85&fit=crop&auto=format');
   background-size: cover;
   background-position: center;
   position: relative;
@@ -1759,14 +1745,23 @@ select.liga-select {
 }
 
 .modal-dialog {
-  background: var(--color-surface, #15192a);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: var(--radius-lg, 12px);
+  background: var(--dark-800);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
   width: 100%;
   max-width: 560px;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.7);
   overflow: hidden;
   animation: modalFadeIn 0.15s ease-out;
+  position: relative;
+}
+.modal-dialog::before {
+  content: '';
+  display: block;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+  position: absolute;
+  top: 0; left: 0; right: 0;
 }
 
 @keyframes modalFadeIn {
@@ -1870,7 +1865,7 @@ select.liga-select {
   border-radius: 9px;
   min-width: 16px;
   text-align: center;
-  border: 2px solid #15192a;
+  border: 2px solid var(--dark-900);
 }
 
 .notif-dropdown {
@@ -1879,14 +1874,15 @@ select.liga-select {
   right: 0;
   width: 360px;
   max-height: 480px;
-  background: var(--color-surface, #15192a);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+  background: var(--dark-800);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.7);
   z-index: 1100;
   display: flex;
   flex-direction: column;
   animation: modalFadeIn 0.12s ease-out;
+  overflow: hidden;
 }
 
 .notif-dropdown-header {
@@ -2111,10 +2107,10 @@ select.liga-select {
   z-index: 1200;
   width: 40px;
   height: 40px;
-  background: rgba(21,25,42,0.92);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  color: #fff;
+  background: rgba(6,16,10,0.95);
+  border: 1px solid rgba(201,168,124,0.2);
+  border-radius: var(--radius-md);
+  color: var(--gold-light);
   cursor: pointer;
   align-items: center;
   justify-content: center;
