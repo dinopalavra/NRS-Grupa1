@@ -200,5 +200,5 @@ function Layout({ children }) {
   );
 }
 
-export { IconUsers, IconShield, IconClock, IconCalendar, IconGrid, IconTrophy };
+export { IconUsers, IconShield, IconClock, IconCalendar, IconGrid, IconTrophy, IconUser };
 export default Layout;
