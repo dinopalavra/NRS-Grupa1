@@ -15,6 +15,8 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlotEntity, Long> 
     Optional<TimeSlotEntity> findByLocationAndResourceNameAndSlotDateAndStartTime(
             String location, String resourceName, LocalDate slotDate, LocalTime startTime);
 
+    List<TimeSlotEntity> findByLeagueMatchIdIn(List<Long> matchIds);
+
     @Query("SELECT s FROM TimeSlotEntity s WHERE s.location = :location AND s.resourceName = :resourceName AND s.slotDate = :slotDate AND s.startTime < :endTime AND s.endTime > :startTime AND s.id != :excludeId")
     List<TimeSlotEntity> findOverlapping(
             @Param("location") String location,

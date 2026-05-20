@@ -1,12 +1,18 @@
 package ba.sportsmanager.modules.results;
 
+import ba.sportsmanager.common.SportType;
 import ba.sportsmanager.exception.BadRequestException;
+import ba.sportsmanager.exception.ConflictException;
 import ba.sportsmanager.exception.ResourceNotFoundException;
 import ba.sportsmanager.modules.leagues.LeagueEntity;
 import ba.sportsmanager.modules.leagues.LeagueService;
 import ba.sportsmanager.modules.leagues.LeagueStatus;
+import ba.sportsmanager.modules.notifications.NotificationService;
 import ba.sportsmanager.modules.teams.TeamEntity;
 import ba.sportsmanager.modules.teams.TeamService;
+import ba.sportsmanager.modules.timeslots.SlotAvailabilityStatus;
+import ba.sportsmanager.modules.timeslots.TimeSlotEntity;
+import ba.sportsmanager.modules.timeslots.TimeSlotRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,6 +36,8 @@ class ResultsServiceTest {
     @Mock private StandingRepository standingRepository;
     @Mock private LeagueService leagueService;
     @Mock private TeamService teamService;
+    @Mock private TimeSlotRepository timeSlotRepository;
+    @Mock private NotificationService notificationService;
 
     @InjectMocks private ResultsService resultsService;
 
@@ -44,6 +53,7 @@ class ResultsServiceTest {
         mockLeague.setLeagueName("Premijer liga");
         mockLeague.setSeason("2025/2026");
         mockLeague.setStatus(LeagueStatus.ACTIVE);
+        mockLeague.setSport(SportType.FOOTBALL);
 
         homeTeam = new TeamEntity();
         ReflectionTestUtils.setField(homeTeam, "id", 1L);
@@ -72,7 +82,9 @@ class ResultsServiceTest {
 
     @Test
     void createMatch_Successful_ReturnsResponse() {
-        CreateMatchRequest request = new CreateMatchRequest(1L, 1L, 2L, LocalDate.of(2026, 5, 15));
+        CreateMatchRequest request = new CreateMatchRequest(
+                1L, 1L, 2L, LocalDate.of(2026, 5, 15),
+                null, null, null, null, null);
         when(leagueService.getEntity(1L)).thenReturn(mockLeague);
         when(teamService.getTeamEntity(1L)).thenReturn(homeTeam);
         when(teamService.getTeamEntity(2L)).thenReturn(awayTeam);
@@ -92,13 +104,92 @@ class ResultsServiceTest {
 
     @Test
     void createMatch_WhenSameTeam_ThrowsBadRequestException() {
-        CreateMatchRequest request = new CreateMatchRequest(1L, 1L, 1L, LocalDate.of(2026, 5, 15));
+        CreateMatchRequest request = new CreateMatchRequest(
+                1L, 1L, 1L, LocalDate.of(2026, 5, 15),
+                null, null, null, null, null);
 
         assertThrows(BadRequestException.class, () -> resultsService.createMatch(request));
         verify(matchRepository, never()).save(any());
     }
 
-    // ── recordResult — win ───────────────────────────────────────────────────
+    // ── createMatch with slotId (US: odabir sale) ─────────────────────────────
+
+    @Test
+    void createMatch_WithSlotId_ReservesSlotAndLinksToMatch() {
+        TimeSlotEntity slot = new TimeSlotEntity();
+        ReflectionTestUtils.setField(slot, "id", 50L);
+        slot.setSlotDate(LocalDate.of(2026, 5, 15));
+        slot.setStartTime(LocalTime.of(18, 0));
+        slot.setEndTime(LocalTime.of(19, 30));
+        slot.setLocation("Skenderija");
+        slot.setResourceName("Teren 1");
+        slot.setSport(SportType.FOOTBALL);
+        slot.setAvailabilityStatus(SlotAvailabilityStatus.AVAILABLE);
+
+        CreateMatchRequest request = new CreateMatchRequest(
+                1L, 1L, 2L, LocalDate.of(2026, 5, 15),
+                null, null, null, null, 50L);
+
+        when(leagueService.getEntity(1L)).thenReturn(mockLeague);
+        when(teamService.getTeamEntity(1L)).thenReturn(homeTeam);
+        when(teamService.getTeamEntity(2L)).thenReturn(awayTeam);
+        when(timeSlotRepository.findById(50L)).thenReturn(Optional.of(slot));
+        when(timeSlotRepository.save(any(TimeSlotEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(matchRepository.save(any(MatchEntity.class))).thenAnswer(inv -> {
+            MatchEntity m = inv.getArgument(0);
+            if (m.getId() == null) ReflectionTestUtils.setField(m, "id", 5L);
+            return m;
+        });
+
+        MatchResponse response = resultsService.createMatch(request);
+
+        assertEquals(SlotAvailabilityStatus.RESERVED, slot.getAvailabilityStatus());
+        assertEquals("Skenderija", response.location());
+        assertEquals("Teren 1", response.resourceName());
+        // Provjera da je slot linkan za utakmicu (slot.leagueMatchId postavljen)
+        assertNotNull(slot.getLeagueMatchId());
+    }
+
+    @Test
+    void createMatch_WithSlotIdForWrongSport_ThrowsBadRequest() {
+        TimeSlotEntity slot = new TimeSlotEntity();
+        ReflectionTestUtils.setField(slot, "id", 50L);
+        slot.setSport(SportType.TENNIS);   // ne odgovara fudbalskoj ligi
+        slot.setAvailabilityStatus(SlotAvailabilityStatus.AVAILABLE);
+
+        CreateMatchRequest request = new CreateMatchRequest(
+                1L, 1L, 2L, LocalDate.of(2026, 5, 15),
+                null, null, null, null, 50L);
+
+        when(leagueService.getEntity(1L)).thenReturn(mockLeague);
+        when(teamService.getTeamEntity(1L)).thenReturn(homeTeam);
+        when(teamService.getTeamEntity(2L)).thenReturn(awayTeam);
+        when(timeSlotRepository.findById(50L)).thenReturn(Optional.of(slot));
+
+        assertThrows(BadRequestException.class, () -> resultsService.createMatch(request));
+        verify(matchRepository, never()).save(any());
+    }
+
+    @Test
+    void createMatch_WithSlotIdNotAvailable_ThrowsConflictException() {
+        TimeSlotEntity slot = new TimeSlotEntity();
+        ReflectionTestUtils.setField(slot, "id", 50L);
+        slot.setSport(SportType.FOOTBALL);
+        slot.setAvailabilityStatus(SlotAvailabilityStatus.RESERVED);  // zauzet
+
+        CreateMatchRequest request = new CreateMatchRequest(
+                1L, 1L, 2L, LocalDate.of(2026, 5, 15),
+                null, null, null, null, 50L);
+
+        when(leagueService.getEntity(1L)).thenReturn(mockLeague);
+        when(teamService.getTeamEntity(1L)).thenReturn(homeTeam);
+        when(teamService.getTeamEntity(2L)).thenReturn(awayTeam);
+        when(timeSlotRepository.findById(50L)).thenReturn(Optional.of(slot));
+
+        assertThrows(ConflictException.class, () -> resultsService.createMatch(request));
+    }
+
+    // ── recordResult ──────────────────────────────────────────────────────────
 
     @Test
     void recordResult_HomeWin_UpdatesStandingsCorrectly() {
@@ -177,8 +268,6 @@ class ResultsServiceTest {
         assertEquals(1, awayStanding.getWins());
     }
 
-    // ── recordResult — ispravka ───────────────────────────────────────────────
-
     @Test
     void recordResult_WhenMatchAlreadyCompleted_UndoesOldStatsAndAppliesNew() {
         mockMatch.setStatus(MatchStatus.COMPLETED);
@@ -207,10 +296,8 @@ class ResultsServiceTest {
         when(standingRepository.findByLeague_IdAndTeam_Id(1L, 2L)).thenReturn(Optional.of(awayStanding));
         when(matchRepository.save(any())).thenReturn(mockMatch);
 
-        // Ispravka: novi rezultat je remi 2:2
         resultsService.recordResult(1L, new RecordResultRequest(2, 2));
 
-        // Stara pobjeda domaćeg je poništena, remi primijenjen
         assertEquals(0, homeStanding.getWins());
         assertEquals(1, homeStanding.getDraws());
         assertEquals(1, homeStanding.getPoints());
@@ -226,8 +313,6 @@ class ResultsServiceTest {
         assertThrows(ResourceNotFoundException.class,
                 () -> resultsService.recordResult(99L, new RecordResultRequest(1, 0)));
     }
-
-    // ── getMatchesByLeague ────────────────────────────────────────────────────
 
     @Test
     void getMatchesByLeague_WhenLeagueNotFound_ThrowsResourceNotFoundException() {

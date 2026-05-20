@@ -93,7 +93,7 @@ function EmptyState({ icon, title, subtitle }) {
 
 /* ── League List Panel ──────────────────────────────────────── */
 
-function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeague }) {
+function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeague, onDeleteLeague }) {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ leagueName: "", season: "", sport: "" });
   const [saving, setSaving] = useState(false);
@@ -101,6 +101,22 @@ function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeagu
   const [search, setSearch] = useState("");
   const [sportFilter, setSportFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setError(null);
+    try {
+      await onDeleteLeague(deleteTarget.id);
+      setDeleteTarget(null);
+    } catch (err) {
+      setError(err.message || "Brisanje lige nije uspjelo.");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const filteredLeagues = leagues.filter(lg => {
     const q = search.trim().toLowerCase();
@@ -116,10 +132,14 @@ function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeagu
       setError("Naziv i sezona su obavezni.");
       return;
     }
+    if (!form.sport) {
+      setError("Sport je obavezan.");
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
-      await onCreateLeague({ leagueName: form.leagueName.trim(), season: form.season.trim(), sport: form.sport || null });
+      await onCreateLeague({ leagueName: form.leagueName.trim(), season: form.season.trim(), sport: form.sport });
       setForm({ leagueName: "", season: "", sport: "" });
       setShowForm(false);
     } catch (err) {
@@ -162,9 +182,9 @@ function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeagu
             />
           </div>
           <div className="liga-field">
-            <label className="liga-label">Sport</label>
-            <select className="liga-input liga-select" value={form.sport} onChange={e => setForm(f => ({ ...f, sport: e.target.value }))}>
-              <option value="">Odaberi...</option>
+            <label className="liga-label">Sport <span style={{ color: "#fca5a5" }}>*</span></label>
+            <select className="liga-input liga-select" value={form.sport} onChange={e => setForm(f => ({ ...f, sport: e.target.value }))} required>
+              <option value="">Odaberi sport...</option>
               <option value="FOOTBALL">Fudbal</option>
               <option value="BASKETBALL">Košarka</option>
               <option value="VOLLEYBALL">Odbojka</option>
@@ -228,7 +248,7 @@ function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeagu
       ) : (
         <ul className="liga-list">
           {filteredLeagues.map(lg => (
-            <li key={lg.id}>
+            <li key={lg.id} className="liga-list-row">
               <button
                 type="button"
                 className={`liga-list-item ${selectedId === lg.id ? "is-active" : ""}`}
@@ -249,9 +269,46 @@ function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeagu
                 </span>
                 <IconChevron right />
               </button>
+              <button
+                type="button"
+                className="btn-liga-icon btn-liga-danger liga-list-delete"
+                title="Obriši ligu"
+                onClick={(e) => { e.stopPropagation(); setDeleteTarget(lg); }}
+              >
+                <IconX />
+              </button>
             </li>
           ))}
         </ul>
+      )}
+
+      {deleteTarget && (
+        <div className="modal-overlay" onClick={() => !deleting && setDeleteTarget(null)}>
+          <div className="modal-dialog" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">Obriši ligu</h3>
+              <button type="button" className="modal-close" onClick={() => !deleting && setDeleteTarget(null)}>×</button>
+            </div>
+            <div className="modal-body">
+              <p style={{ margin: 0, color: "var(--color-text, #e5e7eb)" }}>
+                Sigurno želiš obrisati ligu <strong>{deleteTarget.leagueName}</strong> ({deleteTarget.season})?
+              </p>
+              <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--color-text-muted, #9ca3af)" }}>
+                Brišu se i sve utakmice, tabela i veze sa timovima. Rezervisani termini se oslobađaju.
+                Ova akcija se ne može poništiti.
+              </p>
+              {error && <div className="inline-error">{error}</div>}
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={() => setDeleteTarget(null)} disabled={deleting}>
+                Odustani
+              </button>
+              <button type="button" className="btn btn-danger" onClick={handleDeleteConfirm} disabled={deleting}>
+                {deleting ? "Brišem..." : "Obriši ligu"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -394,16 +451,23 @@ function TeamsTab({ leagueId, allTeams, league }) {
 
 /* ── Matches Tab ────────────────────────────────────────────── */
 
-function MatchesTab({ leagueId, leagueTeams }) {
-  const { getLeagueMatches, addMatch, submitResult } = useAppContext();
+function MatchesTab({ leagueId, leagueTeams, league }) {
+  const { getLeagueMatches, addMatch, submitResult, availableTimeSlots } = useAppContext();
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ homeTeamId: "", awayTeamId: "", matchDate: "", location: "", resourceName: "", startTime: "", endTime: "" });
+  const [form, setForm] = useState({ homeTeamId: "", awayTeamId: "", slotId: "" });
   const [saving, setSaving] = useState(false);
   const [resultForm, setResultForm] = useState({ matchId: null, homeScore: "", awayScore: "" });
   const [submitting, setSubmitting] = useState(false);
+
+  // Strogo filtriraj slobodne termine — moraju biti za sport lige.
+  // Termini bez sporta (legacy) se NE prikazuju kako bi se izbjegao odabir
+  // neodgovarajuće sale (npr. teniski teren za fudbal).
+  const sportFilteredSlots = (availableTimeSlots || []).filter(
+    s => league?.sport && s.sport === league.sport
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -422,28 +486,32 @@ function MatchesTab({ leagueId, leagueTeams }) {
 
   const handleCreateMatch = async (e) => {
     e.preventDefault();
-    if (!form.homeTeamId || !form.awayTeamId || !form.matchDate) {
-      setError("Sva polja su obavezna.");
+    if (!form.homeTeamId || !form.awayTeamId) {
+      setError("Domaći i gostujući tim su obavezni.");
       return;
     }
     if (form.homeTeamId === form.awayTeamId) {
       setError("Domaći i gostujući tim ne mogu biti isti.");
       return;
     }
+    if (!form.slotId) {
+      setError("Odaberite slobodan termin (salu i vrijeme).");
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
+      // matchDate je u backendu povučen iz slotа kad se prosljedi slotId,
+      // ali polje je @NotNull pa moramo poslati i datum iz slota.
+      const selectedSlot = sportFilteredSlots.find(s => String(s.id) === String(form.slotId));
       await addMatch({
         leagueId,
         homeTeamId: Number(form.homeTeamId),
         awayTeamId: Number(form.awayTeamId),
-        matchDate: form.matchDate,
-        location: form.location || null,
-        resourceName: form.resourceName || null,
-        startTime: form.startTime ? (form.startTime.length === 5 ? `${form.startTime}:00` : form.startTime) : null,
-        endTime: form.endTime ? (form.endTime.length === 5 ? `${form.endTime}:00` : form.endTime) : null,
+        matchDate: selectedSlot ? selectedSlot.slotDate : null,
+        slotId: form.slotId,
       });
-      setForm({ homeTeamId: "", awayTeamId: "", matchDate: "", location: "", resourceName: "", startTime: "", endTime: "" });
+      setForm({ homeTeamId: "", awayTeamId: "", slotId: "" });
       setShowForm(false);
       await load();
     } catch (err) {
@@ -490,45 +558,47 @@ function MatchesTab({ leagueId, leagueTeams }) {
         <form className="liga-inline-form" onSubmit={handleCreateMatch}>
           <div className="liga-form-grid">
             <div className="liga-field">
-              <label className="liga-label">Domaći tim</label>
-              <select className="liga-input liga-select" value={form.homeTeamId} onChange={e => setForm(f => ({ ...f, homeTeamId: e.target.value }))}>
-                <option value="">Odaberite...</option>
+              <label className="liga-label">Domaći tim <span style={{ color: "#fca5a5" }}>*</span></label>
+              <select className="liga-input liga-select" value={form.homeTeamId} onChange={e => setForm(f => ({ ...f, homeTeamId: e.target.value }))} required>
+                <option value="">Odaberite tim...</option>
                 {leagueTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
             </div>
             <div className="liga-field">
-              <label className="liga-label">Gostujući tim</label>
-              <select className="liga-input liga-select" value={form.awayTeamId} onChange={e => setForm(f => ({ ...f, awayTeamId: e.target.value }))}>
-                <option value="">Odaberite...</option>
+              <label className="liga-label">Gostujući tim <span style={{ color: "#fca5a5" }}>*</span></label>
+              <select className="liga-input liga-select" value={form.awayTeamId} onChange={e => setForm(f => ({ ...f, awayTeamId: e.target.value }))} required>
+                <option value="">Odaberite tim...</option>
                 {leagueTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
-            </div>
-            <div className="liga-field">
-              <label className="liga-label">Datum</label>
-              <input type="date" className="liga-input" value={form.matchDate} onChange={e => setForm(f => ({ ...f, matchDate: e.target.value }))} />
             </div>
           </div>
-          <div className="liga-form-grid" style={{ marginTop: 4 }}>
-            <div className="liga-field">
-              <label className="liga-label">Lokacija <span style={{ fontWeight: 400, textTransform: "none" }}>(opciono)</span></label>
-              <input type="text" className="liga-input" placeholder="npr. Skenderija" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} />
-            </div>
-            <div className="liga-field">
-              <label className="liga-label">Teren <span style={{ fontWeight: 400, textTransform: "none" }}>(opciono)</span></label>
-              <input type="text" className="liga-input" placeholder="npr. Teren 1" value={form.resourceName} onChange={e => setForm(f => ({ ...f, resourceName: e.target.value }))} />
-            </div>
-            <div className="liga-field">
-              <label className="liga-label">Početak <span style={{ fontWeight: 400, textTransform: "none" }}>(opciono)</span></label>
-              <input type="time" className="liga-input" value={form.startTime} onChange={e => setForm(f => ({ ...f, startTime: e.target.value }))} />
-            </div>
-            <div className="liga-field">
-              <label className="liga-label">Kraj <span style={{ fontWeight: 400, textTransform: "none" }}>(opciono)</span></label>
-              <input type="time" className="liga-input" value={form.endTime} onChange={e => setForm(f => ({ ...f, endTime: e.target.value }))} />
-            </div>
+          <div className="liga-field" style={{ marginTop: 8 }}>
+            <label className="liga-label">Termin (sala, datum i vrijeme) <span style={{ color: "#fca5a5" }}>*</span></label>
+            <select
+              className="liga-input liga-select"
+              value={form.slotId}
+              onChange={e => setForm(f => ({ ...f, slotId: e.target.value }))}
+              disabled={sportFilteredSlots.length === 0}
+              required
+            >
+              <option value="">
+                {sportFilteredSlots.length === 0
+                  ? "Nema slobodnih termina za ovaj sport — admin treba kreirati termin"
+                  : "Odaberite salu i termin..."}
+              </option>
+              {sportFilteredSlots.map(s => (
+                <option key={s.id} value={s.id}>
+                  {s.resourceName} · {s.location} · {s.slotDate} · {(s.startTime || "").slice(0,5)}–{(s.endTime || "").slice(0,5)}
+                </option>
+              ))}
+            </select>
+            <span style={{ fontSize: "0.74rem", color: "var(--color-text-muted, #9ca3af)", marginTop: 4 }}>
+              Odabrani termin se automatski rezerviše i ne može se koristiti za druge rezervacije.
+            </span>
           </div>
           <div className="liga-form-row">
-            <button type="submit" className="btn-liga-sm btn-liga-primary" disabled={saving}>
-              {saving ? <Spinner /> : <><IconCheck /> Zakaži</>}
+            <button type="submit" className="btn-liga-sm btn-liga-primary" disabled={saving || sportFilteredSlots.length === 0}>
+              {saving ? <Spinner /> : <><IconCheck /> Zakaži utakmicu</>}
             </button>
             <button type="button" className="btn-liga-sm btn-liga-ghost" onClick={() => setShowForm(false)}>Otkaži</button>
           </div>
@@ -734,7 +804,7 @@ function LeagueDetailPanel({ league, onBack }) {
         <TeamsTab leagueId={league.id} allTeams={teams} league={league} />
       )}
       {activeTab === "utakmice" && (
-        <MatchesTab leagueId={league.id} leagueTeams={leagueTeams} />
+        <MatchesTab leagueId={league.id} leagueTeams={leagueTeams} league={league} />
       )}
       {activeTab === "tabela" && (
         <StandingsTab leagueId={league.id} league={league} />
@@ -746,11 +816,16 @@ function LeagueDetailPanel({ league, onBack }) {
 /* ── Main Page ──────────────────────────────────────────────── */
 
 function LigaPage() {
-  const { leagues, loadingLeagues, addLeague } = useAppContext();
+  const { leagues, loadingLeagues, addLeague, removeLeague } = useAppContext();
   const [selected, setSelected] = useState(null);
 
   const handleSelect = (lg) => setSelected(lg);
   const handleBack = () => setSelected(null);
+
+  const handleDeleteLeague = async (id) => {
+    await removeLeague(id);
+    if (selected?.id === id) setSelected(null);
+  };
 
   return (
     <div className="app-page">
@@ -774,6 +849,7 @@ function LigaPage() {
               selectedId={selected?.id}
               onSelect={handleSelect}
               onCreateLeague={addLeague}
+              onDeleteLeague={handleDeleteLeague}
             />
           )}
         </div>

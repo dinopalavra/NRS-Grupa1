@@ -1,5 +1,7 @@
 package ba.sportsmanager.modules.timeslots;
 
+import ba.sportsmanager.common.SportType;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -10,6 +12,8 @@ public record TimeSlotResponse(
         LocalTime endTime,
         String location,
         String resourceName,
-        SlotAvailabilityStatus availabilityStatus
+        SlotAvailabilityStatus availabilityStatus,
+        SportType sport,
+        Long leagueMatchId
 ) {
 }

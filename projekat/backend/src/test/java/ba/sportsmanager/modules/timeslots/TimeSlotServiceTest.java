@@ -1,5 +1,6 @@
 package ba.sportsmanager.modules.timeslots;
 
+import ba.sportsmanager.common.SportType;
 import ba.sportsmanager.exception.BadRequestException;
 import ba.sportsmanager.exception.ConflictException;
 import ba.sportsmanager.exception.ResourceNotFoundException;
@@ -32,13 +33,14 @@ class TimeSlotServiceTest {
     private TimeSlotService timeSlotService;
 
     @Test
-    void create_Successful_ReturnsResponse() {
+    void create_Successful_PersistsSportAndReturnsResponse() {
         CreateTimeSlotRequest request = new CreateTimeSlotRequest(
                 LocalDate.of(2026, 5, 11),
                 LocalTime.of(18, 0),
                 LocalTime.of(19, 30),
                 "Dvorana 1",
-                "Teren A"
+                "Teren A",
+                SportType.FOOTBALL
         );
 
         when(timeSlotRepository.findOverlapping(anyString(), anyString(), any(), any(), any(), anyLong()))
@@ -54,6 +56,7 @@ class TimeSlotServiceTest {
         assertNotNull(response);
         assertEquals(10L, response.id());
         assertEquals(SlotAvailabilityStatus.AVAILABLE, response.availabilityStatus());
+        assertEquals(SportType.FOOTBALL, response.sport());
         verify(timeSlotRepository).save(any(TimeSlotEntity.class));
     }
 
@@ -64,7 +67,8 @@ class TimeSlotServiceTest {
                 LocalTime.of(19, 0),
                 LocalTime.of(18, 0),
                 "Dvorana 1",
-                "Teren A"
+                "Teren A",
+                SportType.BASKETBALL
         );
 
         assertThrows(BadRequestException.class, () -> timeSlotService.create(request));
@@ -78,7 +82,8 @@ class TimeSlotServiceTest {
                 LocalTime.of(11, 0),
                 LocalTime.of(12, 30),
                 "Skenderija",
-                "Teren 1"
+                "Teren 1",
+                SportType.FOOTBALL
         );
 
         TimeSlotEntity overlapping = new TimeSlotEntity();
@@ -102,6 +107,7 @@ class TimeSlotServiceTest {
         available.setEndTime(LocalTime.of(19, 0));
         available.setLocation("Dvorana 1");
         available.setResourceName("Teren A");
+        available.setSport(SportType.FOOTBALL);
         available.setAvailabilityStatus(SlotAvailabilityStatus.AVAILABLE);
 
         when(timeSlotRepository.findByAvailabilityStatus(SlotAvailabilityStatus.AVAILABLE))
@@ -112,6 +118,7 @@ class TimeSlotServiceTest {
         assertEquals(1, result.size());
         assertEquals(1L, result.get(0).id());
         assertEquals(SlotAvailabilityStatus.AVAILABLE, result.get(0).availabilityStatus());
+        assertEquals(SportType.FOOTBALL, result.get(0).sport());
     }
 
     @Test

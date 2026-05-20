@@ -80,42 +80,65 @@ public class ResultsService {
         match.setMatchDate(request.matchDate());
         match.setStatus(MatchStatus.SCHEDULED);
 
-        // Auto-reserve timeslot if venue+time provided
-        boolean hasVenue = request.location() != null && !request.location().isBlank()
-                && request.resourceName() != null && !request.resourceName().isBlank()
-                && request.startTime() != null && request.matchDate() != null;
-
         TimeSlotEntity slotToLink = null;
-        if (hasVenue) {
-            String loc = request.location().trim();
-            String res = request.resourceName().trim();
-            LocalTime end = request.endTime() != null ? request.endTime() : request.startTime().plusHours(2);
 
-            Optional<TimeSlotEntity> existingSlot = timeSlotRepository
-                    .findByLocationAndResourceNameAndSlotDateAndStartTime(loc, res, request.matchDate(), request.startTime());
-
-            TimeSlotEntity slot;
-            if (existingSlot.isPresent()) {
-                slot = existingSlot.get();
-                if (slot.getAvailabilityStatus() != SlotAvailabilityStatus.AVAILABLE) {
-                    throw new ConflictException("Ovaj termin nije slobodan.");
-                }
-            } else {
-                slot = new TimeSlotEntity();
-                slot.setLocation(loc);
-                slot.setResourceName(res);
-                slot.setSlotDate(request.matchDate());
-                slot.setStartTime(request.startTime());
-                slot.setEndTime(end);
-                slot.setAvailabilityStatus(SlotAvailabilityStatus.AVAILABLE);
+        // Opcija 1: korisnik je odabrao postojeci slot (preferirano)
+        if (request.slotId() != null) {
+            TimeSlotEntity slot = timeSlotRepository.findById(request.slotId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Termin nije pronađen."));
+            if (slot.getAvailabilityStatus() != SlotAvailabilityStatus.AVAILABLE) {
+                throw new ConflictException("Odabrani termin nije slobodan.");
+            }
+            if (league.getSport() != null && slot.getSport() != null
+                    && !league.getSport().equals(slot.getSport())) {
+                throw new BadRequestException("Termin je za drugi sport od lige.");
             }
             slot.setAvailabilityStatus(SlotAvailabilityStatus.RESERVED);
             slotToLink = timeSlotRepository.save(slot);
 
-            match.setLocation(loc);
-            match.setResourceName(res);
-            match.setStartTime(request.startTime());
-            match.setEndTime(end);
+            match.setMatchDate(slot.getSlotDate());
+            match.setLocation(slot.getLocation());
+            match.setResourceName(slot.getResourceName());
+            match.setStartTime(slot.getStartTime());
+            match.setEndTime(slot.getEndTime());
+        } else {
+            // Opcija 2: stari nacin - rucni unos lokacije/vremena (auto-kreira slot)
+            boolean hasVenue = request.location() != null && !request.location().isBlank()
+                    && request.resourceName() != null && !request.resourceName().isBlank()
+                    && request.startTime() != null && request.matchDate() != null;
+
+            if (hasVenue) {
+                String loc = request.location().trim();
+                String res = request.resourceName().trim();
+                LocalTime end = request.endTime() != null ? request.endTime() : request.startTime().plusHours(2);
+
+                Optional<TimeSlotEntity> existingSlot = timeSlotRepository
+                        .findByLocationAndResourceNameAndSlotDateAndStartTime(loc, res, request.matchDate(), request.startTime());
+
+                TimeSlotEntity slot;
+                if (existingSlot.isPresent()) {
+                    slot = existingSlot.get();
+                    if (slot.getAvailabilityStatus() != SlotAvailabilityStatus.AVAILABLE) {
+                        throw new ConflictException("Ovaj termin nije slobodan.");
+                    }
+                } else {
+                    slot = new TimeSlotEntity();
+                    slot.setLocation(loc);
+                    slot.setResourceName(res);
+                    slot.setSlotDate(request.matchDate());
+                    slot.setStartTime(request.startTime());
+                    slot.setEndTime(end);
+                    slot.setAvailabilityStatus(SlotAvailabilityStatus.AVAILABLE);
+                    slot.setSport(league.getSport());
+                }
+                slot.setAvailabilityStatus(SlotAvailabilityStatus.RESERVED);
+                slotToLink = timeSlotRepository.save(slot);
+
+                match.setLocation(loc);
+                match.setResourceName(res);
+                match.setStartTime(request.startTime());
+                match.setEndTime(end);
+            }
         }
 
         MatchEntity savedMatch = matchRepository.save(match);
