@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useAppContext } from "../context/AppContext.jsx";
-import { IconUsers, IconShield, IconClock, IconCalendar, IconTrophy } from "../components/Layout.jsx";
+import { IconUsers, IconShield, IconClock, IconCalendar, IconTrophy, IconUser } from "../components/Layout.jsx";
 import { formatDate, formatTime } from "../utils/format.js";
 import { fetchAllMatches } from "../services/api.js";
 
@@ -23,6 +23,7 @@ const ALL_FEATURE_CARDS = [
   { key: "timeslots",    Icon: IconClock,    title: "Termini",     desc: "Pregled raspoloživih termina za rezervaciju.",                  label: "Otvori termine",     roles: null,                 color: "card-green"  },
   { key: "reservations", Icon: IconCalendar, title: "Rezervacije", desc: "Kreiraj rezervacije i prati njihov status.",                    label: "Otvori rezervacije", roles: null,                 color: "card-orange" },
   { key: "liga",         Icon: IconTrophy,   title: "Liga",        desc: "Kreiranje liga, zakazivanje utakmica i tabela poretka.",        label: "Otvori ligu",        roles: null,                 color: "card-gold"   },
+  { key: "profile",     Icon: IconUser,     title: "Moj profil",  desc: "Upravljaj ličnim podacima i promijeni lozinku svog naloga.",     label: "Otvori profil",      roles: null,                 color: "card-teal"   },
 ];
 
 const ROLE_LABEL = {
@@ -141,15 +142,6 @@ function DashboardPage() {
             <div className="dash-stat-label">Na čekanju</div>
           </div>
         </div>
-        {approvedRes > 0 && (
-          <div className="dash-stat dash-stat-teal">
-            <div className="dash-stat-icon"><IconCalendar className="dash-stat-svg" /></div>
-            <div className="dash-stat-body">
-              <div className="dash-stat-val">{approvedRes}</div>
-              <div className="dash-stat-label">Odobrenih</div>
-            </div>
-          </div>
-        )}
         {selectedRole === "ADMIN" && (
           <div className="dash-stat dash-stat-gold">
             <div className="dash-stat-icon"><IconTrophy className="dash-stat-svg" /></div>
