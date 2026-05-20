@@ -359,7 +359,7 @@ button, input, select, textarea { font: inherit; }
   padding: 36px 40px;
   position: relative;
   background-color: var(--dark-900);
-  background-size: contain;
+  background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
   background-attachment: scroll;
@@ -385,41 +385,61 @@ button, input, select, textarea { font: inherit; }
 
 .layout-content > * { position: relative; z-index: 1; }
 
-/* Per-page background images */
+/* Per-page background images — landscape 4K Unsplash, green sport palette */
 
-/* Dashboard — golf ball & putter, luxury minimal */
+/* Dashboard — luxury golf course fairway, deep green */
 .layout-bg--dashboard {
-  background-image: url('/bg/golf.jpg');
+  background-image:
+    linear-gradient(rgba(6,16,10,0.72), rgba(6,16,10,0.72)),
+    url('https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=3840&q=90&fit=crop&auto=format');
   background-position: center;
 }
 
-/* Korisnici — gym dumbbells */
+/* Korisnici — fitness/gym training, dark athletic */
 .layout-bg--users {
-  background-image: url('/bg/gym.jpg');
+  background-image:
+    linear-gradient(rgba(6,16,10,0.72), rgba(6,16,10,0.72)),
+    url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=3840&q=90&fit=crop&auto=format');
   background-position: center;
 }
 
-/* Timovi — gym dumbbells (dijeli sa users dok nema zasebne) */
+/* Timovi — sport team, athletic green */
 .layout-bg--teams {
-  background-image: url('/bg/gym.jpg');
-  background-position: center top;
+  background-image:
+    linear-gradient(rgba(6,16,10,0.72), rgba(6,16,10,0.72)),
+    url('https://images.unsplash.com/photo-1526676037777-05a232554f77?w=3840&q=90&fit=crop&auto=format');
+  background-position: center;
 }
 
-/* Termini — aerial tennis court */
+/* Termini — aerial tennis court, vivid green */
 .layout-bg--timeslots {
-  background-image: url('/bg/tennis1.jpg');
+  background-image:
+    linear-gradient(rgba(6,16,10,0.68), rgba(6,16,10,0.68)),
+    url('https://images.unsplash.com/photo-1554068865-24ceec92fb37?w=3840&q=90&fit=crop&auto=format');
   background-position: center;
 }
 
-/* Rezervacije — pickleball raketi */
+/* Rezervacije — sport court, green tones */
 .layout-bg--reservations {
-  background-image: url('/bg/pickleball.jpg');
+  background-image:
+    linear-gradient(rgba(6,16,10,0.72), rgba(6,16,10,0.72)),
+    url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=3840&q=90&fit=crop&auto=format');
   background-position: center;
 }
 
-/* Liga — stadion noću */
+/* Liga — aerial football stadium, green pitch */
 .layout-bg--liga {
-  background-image: url('/bg/stadium.jpg');
+  background-image:
+    linear-gradient(rgba(6,16,10,0.65), rgba(6,16,10,0.65)),
+    url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=3840&q=90&fit=crop&auto=format');
+  background-position: center;
+}
+
+/* Profil — golf course landscape, serene green */
+.layout-bg--profile {
+  background-image:
+    linear-gradient(rgba(6,16,10,0.72), rgba(6,16,10,0.72)),
+    url('https://images.unsplash.com/photo-1593111774240-d529f12cf4d1?w=3840&q=90&fit=crop&auto=format');
   background-position: center;
 }
 
@@ -432,7 +452,7 @@ button, input, select, textarea { font: inherit; }
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('/bg/tennis1.jpg');
+  background-image: url('https://images.unsplash.com/photo-1554068865-24ceec92fb37?w=3840&q=90&fit=crop&auto=format');
   background-size: cover;
   background-position: center;
   position: relative;
