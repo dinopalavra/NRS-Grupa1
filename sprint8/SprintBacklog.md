@@ -52,7 +52,7 @@ Proširiti MVP cross-module funkcionalnostima — notifikacije, statistika tima,
 | US8-9 | Kao organizator, želim zakazati utakmicu odabirom postojećeg slobodnog termina (sale), kako bih obezbijedio rezervaciju i izbjegao konflikte. | Amel Divović | Završeno | Dropdown sa filtriranim slobodnim terminima po sportu lige; polje `slotId` u `CreateMatchRequest`; auto-rezervisanje i linkovanje slot-a |
 | US8-10 | Kao admin, želim odabrati sport pri kreiranju termina, kako bi se znalo za koji sport je teren predviđen. | Bakir Hadžialić | Završeno | `sport` polje obavezno u `CreateTimeSlotRequest`; prikaz sport kolone u listi termina; filter po sportu |
 | US8-11 | Kao korisnik, želim da mi se pri kreiranju rezervacije/utakmice prikažu samo tereni predviđeni za odabrani sport, kako ne bih rezervisao tenis teren za fudbal. | Amel Divović | Završeno | Cross-modul filtriranje u Rezervacijama (po odabranom sportu) i Ligama (strogo po sportu lige); reschedule modal isto filtrira |
-| US8-12 | Kao korisnik, želim da padajuće liste (Svi sportovi, Svi statusi) budu prilagođene tamnom dizajnu, kako bi aplikacija bila vizualno konzistentna. | Bakir Hadžialić | Završeno | `color-scheme: dark` na sve select elemente; dark styling za `<option>` u svim browserima |
+| US8-12 | Kao korisnik, želim primati in-app obavještenja o promjenama mojih rezervacija i utakmica, kako bih bio na vrijeme informisan. | Bakir Hadžialić | Završeno | Notifications modul (entity, repo, service, controller); zvonce sa badge brojem u sidebaru; mark-as-read po jednom i sve odjednom; polling svakih 30s |
 
 ---
 
