@@ -79,3 +79,55 @@
 | Konzistentnost arhitekture | 4 | 5 | 2 | 4 |
 | Složenost implementacije | 3 | 5 | 2 | 4 |
 | **Ukupno** | — | **42** | **43** | **61** |
+
+---
+
+## Odluka #004 — Hard delete za brisanje lige s kaskadnim čišćenjem
+
+| Polje | Opis |
+|---|---|
+| ID odluke | DL8-004 |
+| Datum | 20.05.2026. |
+| Kratak naziv odluke | Pristup brisanju lige — hard delete vs. soft delete |
+| Opis problema | Admin treba moći obrisati ligu koja je greškom kreirana ili čija je sezona završena. Pitanje je treba li se liga samo označiti kao neaktivna ili fizički ukloniti zajedno sa svim vezanim podacima. |
+| Razmatrane opcije | 1. Soft delete — liga dobiva status DELETED, podaci ostaju u bazi  2. Hard delete — liga i svi vezani entiteti (utakmice, standings, liga-timovi) se fizički brišu; vezani termini se oslobađaju |
+| Odabrana opcija | Hard delete s kaskadnim čišćenjem i confirmation modalom |
+| Razlog izbora | Završena sezona ne zahtijeva historiju podataka unutar sistema (podaci se čuvaju u dokumentaciji). Hard delete čuva bazu čistom i sprječava akumulaciju starih podataka. Vezani termini moraju biti oslobođeni da budu dostupni za rezervacije. Confirmation modal sprječava slučajno brisanje. |
+| Posljedice odluke | Brisanje je nepovratno. Redoslijed kaskadnog brisanja mora poštivati FK constrainte: standings → utakmice → liga-timovi → liga → oslobađanje termina. |
+| Status odluke | Aktivna |
+
+### Trade-off analiza
+
+| Kriterij | Težina | Soft delete | Hard delete |
+|---|---|---|---|
+| Sigurnost podataka | 4 | 5 | 2 |
+| Čistoća baze | 5 | 2 | 5 |
+| Oslobađanje termina | 5 | 2 | 5 |
+| Implementacijska jednostavnost | 3 | 4 | 3 |
+| **Ukupno** | — | **47** | **57** |
+
+---
+
+## Odluka #005 — Cross-modul filtriranje termina po sportu
+
+| Polje | Opis |
+|---|---|
+| ID odluke | DL8-005 |
+| Datum | 20.05.2026. |
+| Kratak naziv odluke | Gdje i kako filtrirati terene po sportu pri rezervaciji i zakazivanju |
+| Opis problema | Sistem sada zna koji sport je predviđen za svaki teren. Pitanje je treba li filtriranje biti backend (server vraća samo relevantne terene) ili frontend (client filtrira dobivenu listu). |
+| Razmatrane opcije | 1. Backend filtriranje — novi API parametar `?sport=FOOTBALL`, server vraća filtrirane rezultate  2. Frontend filtriranje — svi slobodni termini se učitavaju, frontend filtrira po odabranom sportu |
+| Odabrana opcija | Frontend filtriranje na već učitanim podacima |
+| Razlog izbora | Lista slobodnih termina je već učitana u AppContext i dostupna bez dodatnog API poziva. Frontend filter je trenutačan i bez latencije. Za akademski projekt s malim brojem termina performans nije kritičan. Backend filter bi zahtijevao promjene API ugovora i novi endpoint parametar. |
+| Posljedice odluke | Svi slobodni termini se učitavaju bez obzira na sport, što je neoptimalno za veće skupove podataka. Pri rastu sistema preporučuje se migracija na backend filter. |
+| Status odluke | Aktivna |
+
+### Trade-off analiza
+
+| Kriterij | Težina | Backend filter | Frontend filter |
+|---|---|---|---|
+| Performans pri velikom skupu | 4 | 5 | 2 |
+| Brzina implementacije | 5 | 2 | 5 |
+| Konzistentnost s arhitekturom | 4 | 3 | 5 |
+| Latencija za korisnika | 3 | 3 | 5 |
+| **Ukupno** | — | **49** | **61** |

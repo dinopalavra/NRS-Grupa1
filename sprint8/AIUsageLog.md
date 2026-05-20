@@ -50,6 +50,20 @@
 | Rizici, problemi ili greške | Portretne lokalne slike ne stanu dobro kao background — riješeno prelaskom na landscape Unsplash fotografije |
 | Ko je koristio alat | Cijeli tim |
 
+| Polje | Opis |
+|---|---|
+| Datum | 20.05.2026. |
+| Sprint broj | 8 |
+| Alat koji je korišten | Claude Code (claude-sonnet-4-6) |
+| Svrha korištenja | Implementacija US8-8 do US8-12: kaskadno brisanje liga, obavezan sport na terminima, odabir termina pri zakazivanju, cross-modul filtriranje i dark dropdown styling |
+| Kratak opis zadatka | Backend `DELETE /api/leagues/{id}` sa kaskadnim brisanjem utakmica, standings i league-team veza uz oslobađanje vezanih termina; `@NotNull` validacija sporta na `CreateTimeSlotRequest`; `slotId` polje u `CreateMatchRequest` za odabir slobodnog termina iz dropdowna; frontend filtriranje termina po sportu u rezervacijama i ligama; `color-scheme: dark` na sve select elemente |
+| Šta je AI generisao | `deleteLeague` metodu u `LeagueService` s kaskadnom logikom, `slotId` validaciju u `ResultsService`, frontend sport-filter logiku u `ReservationsPage` i `LigaPage`, CSS `color-scheme: dark` za native dropdown styling |
+| Šta je tim prihvatio | Kompletnu implementaciju svih 5 user storija, kaskadnu logiku brisanja, cross-modul filtriranje |
+| Šta je tim izmijenio | Redoslijed kaskadnog brisanja prilagođen FK constraint ograničenjima baze; frontend dropdown filtriranje spojeno s postojećim state management pristupom |
+| Šta je tim odbacio | Soft-delete pristup za brisanje liga (zamijenjen hard delete jer season closure ne zahtijeva historiju) |
+| Rizici, problemi ili greške | Kaskadno brisanje je destruktivno bez undo — confirmation modal je obavezan; stari termini bez sporta ne pojavljuju se u filtriranim dropdownovima |
+| Ko je koristio alat | Cijeli tim |
+
 ---
 
 **Napomena:** AI je korišten u skladu s akademskom politikom — implementacija je analizirana, razumljena i verificirana od strane svakog člana tima zaduženog za određeni dio.

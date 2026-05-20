@@ -35,17 +35,19 @@ Manuelno testiranje provedeno za sve nove funkcionalnosti Sprinta 8.
 
 ## Rezultati automatskih testova
 
-| Test klasa | Opis | Rezultat |
-|---|---|---|
-| `ReservationServiceTest` | Kreiranje, conflict, odobravanje, izuzeci | PASS |
-| `TimeSlotServiceTest` | Upravljanje terminima, validacija stanja | PASS |
-| `LeagueServiceTest` | Kreiranje liga, timovi, validacija sporta | PASS |
-| `ResultsServiceTest` | Utakmice, rezultati, undo+reapply, bodovanje | PASS |
+| Test klasa | Broj testova | Opis | Rezultat |
+|---|---|---|---|
+| `ReservationServiceTest` | 15 | Kreiranje, conflict, reschedule, odobravanje, liga-zaštita | PASS |
+| `TimeSlotServiceTest` | 5 | Upravljanje terminima, validacija stanja | PASS |
+| `LeagueServiceTest` | 13 | Kreiranje liga, timovi, validacija sporta, kaskadno brisanje | PASS |
+| `ResultsServiceTest` | 11 | Utakmice, odabir slota, rezultati, undo+reapply, bodovanje | PASS |
+| `NotificationServiceTest` | 8 | Kreiranje i isporuka notifikacija za sve tipove događaja | PASS |
+| `TeamServiceTest` | 6 | Kreiranje tima, statistika po ligi, validacija sporta | PASS |
 
 ### Sumirani rezultat automatskih testova
 
-- Ukupno izvršenih testova: **28**
-- Uspješno prošlih: **28**
+- Ukupno izvršenih testova: **58**
+- Uspješno prošlih: **58**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
@@ -84,6 +86,14 @@ Manuelno testiranje provedeno za sve nove funkcionalnosti Sprinta 8.
 | MT-26 | Igrač dashboard prikazuje nadolazeće utakmice | PASS |
 | MT-27 | Mobilni prikaz — hamburger menu otvara navigaciju | PASS |
 | MT-28 | Mobilni prikaz — tablice prilagođene malom ekranu | PASS |
+| MT-29 | Brisanje lige s potvrdom i kaskadnim brisanjem utakmica/standings | PASS |
+| MT-30 | Provjera oslobađanja termina nakon brisanja lige | PASS |
+| MT-31 | Zakazivanje utakmice odabirom slobodnog termina iz dropdowna | PASS |
+| MT-32 | Dropdown termina filtrira po sportu lige | PASS |
+| MT-33 | Kreiranje termina s obaveznim sportom | PASS |
+| MT-34 | Kreiranje termina bez sporta — server vraća grešku | PASS |
+| MT-35 | Dropdown termina u rezervacijama filtrira po odabranom sportu | PASS |
+| MT-36 | Padajuće liste (sport, status) prikazuju tamnu temu | PASS |
 
 ### Regression testovi — prethodni moduli
 
@@ -100,8 +110,8 @@ Manuelno testiranje provedeno za sve nove funkcionalnosti Sprinta 8.
 
 ### Sumirani rezultat manuelnog testiranja
 
-- Ukupno manuelnih provjera: **36**
-- Uspješno prošlih: **36**
+- Ukupno manuelnih provjera: **44**
+- Uspješno prošlih: **44**
 - Nije prošlo: **0**
 - Blokirano: **0**
 
@@ -115,8 +125,10 @@ Tokom razvoja identificirano je da polling svakih 30s može stvoriti lažni doja
 - `ReservationServiceTest.java`, `TimeSlotServiceTest.java`, `LeagueServiceTest.java`, `ResultsServiceTest.java`
 - Novi backend: `NotificationEntity.java`, `NotificationService.java`, `NotificationController.java`
 - Novi frontend: `NotificationBell.jsx`, `ProfilePage.jsx`
-- Frontend build output: ✓ built in 513ms
+- Novi test fajlovi: `NotificationServiceTest.java`, `TeamServiceTest.java`
+- Ažurirani test fajlovi: `LeagueServiceTest.java` (deleteLeague), `ResultsServiceTest.java` (slotId), `ReservationServiceTest.java` (reschedule)
+- Frontend build output: ✓ 0 grešaka
 
 ## Zaključak
 
-Sprint 8 testiranje potvrđuje da su sve planirane funkcionalnosti implementirane i funkcionalne. Sistem je sada kompletan s notifikacijama, pretragom, profilom i personaliziranim dashboardom. Svi 28 automatskih testova prolaze, a 36 manuelnih scenarija su validirana bez greške.
+Sprint 8 testiranje potvrđuje da su sve planirane funkcionalnosti implementirane i funkcionalne. Sistem je sada kompletan s notifikacijama, pretragom, profilom, personaliziranim dashboardom, kaskadnim brisanjem liga i cross-modul filtriranjem po sportu. Svih 58 automatskih testova prolaze, a 44 manuelna scenarija su validirana bez greške.
