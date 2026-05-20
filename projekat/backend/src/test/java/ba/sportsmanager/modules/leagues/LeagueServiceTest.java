@@ -1,9 +1,17 @@
 package ba.sportsmanager.modules.leagues;
 
+import ba.sportsmanager.common.SportType;
 import ba.sportsmanager.exception.BadRequestException;
 import ba.sportsmanager.exception.ResourceNotFoundException;
+import ba.sportsmanager.modules.results.MatchEntity;
+import ba.sportsmanager.modules.results.MatchRepository;
+import ba.sportsmanager.modules.results.StandingEntity;
+import ba.sportsmanager.modules.results.StandingRepository;
 import ba.sportsmanager.modules.teams.TeamEntity;
 import ba.sportsmanager.modules.teams.TeamService;
+import ba.sportsmanager.modules.timeslots.SlotAvailabilityStatus;
+import ba.sportsmanager.modules.timeslots.TimeSlotEntity;
+import ba.sportsmanager.modules.timeslots.TimeSlotRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +25,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,6 +34,9 @@ class LeagueServiceTest {
     @Mock private LeagueRepository leagueRepository;
     @Mock private LeagueTeamRepository leagueTeamRepository;
     @Mock private TeamService teamService;
+    @Mock private MatchRepository matchRepository;
+    @Mock private StandingRepository standingRepository;
+    @Mock private TimeSlotRepository timeSlotRepository;
 
     @InjectMocks private LeagueService leagueService;
 
@@ -38,6 +50,7 @@ class LeagueServiceTest {
         mockLeague.setLeagueName("Premijer liga");
         mockLeague.setSeason("2025/2026");
         mockLeague.setStatus(LeagueStatus.ACTIVE);
+        mockLeague.setSport(SportType.FOOTBALL);
 
         mockTeam = new TeamEntity();
         ReflectionTestUtils.setField(mockTeam, "id", 10L);
@@ -45,11 +58,12 @@ class LeagueServiceTest {
         mockTeam.setCity("Sarajevo");
         mockTeam.setCaptainName("Haris Kovač");
         mockTeam.setMembersCount(11);
+        mockTeam.setSport(SportType.FOOTBALL);
     }
 
     @Test
     void create_Successful_ReturnsResponse() {
-        CreateLeagueRequest request = new CreateLeagueRequest("Premijer liga", "2025/2026");
+        CreateLeagueRequest request = new CreateLeagueRequest("Premijer liga", "2025/2026", SportType.FOOTBALL);
         when(leagueRepository.save(any(LeagueEntity.class))).thenAnswer(inv -> {
             LeagueEntity e = inv.getArgument(0);
             ReflectionTestUtils.setField(e, "id", 1L);
@@ -63,6 +77,7 @@ class LeagueServiceTest {
         assertEquals("Premijer liga", response.leagueName());
         assertEquals("2025/2026", response.season());
         assertEquals(LeagueStatus.ACTIVE, response.status());
+        assertEquals(SportType.FOOTBALL, response.sport());
         verify(leagueRepository).save(any(LeagueEntity.class));
     }
 
@@ -149,5 +164,72 @@ class LeagueServiceTest {
         when(leagueRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> leagueService.getTeamsInLeague(99L));
+    }
+
+    // ── NEW: deleteLeague cascade ─────────────────────────────────────────────
+
+    @Test
+    void deleteLeague_RemovesLeagueAndChildrenAndFreesSlots() {
+        // Pripremi utakmicu lige
+        MatchEntity match = new MatchEntity();
+        ReflectionTestUtils.setField(match, "id", 100L);
+        match.setLeague(mockLeague);
+        match.setHomeTeam(mockTeam);
+        match.setAwayTeam(mockTeam);
+
+        // Pripremi termin vezan za utakmicu
+        TimeSlotEntity linkedSlot = new TimeSlotEntity();
+        ReflectionTestUtils.setField(linkedSlot, "id", 200L);
+        linkedSlot.setLeagueMatchId(100L);
+        linkedSlot.setAvailabilityStatus(SlotAvailabilityStatus.RESERVED);
+
+        StandingEntity standing = new StandingEntity();
+        standing.setLeague(mockLeague);
+        standing.setTeam(mockTeam);
+
+        LeagueTeamEntity lt = new LeagueTeamEntity(mockLeague, mockTeam);
+
+        when(leagueRepository.findById(1L)).thenReturn(Optional.of(mockLeague));
+        when(matchRepository.findByLeague_IdOrderByMatchDateAsc(1L)).thenReturn(List.of(match));
+        when(timeSlotRepository.findByLeagueMatchIdIn(List.of(100L))).thenReturn(List.of(linkedSlot));
+        when(standingRepository.findByLeague_IdOrderByPointsDescGoalsForDescGoalsAgainstAsc(1L))
+                .thenReturn(List.of(standing));
+        when(leagueTeamRepository.findByLeague_Id(1L)).thenReturn(List.of(lt));
+
+        leagueService.deleteLeague(1L);
+
+        // Termin oslobođen (leagueMatchId null, status AVAILABLE)
+        assertNull(linkedSlot.getLeagueMatchId());
+        assertEquals(SlotAvailabilityStatus.AVAILABLE, linkedSlot.getAvailabilityStatus());
+        verify(timeSlotRepository).save(linkedSlot);
+
+        // Sve podredjene strukture obrisane
+        verify(matchRepository).deleteAll(anyList());
+        verify(standingRepository).deleteAll(anyList());
+        verify(leagueTeamRepository).deleteAll(anyList());
+        verify(leagueRepository).delete(mockLeague);
+    }
+
+    @Test
+    void deleteLeague_WhenLeagueNotFound_ThrowsResourceNotFoundException() {
+        when(leagueRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> leagueService.deleteLeague(99L));
+        verify(leagueRepository, never()).delete(any());
+    }
+
+    @Test
+    void deleteLeague_WhenNoMatches_StillDeletesLeagueAndCleansChildren() {
+        when(leagueRepository.findById(1L)).thenReturn(Optional.of(mockLeague));
+        when(matchRepository.findByLeague_IdOrderByMatchDateAsc(1L)).thenReturn(List.of());
+        when(standingRepository.findByLeague_IdOrderByPointsDescGoalsForDescGoalsAgainstAsc(1L))
+                .thenReturn(List.of());
+        when(leagueTeamRepository.findByLeague_Id(1L)).thenReturn(List.of());
+
+        leagueService.deleteLeague(1L);
+
+        verify(leagueRepository).delete(mockLeague);
+        // Slot lookup se ne smije pozvati jer nema utakmica
+        verify(timeSlotRepository, never()).findByLeagueMatchIdIn(anyList());
     }
 }

@@ -83,7 +83,18 @@ function ReservationsPage() {
     cancelled: visibleReservations.filter(r => r.status === "CANCELLED").length,
   }), [visibleReservations]);
 
-  const onChange = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
+  const onChange = e => {
+    const { name, value } = e.target;
+    setForm(p => {
+      const next = { ...p, [name]: value };
+      // Kad korisnik promijeni sport, isprazni slotId jer prethodno odabrani termin
+      // možda nije za taj sport
+      if (name === "sport") {
+        next.slotId = "";
+      }
+      return next;
+    });
+  };
 
   const onSubmit = async e => {
     e.preventDefault();
@@ -212,23 +223,36 @@ function ReservationsPage() {
                   </select>
                 </div>
                 <div className="field field-grow">
-                  <label className="field-label">Slobodan termin</label>
-                  <select
-                    className="field-input"
-                    name="slotId"
-                    value={form.slotId}
-                    onChange={onChange}
-                    disabled={loadingTimeSlots || !availableTimeSlots.length}
-                  >
-                    <option value="">
-                      {loadingTimeSlots ? "Učitavanje..." : availableTimeSlots.length === 0 ? "Nema slobodnih termina" : "— Odaberi termin —"}
-                    </option>
-                    {availableTimeSlots.map(s => (
-                      <option key={s.id} value={s.id}>
-                        {s.resourceName} · {s.location} · {formatDate(s.slotDate)} · {formatTime(s.startTime)}–{formatTime(s.endTime)}
-                      </option>
-                    ))}
-                  </select>
+                  <label className="field-label">Slobodan termin (sala)</label>
+                  {(() => {
+                    const filteredSlots = availableTimeSlots.filter(
+                      s => !form.sport || s.sport === form.sport
+                    );
+                    return (
+                      <select
+                        className="field-input"
+                        name="slotId"
+                        value={form.slotId}
+                        onChange={onChange}
+                        disabled={loadingTimeSlots || !filteredSlots.length}
+                      >
+                        <option value="">
+                          {loadingTimeSlots
+                            ? "Učitavanje..."
+                            : !form.sport
+                              ? "Prvo odaberite sport..."
+                              : filteredSlots.length === 0
+                                ? `Nema slobodnih terena za ${SPORT_OPTIONS.find(o => o.value === form.sport)?.label || form.sport}`
+                                : "— Odaberi salu i termin —"}
+                        </option>
+                        {filteredSlots.map(s => (
+                          <option key={s.id} value={s.id}>
+                            {s.resourceName} · {s.location} · {formatDate(s.slotDate)} · {formatTime(s.startTime)}–{formatTime(s.endTime)}
+                          </option>
+                        ))}
+                      </select>
+                    );
+                  })()}
                 </div>
               </div>
               <div className="form-row">
@@ -397,24 +421,30 @@ function ReservationsPage() {
                   <strong>Trenutni termin:</strong> {rescheduleTarget.resourceName || "—"} · {rescheduleTarget.location || "—"} · {formatDate(rescheduleTarget.slotDate)} · {formatTime(rescheduleTarget.startTime)}–{formatTime(rescheduleTarget.endTime)}
                 </p>
                 <div className="field">
-                  <label className="field-label">Novi slobodan termin</label>
-                  <select
-                    className="field-input"
-                    value={rescheduleSlotId}
-                    onChange={(e) => setRescheduleSlotId(e.target.value)}
-                    disabled={!availableTimeSlots.length}
-                  >
-                    <option value="">
-                      {availableTimeSlots.length === 0 ? "Nema slobodnih termina" : "— Odaberi termin —"}
-                    </option>
-                    {availableTimeSlots
+                  <label className="field-label">Novi slobodan termin (samo za {rescheduleTarget.sport ? (SPORT_OPTIONS.find(o => o.value === rescheduleTarget.sport)?.label || rescheduleTarget.sport) : "ovaj sport"})</label>
+                  {(() => {
+                    const targetSport = rescheduleTarget.sport;
+                    const eligible = availableTimeSlots
                       .filter(s => s.id !== rescheduleTarget.slotId)
-                      .map(s => (
-                        <option key={s.id} value={s.id}>
-                          {s.resourceName} · {s.location} · {formatDate(s.slotDate)} · {formatTime(s.startTime)}–{formatTime(s.endTime)}
+                      .filter(s => !targetSport || s.sport === targetSport);
+                    return (
+                      <select
+                        className="field-input"
+                        value={rescheduleSlotId}
+                        onChange={(e) => setRescheduleSlotId(e.target.value)}
+                        disabled={!eligible.length}
+                      >
+                        <option value="">
+                          {eligible.length === 0 ? "Nema slobodnih termina za ovaj sport" : "— Odaberi termin —"}
                         </option>
-                      ))}
-                  </select>
+                        {eligible.map(s => (
+                          <option key={s.id} value={s.id}>
+                            {s.resourceName} · {s.location} · {formatDate(s.slotDate)} · {formatTime(s.startTime)}–{formatTime(s.endTime)}
+                          </option>
+                        ))}
+                      </select>
+                    );
+                  })()}
                 </div>
                 <div className="field">
                   <label className="field-label">Napomena <span className="field-optional">(opcionalno)</span></label>

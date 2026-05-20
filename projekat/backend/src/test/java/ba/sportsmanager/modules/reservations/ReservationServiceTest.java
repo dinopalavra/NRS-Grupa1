@@ -3,6 +3,8 @@ package ba.sportsmanager.modules.reservations;
 import ba.sportsmanager.exception.BadRequestException;
 import ba.sportsmanager.exception.ConflictException;
 import ba.sportsmanager.exception.ResourceNotFoundException;
+import ba.sportsmanager.modules.notifications.NotificationService;
+import ba.sportsmanager.modules.notifications.NotificationType;
 import ba.sportsmanager.modules.teams.TeamEntity;
 import ba.sportsmanager.modules.teams.TeamService;
 import ba.sportsmanager.modules.timeslots.SlotAvailabilityStatus;
@@ -10,6 +12,7 @@ import ba.sportsmanager.modules.timeslots.TimeSlotEntity;
 import ba.sportsmanager.modules.timeslots.TimeSlotService;
 import ba.sportsmanager.modules.users.UserEntity;
 import ba.sportsmanager.modules.users.UserRepository;
+import ba.sportsmanager.modules.users.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +31,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,6 +41,7 @@ class ReservationServiceTest {
     @Mock private TeamService teamService;
     @Mock private TimeSlotService timeSlotService;
     @Mock private UserRepository userRepository;
+    @Mock private NotificationService notificationService;
 
     @InjectMocks private ReservationService reservationService;
 
@@ -47,7 +52,7 @@ class ReservationServiceTest {
 
     @BeforeEach
     void setUp() {
-        validRequest = new CreateReservationRequest(1L, 1L, 1L, "Note");
+        validRequest = new CreateReservationRequest(1L, 1L, 1L, "Note", null);
 
         mockTeam = new TeamEntity();
         ReflectionTestUtils.setField(mockTeam, "id", 1L);
@@ -68,7 +73,7 @@ class ReservationServiceTest {
     }
 
     @Test
-    void create_Successful_ReturnsResponse() {
+    void create_Successful_ReturnsResponseAndNotifiesAdmins() {
         when(teamService.getTeamEntity(1L)).thenReturn(mockTeam);
         when(timeSlotService.getEntity(1L)).thenReturn(mockSlot);
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
@@ -90,6 +95,8 @@ class ReservationServiceTest {
         assertEquals(1L, response.teamId());
         assertEquals(1L, response.slotId());
         verify(reservationRepository).save(any(ReservationEntity.class));
+        // Notifikacija ide administratorima
+        verify(notificationService).createForRole(eq(UserRole.ADMIN), anyString(), eq(NotificationType.RESERVATION_CREATED));
     }
 
     @Test
@@ -130,13 +137,8 @@ class ReservationServiceTest {
     }
 
     @Test
-    void approve_Successful_ChangesStatusAndSlot() {
-        ReservationEntity reservation = new ReservationEntity();
-        ReflectionTestUtils.setField(reservation, "id", 1L);
-        ReflectionTestUtils.setField(reservation, "team", mockTeam);
-        ReflectionTestUtils.setField(reservation, "slot", mockSlot);
-        ReflectionTestUtils.setField(reservation, "createdBy", mockUser);
-        ReflectionTestUtils.setField(reservation, "status", ReservationStatus.PENDING);
+    void approve_Successful_ChangesStatusAndNotifiesCreator() {
+        ReservationEntity reservation = pendingReservation(1L);
 
         when(reservationRepository.findById(1L)).thenReturn(Optional.of(reservation));
         when(reservationRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
@@ -146,7 +148,7 @@ class ReservationServiceTest {
         assertEquals(ReservationStatus.APPROVED, response.status());
         assertEquals(SlotAvailabilityStatus.RESERVED, mockSlot.getAvailabilityStatus());
         verify(timeSlotService).save(mockSlot);
-        verify(reservationRepository).save(any());
+        verify(notificationService).createForUser(eq(1L), anyString(), eq(NotificationType.RESERVATION_APPROVED));
     }
 
     @Test
@@ -160,13 +162,8 @@ class ReservationServiceTest {
     }
 
     @Test
-    void reject_Successful_ChangesStatusAndSlot() {
-        ReservationEntity reservation = new ReservationEntity();
-        ReflectionTestUtils.setField(reservation, "id", 2L);
-        ReflectionTestUtils.setField(reservation, "team", mockTeam);
-        ReflectionTestUtils.setField(reservation, "slot", mockSlot);
-        ReflectionTestUtils.setField(reservation, "createdBy", mockUser);
-        ReflectionTestUtils.setField(reservation, "status", ReservationStatus.PENDING);
+    void reject_Successful_ChangesStatusAndNotifiesCreator() {
+        ReservationEntity reservation = pendingReservation(2L);
 
         when(reservationRepository.findById(2L)).thenReturn(Optional.of(reservation));
         when(reservationRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
@@ -176,6 +173,7 @@ class ReservationServiceTest {
         assertEquals(ReservationStatus.REJECTED, response.status());
         assertEquals(SlotAvailabilityStatus.AVAILABLE, mockSlot.getAvailabilityStatus());
         verify(timeSlotService).save(mockSlot);
+        verify(notificationService).createForUser(eq(1L), anyString(), eq(NotificationType.RESERVATION_REJECTED));
     }
 
     @Test
@@ -186,14 +184,101 @@ class ReservationServiceTest {
     }
 
     @Test
-    void getBySlot_ReturnsMappedReservations() {
-        ReservationEntity reservation = new ReservationEntity();
-        ReflectionTestUtils.setField(reservation, "id", 7L);
-        ReflectionTestUtils.setField(reservation, "team", mockTeam);
-        ReflectionTestUtils.setField(reservation, "slot", mockSlot);
-        ReflectionTestUtils.setField(reservation, "createdBy", mockUser);
-        ReflectionTestUtils.setField(reservation, "status", ReservationStatus.PENDING);
+    void cancel_Successful_FreesSlotAndNotifiesCreator() {
+        ReservationEntity reservation = pendingReservation(3L);
 
+        when(reservationRepository.findById(3L)).thenReturn(Optional.of(reservation));
+        when(reservationRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+
+        ReservationResponse response = reservationService.cancel(3L);
+
+        assertEquals(ReservationStatus.CANCELLED, response.status());
+        assertEquals(SlotAvailabilityStatus.AVAILABLE, mockSlot.getAvailabilityStatus());
+        verify(notificationService).createForUser(eq(1L), anyString(), eq(NotificationType.RESERVATION_CANCELLED));
+    }
+
+    @Test
+    void cancel_WhenSlotLinkedToLeagueMatch_ThrowsBadRequest() {
+        ReservationEntity reservation = pendingReservation(4L);
+        mockSlot.setLeagueMatchId(77L);
+
+        when(reservationRepository.findById(4L)).thenReturn(Optional.of(reservation));
+
+        assertThrows(BadRequestException.class, () -> reservationService.cancel(4L));
+        verify(reservationRepository, never()).save(any());
+        verifyNoInteractions(notificationService);
+    }
+
+    // ── reschedule ────────────────────────────────────────────────────────────
+
+    @Test
+    void reschedule_Successful_MovesReservationToNewSlot() {
+        ReservationEntity reservation = pendingReservation(10L);
+
+        TimeSlotEntity newSlot = new TimeSlotEntity();
+        ReflectionTestUtils.setField(newSlot, "id", 2L);
+        newSlot.setSlotDate(LocalDate.of(2026, 5, 12));
+        newSlot.setStartTime(LocalTime.of(19, 0));
+        newSlot.setEndTime(LocalTime.of(20, 0));
+        newSlot.setLocation("Dvorana 2");
+        newSlot.setResourceName("Teren B");
+        newSlot.setAvailabilityStatus(SlotAvailabilityStatus.AVAILABLE);
+
+        when(reservationRepository.findById(10L)).thenReturn(Optional.of(reservation));
+        when(timeSlotService.getEntity(2L)).thenReturn(newSlot);
+        when(reservationRepository.existsBySlot_IdAndStatusIn(eq(2L), any())).thenReturn(false);
+        when(reservationRepository.existsOverlappingActiveReservation(
+                anyString(), anyString(), any(), any(), any(), anyLong(), anyCollection()))
+                .thenReturn(false);
+        when(reservationRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+
+        ReservationResponse response = reservationService.reschedule(
+                10L, new RescheduleReservationRequest(2L, null));
+
+        // Stari slot oslobođen
+        assertEquals(SlotAvailabilityStatus.AVAILABLE, mockSlot.getAvailabilityStatus());
+        // Reservation pokazuje na novi slot
+        assertEquals(2L, response.slotId());
+        verify(notificationService).createForUser(eq(1L), anyString(), eq(NotificationType.RESERVATION_RESCHEDULED));
+    }
+
+    @Test
+    void reschedule_WhenLeagueLinked_ThrowsBadRequest() {
+        ReservationEntity reservation = pendingReservation(11L);
+        mockSlot.setLeagueMatchId(55L);
+
+        when(reservationRepository.findById(11L)).thenReturn(Optional.of(reservation));
+
+        assertThrows(BadRequestException.class,
+                () -> reservationService.reschedule(11L, new RescheduleReservationRequest(2L, null)));
+        verifyNoInteractions(notificationService);
+    }
+
+    @Test
+    void reschedule_WhenStatusIsCancelled_ThrowsBadRequest() {
+        ReservationEntity reservation = pendingReservation(12L);
+        ReflectionTestUtils.setField(reservation, "status", ReservationStatus.CANCELLED);
+
+        when(reservationRepository.findById(12L)).thenReturn(Optional.of(reservation));
+
+        assertThrows(BadRequestException.class,
+                () -> reservationService.reschedule(12L, new RescheduleReservationRequest(2L, null)));
+    }
+
+    @Test
+    void reschedule_WhenNewSlotSameAsOld_ThrowsBadRequest() {
+        ReservationEntity reservation = pendingReservation(13L);
+
+        when(reservationRepository.findById(13L)).thenReturn(Optional.of(reservation));
+        when(timeSlotService.getEntity(1L)).thenReturn(mockSlot);
+
+        assertThrows(BadRequestException.class,
+                () -> reservationService.reschedule(13L, new RescheduleReservationRequest(1L, null)));
+    }
+
+    @Test
+    void getBySlot_ReturnsMappedReservations() {
+        ReservationEntity reservation = pendingReservation(7L);
         when(reservationRepository.findBySlot_Id(1L)).thenReturn(List.of(reservation));
 
         List<ReservationResponse> result = reservationService.getBySlot(1L);
@@ -201,5 +286,16 @@ class ReservationServiceTest {
         assertEquals(1, result.size());
         assertEquals(7L, result.get(0).id());
         assertEquals(1L, result.get(0).slotId());
+    }
+
+    // helper
+    private ReservationEntity pendingReservation(long id) {
+        ReservationEntity reservation = new ReservationEntity();
+        ReflectionTestUtils.setField(reservation, "id", id);
+        ReflectionTestUtils.setField(reservation, "team", mockTeam);
+        ReflectionTestUtils.setField(reservation, "slot", mockSlot);
+        ReflectionTestUtils.setField(reservation, "createdBy", mockUser);
+        ReflectionTestUtils.setField(reservation, "status", ReservationStatus.PENDING);
+        return reservation;
     }
 }

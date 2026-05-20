@@ -135,6 +135,10 @@ export function createLeague(payload, token) {
   return request("/api/leagues", { method: "POST", body: payload, token });
 }
 
+export function deleteLeague(id, token) {
+  return request(`/api/leagues/${id}`, { method: "DELETE", token });
+}
+
 export function fetchLeagueTeams(leagueId, token) {
   return request(`/api/leagues/${leagueId}/teams`, { token });
 }

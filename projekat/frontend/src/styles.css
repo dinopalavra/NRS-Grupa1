@@ -735,9 +735,30 @@ select.field-input {
   padding-right: 36px;
 }
 
-select.field-input option {
-  background: var(--dark-700);
-  color: var(--cream);
+select.field-input option,
+.liga-select option,
+select.liga-input option,
+select.liga-select option {
+  background: var(--dark-700, #15192a);
+  color: var(--cream, #f2ece2);
+}
+
+/* color-scheme: dark forsira native popup u tamnoj varijanti
+   (radi za Chrome, Edge, Firefox; Safari ignorira). */
+select.field-input,
+.liga-select,
+select.liga-input,
+select.liga-select {
+  color-scheme: dark;
+}
+
+.liga-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c9a87c' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
 }
 
 .inline-success {
@@ -1339,6 +1360,14 @@ select.field-input option {
 
 /* Liga list */
 .liga-list { list-style: none; margin: 0; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.liga-list-row { display: flex; align-items: center; gap: 4px; position: relative; }
+.liga-list-row .liga-list-item { flex: 1; }
+.liga-list-delete {
+  opacity: 0;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+.liga-list-row:hover .liga-list-delete { opacity: 1; }
 .liga-list-item {
   display: flex; align-items: center; gap: 12px;
   width: 100%; background: transparent;

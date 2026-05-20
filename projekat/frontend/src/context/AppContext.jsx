@@ -25,6 +25,7 @@ import {
   pingBackend,
   fetchLeagues,
   createLeague as apiCreateLeague,
+  deleteLeague as apiDeleteLeague,
   fetchLeagueTeams as apiFetchLeagueTeams,
   addTeamToLeague as apiAddTeamToLeague,
   removeTeamFromLeague as apiRemoveTeamFromLeague,
@@ -258,7 +259,15 @@ export function AppProvider({ children }) {
 
   const createNewTimeSlot = async (payload) => {
     if (!auth?.token) throw new Error("Niste prijavljeni.");
-    const created = await apiCreateTimeSlot(payload, auth.token);
+    const body = {
+      slotDate:     payload.slotDate,
+      startTime:    payload.startTime,
+      endTime:      payload.endTime,
+      location:     payload.location,
+      resourceName: payload.resourceName,
+      sport:        payload.sport || null,
+    };
+    const created = await apiCreateTimeSlot(body, auth.token);
     await Promise.all([loadTimeSlots(), loadAvailableSlots()]);
     return created;
   };
@@ -324,6 +333,12 @@ export function AppProvider({ children }) {
     return created;
   };
 
+  const removeLeague = async (leagueId) => {
+    if (!auth?.token) throw new Error("Niste prijavljeni.");
+    await apiDeleteLeague(leagueId, auth.token);
+    await Promise.all([loadLeagues(), loadTimeSlots(), loadAvailableSlots()]);
+  };
+
   const getLeagueTeams = (leagueId) => {
     if (!auth?.token) return Promise.resolve([]);
     return apiFetchLeagueTeams(leagueId, auth.token);
@@ -346,7 +361,7 @@ export function AppProvider({ children }) {
 
   const addMatch = async (payload) => {
     if (!auth?.token) throw new Error("Niste prijavljeni.");
-    return apiCreateMatch({
+    const result = await apiCreateMatch({
       leagueId: payload.leagueId,
       homeTeamId: payload.homeTeamId,
       awayTeamId: payload.awayTeamId,
@@ -354,8 +369,12 @@ export function AppProvider({ children }) {
       location: payload.location || null,
       resourceName: payload.resourceName || null,
       startTime: payload.startTime || null,
-      endTime: payload.endTime || null
+      endTime: payload.endTime || null,
+      slotId: payload.slotId ? Number(payload.slotId) : null
     }, auth.token);
+    // Osvjezi slotove jer je novi termin zauzet
+    await Promise.all([loadTimeSlots(), loadAvailableSlots()]);
+    return result;
   };
 
   const submitResult = async (matchId, payload) => {
@@ -454,6 +473,7 @@ export function AppProvider({ children }) {
       updateProfile,
       changePassword,
       addLeague,
+      removeLeague,
       getLeagueTeams,
       addTeamToLeague,
       removeTeamFromLeague,

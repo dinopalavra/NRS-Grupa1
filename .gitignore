@@ -1,2 +1,11 @@
 .DS_Store
 .claude/
+
+# Frontend Vite env files (lokalni override — sadrži localhost URL i ne treba u repo)
+projekat/frontend/.env.local
+projekat/frontend/.env.*.local
+
+# Build artefakti
+projekat/backend/target/
+projekat/frontend/dist/
+projekat/frontend/node_modules/

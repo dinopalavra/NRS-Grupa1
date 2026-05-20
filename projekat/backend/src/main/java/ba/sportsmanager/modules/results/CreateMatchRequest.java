@@ -13,6 +13,7 @@ public record CreateMatchRequest(
         String location,
         String resourceName,
         LocalTime startTime,
-        LocalTime endTime
+        LocalTime endTime,
+        Long slotId
 ) {
 }

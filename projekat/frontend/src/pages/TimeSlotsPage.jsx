@@ -9,6 +9,19 @@ const FILTERS = [
   { value: "BLOCKED",   label: "Blokirani" },
 ];
 
+const SPORT_OPTIONS = [
+  { value: "FOOTBALL",   label: "⚽ Fudbal" },
+  { value: "BASKETBALL", label: "🏀 Košarka" },
+  { value: "VOLLEYBALL", label: "🏐 Odbojka" },
+  { value: "HANDBALL",   label: "🤾 Rukomet" },
+  { value: "FUTSAL",     label: "🥅 Futsal" },
+  { value: "TENNIS",     label: "🎾 Tenis" },
+  { value: "OTHER",      label: "🏅 Ostalo" },
+];
+
+const sportLabel = (sport) =>
+  SPORT_OPTIONS.find(o => o.value === sport)?.label || sport || "—";
+
 function TimeSlotsPage() {
   const {
     timeSlots,
@@ -25,8 +38,9 @@ function TimeSlotsPage() {
   const [message, setMessage] = useState({ text: "", ok: true });
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
-    slotDate: "", startTime: "", endTime: "", location: "", resourceName: "",
+    slotDate: "", startTime: "", endTime: "", location: "", resourceName: "", sport: "",
   });
+  const [sportFilter, setSportFilter] = useState("");
 
   const stats = useMemo(() => ({
     total:     timeSlots.length,
@@ -40,6 +54,7 @@ function TimeSlotsPage() {
     const base = timeSlots.filter(s => {
       if (filter !== "all" && s.availabilityStatus !== filter) return false;
       if (dateFilter && s.slotDate !== dateFilter) return false;
+      if (sportFilter && s.sport !== sportFilter) return false;
       if (q) {
         const haystack = `${s.resourceName || ""} ${s.location || ""}`.toLowerCase();
         if (!haystack.includes(q)) return false;
@@ -50,7 +65,7 @@ function TimeSlotsPage() {
       if (a.slotDate !== b.slotDate) return a.slotDate < b.slotDate ? -1 : 1;
       return a.startTime < b.startTime ? -1 : 1;
     });
-  }, [timeSlots, filter, search, dateFilter]);
+  }, [timeSlots, filter, search, dateFilter, sportFilter]);
 
   const onChange = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -58,6 +73,10 @@ function TimeSlotsPage() {
     e.preventDefault();
     if (!form.slotDate || !form.startTime || !form.endTime || !form.location.trim() || !form.resourceName.trim()) {
       setMessage({ text: "Popuni sva polja.", ok: false });
+      return;
+    }
+    if (!form.sport) {
+      setMessage({ text: "Sport je obavezan — terenu se mora dodijeliti za koji sport je predviđen.", ok: false });
       return;
     }
     setSubmitting(true);
@@ -69,8 +88,9 @@ function TimeSlotsPage() {
         endTime:      form.endTime.length   === 5 ? `${form.endTime}:00`   : form.endTime,
         location:     form.location.trim(),
         resourceName: form.resourceName.trim(),
+        sport:        form.sport,
       });
-      setForm({ slotDate: "", startTime: "", endTime: "", location: "", resourceName: "" });
+      setForm({ slotDate: "", startTime: "", endTime: "", location: "", resourceName: "", sport: "" });
       setMessage({ text: "Termin je uspješno kreiran.", ok: true });
     } catch (err) {
       setMessage({ text: err.message || "Greška pri kreiranju termina.", ok: false });
@@ -130,6 +150,15 @@ function TimeSlotsPage() {
                   <label className="field-label">Naziv resursa</label>
                   <input className="field-input" name="resourceName" placeholder="npr. Teren 1" value={form.resourceName} onChange={onChange} />
                 </div>
+              </div>
+              <div className="form-row">
+                <div className="field field-grow">
+                  <label className="field-label">Sport <span style={{ color: "#fca5a5" }}>*</span></label>
+                  <select className="field-input" name="sport" value={form.sport} onChange={onChange} required>
+                    <option value="">Odaberi za koji sport je ovaj teren...</option>
+                    {SPORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
                 <div className="field field-action">
                   <label className="field-label">&nbsp;</label>
                   <button className="btn btn-primary" type="submit" disabled={submitting}>
@@ -176,7 +205,17 @@ function TimeSlotsPage() {
                 onChange={e => setSearch(e.target.value)}
               />
             </div>
-            <div className="field" style={{ width: 200 }}>
+            <div className="field" style={{ width: 180 }}>
+              <select
+                className="field-input"
+                value={sportFilter}
+                onChange={e => setSportFilter(e.target.value)}
+              >
+                <option value="">Svi sportovi</option>
+                {SPORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+            <div className="field" style={{ width: 180 }}>
               <input
                 className="field-input"
                 type="date"
@@ -184,12 +223,12 @@ function TimeSlotsPage() {
                 onChange={e => setDateFilter(e.target.value)}
               />
             </div>
-            {(search || dateFilter) && (
+            {(search || dateFilter || sportFilter) && (
               <div className="field field-action">
                 <button
                   type="button"
                   className="btn btn-secondary"
-                  onClick={() => { setSearch(""); setDateFilter(""); }}
+                  onClick={() => { setSearch(""); setDateFilter(""); setSportFilter(""); }}
                 >Resetuj</button>
               </div>
             )}
@@ -210,6 +249,7 @@ function TimeSlotsPage() {
                 <thead>
                   <tr>
                     <th>Resurs / Lokacija</th>
+                    <th>Sport</th>
                     <th>Datum</th>
                     <th>Termin</th>
                     <th>Status</th>
@@ -222,12 +262,22 @@ function TimeSlotsPage() {
                         <div className="slot-resource">{slot.resourceName || "—"}</div>
                         <div className="slot-location">{slot.location || "—"}</div>
                       </td>
+                      <td>{sportLabel(slot.sport)}</td>
                       <td>{formatDate(slot.slotDate)}</td>
                       <td className="slot-time">{formatTime(slot.startTime)} – {formatTime(slot.endTime)}</td>
                       <td>
                         <span className={`status-chip status-${String(slot.availabilityStatus).toLowerCase()}`}>
                           {statusLabel(slot.availabilityStatus)}
                         </span>
+                        {slot.leagueMatchId && (
+                          <span
+                            className="status-chip status-league"
+                            title="Termin je vezan za ligašku utakmicu"
+                            style={{ marginLeft: 6 }}
+                          >
+                            Liga
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))}

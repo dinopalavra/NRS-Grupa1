@@ -52,4 +52,10 @@ public class LeagueController {
     public void removeTeamFromLeague(@PathVariable Long id, @PathVariable Long teamId) {
         leagueService.removeTeamFromLeague(id, teamId);
     }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteLeague(@PathVariable Long id) {
+        leagueService.deleteLeague(id);
+    }
 }
