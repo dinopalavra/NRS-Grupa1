@@ -1,5 +1,6 @@
 package ba.sportsmanager.modules.users;
 
+import ba.sportsmanager.common.SportType;
 import jakarta.persistence.*;
 
 @Entity
@@ -28,6 +29,14 @@ public class UserEntity {
 
     @Column(nullable = false)
     private boolean active = true;
+
+    /**
+     * Sport za koji je korisnik registrovan (igrač/kapiten/sudija).
+     * Adminstratori nemaju sport (null).
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sport", length = 30)
+    private SportType sport;
 
     public UserEntity() {
     }
@@ -86,5 +95,13 @@ public class UserEntity {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public SportType getSport() {
+        return sport;
+    }
+
+    public void setSport(SportType sport) {
+        this.sport = sport;
     }
 }

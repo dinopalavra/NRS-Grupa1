@@ -193,6 +193,37 @@ export function fetchTeamStats(teamId, leagueId, token) {
   return request(`/api/teams/${teamId}/stats${query}`, { token });
 }
 
+/* ── Team Members (Roster) ────────────────────────────────── */
+
+export function fetchTeamMembers(teamId, token) {
+  return request(`/api/teams/${teamId}/members`, { token });
+}
+
+export function addTeamMember(teamId, payload, token) {
+  return request(`/api/teams/${teamId}/members`, {
+    method: "POST",
+    body: payload,
+    token
+  });
+}
+
+export function removeTeamMember(teamId, userId, token) {
+  return request(`/api/teams/${teamId}/members/${userId}`, {
+    method: "DELETE",
+    token
+  });
+}
+
+/* ── Goals & Top Scorers ──────────────────────────────────── */
+
+export function fetchMatchGoals(matchId, token) {
+  return request(`/api/results/matches/${matchId}/goals`, { token });
+}
+
+export function fetchTopScorers(leagueId, token) {
+  return request(`/api/results/leagues/${leagueId}/top-scorers`, { token });
+}
+
 /* ── Notifications ────────────────────────────────────────── */
 
 export function fetchNotifications(userId, token) {

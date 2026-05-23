@@ -41,13 +41,24 @@ public class UserService {
             throw new BadRequestException("Username already exists.");
         }
 
+        UserRole role = request.role() == null ? UserRole.PLAYER : request.role();
+
+        // Sport validacija: admin NE smije imati sport, ostali MORAJU imati sport
+        if (role == UserRole.ADMIN && request.sport() != null) {
+            throw new BadRequestException("Administrator ne može imati dodijeljen sport.");
+        }
+        if (role != UserRole.ADMIN && request.sport() == null) {
+            throw new BadRequestException("Sport je obavezan za ulogu " + role + ".");
+        }
+
         UserEntity user = new UserEntity();
         user.setFullName(request.fullName());
         user.setEmail(request.email());
         user.setUsername(request.username());
         user.setPasswordHash(passwordEncoder.encode(request.password()));
-        user.setRole(request.role() == null ? UserRole.PLAYER : request.role());
+        user.setRole(role);
         user.setActive(true);
+        user.setSport(request.sport());
 
         return toResponse(userRepository.save(user));
     }
@@ -126,7 +137,8 @@ public class UserService {
                 user.getEmail(),
                 user.getUsername(),
                 user.getRole(),
-                user.isActive()
+                user.isActive(),
+                user.getSport()
         );
     }
 }

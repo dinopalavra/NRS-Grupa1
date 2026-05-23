@@ -1,23 +1,36 @@
 package ba.sportsmanager.modules.teams;
 
+import ba.sportsmanager.exception.BadRequestException;
 import ba.sportsmanager.exception.ResourceNotFoundException;
 import ba.sportsmanager.modules.results.MatchEntity;
 import ba.sportsmanager.modules.results.MatchRepository;
 import ba.sportsmanager.modules.results.MatchStatus;
+import ba.sportsmanager.modules.users.UserEntity;
+import ba.sportsmanager.modules.users.UserRepository;
+import ba.sportsmanager.modules.users.UserRole;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TeamService {
 
     private final TeamRepository teamRepository;
     private final MatchRepository matchRepository;
+    private final TeamMemberRepository teamMemberRepository;
+    private final UserRepository userRepository;
 
-    public TeamService(TeamRepository teamRepository, MatchRepository matchRepository) {
+    public TeamService(TeamRepository teamRepository,
+                       MatchRepository matchRepository,
+                       TeamMemberRepository teamMemberRepository,
+                       UserRepository userRepository) {
         this.teamRepository = teamRepository;
         this.matchRepository = matchRepository;
+        this.teamMemberRepository = teamMemberRepository;
+        this.userRepository = userRepository;
     }
 
     public List<TeamResponse> getAllTeams() {
@@ -27,12 +40,37 @@ public class TeamService {
                 .toList();
     }
 
+    @Transactional
     public TeamResponse createTeam(CreateTeamRequest request) {
+        // 1. Učitaj kapitena
+        UserEntity captain = userRepository.findById(request.captainUserId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Korisnik za kapitena nije pronađen: " + request.captainUserId()));
+
+        // 2. Validacija role
+        if (captain.getRole() != UserRole.CAPTAIN) {
+            throw new BadRequestException("Odabrani korisnik nema ulogu CAPTAIN.");
+        }
+
+        // 3. Validacija sporta
+        if (captain.getSport() == null || captain.getSport() != request.sport()) {
+            throw new BadRequestException(
+                    "Sport kapitena se ne podudara sa sportom tima.");
+        }
+
+        // 4. Jedan tim po kapitenu
+        if (teamRepository.existsByCaptain_Id(captain.getId())) {
+            throw new BadRequestException(
+                    "Ovaj korisnik je već kapiten drugog tima.");
+        }
+
         TeamEntity team = new TeamEntity();
-        team.setName(request.name());
-        team.setCity(request.city());
-        team.setCaptainName(request.captainName());
-        team.setMembersCount(request.membersCount());
+        team.setName(request.name().trim());
+        team.setCity(request.city().trim());
+        team.setCaptain(captain);
+        team.setCaptainName(captain.getFullName());
+        team.setMaxMembers(request.maxMembers());
+        team.setMembersCount(0);  // novi tim startuje prazan
         team.setStatus(TeamStatus.ACTIVE);
         team.setSport(request.sport());
 
@@ -107,10 +145,104 @@ public class TeamService {
                 team.getId(),
                 team.getName(),
                 team.getCity(),
-                team.getCaptainName(),
-                team.getMembersCount(),
+                team.getCaptain() != null ? team.getCaptain().getFullName() : team.getCaptainName(),
+                team.getCaptain() != null ? team.getCaptain().getId() : null,
+                team.getMembersCount() == null ? 0 : team.getMembersCount(),
+                team.getMaxMembers(),
                 team.getStatus(),
                 team.getSport()
+        );
+    }
+
+    /* ── Team members (roster) ──────────────────────────────────────── */
+
+    public List<TeamMemberResponse> getMembers(Long teamId) {
+        getTeamEntity(teamId);
+        return teamMemberRepository.findByTeam_IdOrderByJerseyNumberAscIdAsc(teamId)
+                .stream()
+                .map(this::toMemberResponse)
+                .toList();
+    }
+
+    @Transactional
+    public TeamMemberResponse addMember(Long teamId, AddTeamMemberRequest request) {
+        TeamEntity team = getTeamEntity(teamId);
+
+        UserEntity user = userRepository.findById(request.userId())
+                .orElseThrow(() -> new ResourceNotFoundException("Korisnik nije pronađen."));
+
+        // Igrač smije biti samo u jednom timu istovremeno (bilo kojem)
+        Optional<TeamMemberEntity> existing = teamMemberRepository.findByUser_Id(request.userId());
+        if (existing.isPresent()) {
+            TeamMemberEntity other = existing.get();
+            if (other.getTeam().getId().equals(teamId)) {
+                throw new BadRequestException("Ovaj korisnik je već član tima.");
+            }
+            throw new BadRequestException(
+                    "Korisnik je već u timu \"" + other.getTeam().getName() + "\". "
+                            + "Ukloni ga odatle prije nego ga dodaš u novi tim.");
+        }
+
+        // Sport korisnika mora odgovarati sportu tima
+        if (team.getSport() != null && user.getSport() != null
+                && !team.getSport().equals(user.getSport())) {
+            throw new BadRequestException(
+                    "Sport korisnika (" + user.getSport() + ") se ne podudara sa sportom tima ("
+                            + team.getSport() + ").");
+        }
+
+        // Maksimalni broj članova
+        long currentCount = teamMemberRepository.countByTeam_Id(teamId);
+        if (team.getMaxMembers() != null && currentCount >= team.getMaxMembers()) {
+            throw new BadRequestException(
+                    "Tim je popunjen (" + currentCount + "/" + team.getMaxMembers() + " članova).");
+        }
+
+        if (request.jerseyNumber() != null
+                && teamMemberRepository.existsByTeam_IdAndJerseyNumber(teamId, request.jerseyNumber())) {
+            throw new BadRequestException("Broj dresa " + request.jerseyNumber() + " je već zauzet u ovom timu.");
+        }
+
+        TeamMemberEntity member = new TeamMemberEntity(
+                team,
+                user,
+                request.jerseyNumber(),
+                request.position() != null ? request.position().trim() : null
+        );
+        TeamMemberEntity saved = teamMemberRepository.save(member);
+
+        // Osvjezi brojac clanova u timu
+        long count = teamMemberRepository.countByTeam_Id(teamId);
+        team.setMembersCount((int) count);
+        teamRepository.save(team);
+
+        return toMemberResponse(saved);
+    }
+
+    @Transactional
+    public void removeMember(Long teamId, Long userId) {
+        TeamEntity team = getTeamEntity(teamId);
+        TeamMemberEntity member = teamMemberRepository.findByTeam_IdAndUser_Id(teamId, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Korisnik nije član ovog tima."));
+        teamMemberRepository.delete(member);
+
+        long count = teamMemberRepository.countByTeam_Id(teamId);
+        team.setMembersCount((int) count);
+        teamRepository.save(team);
+    }
+
+    private TeamMemberResponse toMemberResponse(TeamMemberEntity m) {
+        return new TeamMemberResponse(
+                m.getId(),
+                m.getTeam().getId(),
+                m.getTeam().getName(),
+                m.getUser().getId(),
+                m.getUser().getUsername(),
+                m.getUser().getFullName(),
+                m.getUser().getEmail(),
+                m.getJerseyNumber(),
+                m.getPosition(),
+                m.getJoinedAt()
         );
     }
 }

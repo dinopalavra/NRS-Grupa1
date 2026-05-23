@@ -8,8 +8,8 @@ import jakarta.validation.constraints.NotNull;
 public record CreateTeamRequest(
         @NotBlank String name,
         @NotBlank String city,
-        @NotBlank String captainName,
-        @NotNull @Min(1) Integer membersCount,
-        SportType sport
+        @NotNull(message = "Kapiten je obavezan.") Long captainUserId,
+        @NotNull(message = "Maksimalni broj članova je obavezan.") @Min(1) Integer maxMembers,
+        @NotNull(message = "Sport je obavezan.") SportType sport
 ) {
 }

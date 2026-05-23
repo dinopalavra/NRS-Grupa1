@@ -34,6 +34,11 @@ import {
   recordMatchResult as apiRecordMatchResult,
   fetchStandings as apiFetchStandings,
   fetchTeamStats as apiFetchTeamStats,
+  fetchTeamMembers as apiFetchTeamMembers,
+  addTeamMember as apiAddTeamMember,
+  removeTeamMember as apiRemoveTeamMember,
+  fetchMatchGoals as apiFetchMatchGoals,
+  fetchTopScorers as apiFetchTopScorers,
   fetchNotifications as apiFetchNotifications,
   fetchUnreadNotificationCount as apiFetchUnreadNotificationCount,
   markNotificationRead as apiMarkNotificationRead,
@@ -252,7 +257,14 @@ export function AppProvider({ children }) {
   };
 
   const registerTeam = async (payload) => {
-    const created = await createTeam(payload, auth?.token);
+    const body = {
+      name: payload.name,
+      city: payload.city,
+      captainUserId: Number(payload.captainUserId),
+      maxMembers: Number(payload.maxMembers),
+      sport: payload.sport
+    };
+    const created = await createTeam(body, auth?.token);
     if (auth?.token) await loadTeams();
     return created;
   };
@@ -392,6 +404,43 @@ export function AppProvider({ children }) {
     return apiFetchTeamStats(teamId, leagueId, auth.token);
   };
 
+  /* ── Team members (roster) ─────────────────────────────── */
+
+  const getTeamMembers = (teamId) => {
+    if (!auth?.token) return Promise.resolve([]);
+    return apiFetchTeamMembers(teamId, auth.token);
+  };
+
+  const addTeamMember = async (teamId, payload) => {
+    if (!auth?.token) throw new Error("Niste prijavljeni.");
+    const body = {
+      userId: Number(payload.userId),
+      jerseyNumber: payload.jerseyNumber ? Number(payload.jerseyNumber) : null,
+      position: payload.position?.trim() || null
+    };
+    const created = await apiAddTeamMember(teamId, body, auth.token);
+    await loadTeams();
+    return created;
+  };
+
+  const removeTeamMember = async (teamId, userId) => {
+    if (!auth?.token) throw new Error("Niste prijavljeni.");
+    await apiRemoveTeamMember(teamId, userId, auth.token);
+    await loadTeams();
+  };
+
+  /* ── Goals & Top Scorers ───────────────────────────────── */
+
+  const getMatchGoals = (matchId) => {
+    if (!auth?.token) return Promise.resolve([]);
+    return apiFetchMatchGoals(matchId, auth.token);
+  };
+
+  const getTopScorers = (leagueId) => {
+    if (!auth?.token) return Promise.resolve([]);
+    return apiFetchTopScorers(leagueId, auth.token);
+  };
+
   /* ── Notifications ────────────────────────────────────────── */
 
   const markNotificationRead = async (id) => {
@@ -470,6 +519,11 @@ export function AppProvider({ children }) {
       markNotificationRead,
       markAllNotificationsRead,
       getTeamStats,
+      getTeamMembers,
+      addTeamMember,
+      removeTeamMember,
+      getMatchGoals,
+      getTopScorers,
       updateProfile,
       changePassword,
       addLeague,

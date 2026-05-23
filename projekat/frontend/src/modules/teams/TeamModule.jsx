@@ -12,9 +12,20 @@ const SPORT_OPTIONS = [
 ];
 
 function TeamModule() {
-  const { teams, leagues, registerTeam, loadTeams, loadingTeams, getTeamStats } = useAppContext();
+  const {
+    teams,
+    leagues,
+    users,
+    registerTeam,
+    loadTeams,
+    loadingTeams,
+    getTeamStats,
+    getTeamMembers,
+    addTeamMember,
+    removeTeamMember,
+  } = useAppContext();
 
-  const [form, setForm] = useState({ name: "", city: "", captainName: "", membersCount: 1, sport: "" });
+  const [form, setForm] = useState({ name: "", city: "", captainUserId: "", maxMembers: 11, sport: "" });
   const [message, setMessage]   = useState({ text: "", ok: true });
   const [submitting, setSubmitting] = useState(false);
 
@@ -26,6 +37,88 @@ function TeamModule() {
   const [statsLeagueId, setStatsLeagueId] = useState("");
   const [statsLoading, setStatsLoading]   = useState(false);
   const [statsError, setStatsError]       = useState("");
+
+  // Roster modal state
+  const [rosterTarget, setRosterTarget] = useState(null);
+  const [rosterMembers, setRosterMembers] = useState([]);
+  const [rosterLoading, setRosterLoading] = useState(false);
+  const [rosterError, setRosterError] = useState("");
+  const [memberForm, setMemberForm] = useState({ userId: "", jerseyNumber: "", position: "" });
+  const [memberSubmitting, setMemberSubmitting] = useState(false);
+  const [removingMemberId, setRemovingMemberId] = useState(null);
+
+  const loadRoster = async (teamId) => {
+    setRosterLoading(true);
+    setRosterError("");
+    try {
+      const data = await getTeamMembers(teamId);
+      setRosterMembers(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setRosterError(err.message || "Greška pri učitavanju igrača.");
+    } finally {
+      setRosterLoading(false);
+    }
+  };
+
+  const openRoster = (team) => {
+    setRosterTarget(team);
+    setRosterMembers([]);
+    setMemberForm({ userId: "", jerseyNumber: "", position: "" });
+    setRosterError("");
+    loadRoster(team.id);
+  };
+
+  const closeRoster = () => {
+    setRosterTarget(null);
+    setRosterMembers([]);
+    setMemberForm({ userId: "", jerseyNumber: "", position: "" });
+    setRosterError("");
+  };
+
+  const submitAddMember = async (e) => {
+    e.preventDefault();
+    if (!memberForm.userId) {
+      setRosterError("Odaberite korisnika.");
+      return;
+    }
+    setMemberSubmitting(true);
+    setRosterError("");
+    try {
+      await addTeamMember(rosterTarget.id, memberForm);
+      setMemberForm({ userId: "", jerseyNumber: "", position: "" });
+      await loadRoster(rosterTarget.id);
+    } catch (err) {
+      setRosterError(err.message || "Greška pri dodavanju igrača.");
+    } finally {
+      setMemberSubmitting(false);
+    }
+  };
+
+  const handleRemoveMember = async (userId) => {
+    setRemovingMemberId(userId);
+    setRosterError("");
+    try {
+      await removeTeamMember(rosterTarget.id, userId);
+      await loadRoster(rosterTarget.id);
+    } catch (err) {
+      setRosterError(err.message || "Greška pri uklanjanju igrača.");
+    } finally {
+      setRemovingMemberId(null);
+    }
+  };
+
+  // Korisnici koji su kandidat za dodavanje u roster:
+  //  - nisu vec u ovom timu
+  //  - imaju ulogu PLAYER ili CAPTAIN
+  //  - sport im se poklapa sa sportom tima (ili tim/user nemaju sport)
+  // Napomena: provjeru "nije u drugom timu" radi backend (mi ne znamo sve rostere).
+  const memberUserIds = new Set(rosterMembers.map(m => m.userId));
+  const eligibleUsers = (users || []).filter(u => {
+    if (memberUserIds.has(u.id)) return false;
+    if (u.role !== "PLAYER" && u.role !== "CAPTAIN") return false;
+    if (rosterTarget?.sport && u.sport && rosterTarget.sport !== u.sport) return false;
+    return true;
+  });
 
   useEffect(() => { loadTeams(); }, [loadTeams]);
 
@@ -62,20 +155,46 @@ function TeamModule() {
     return true;
   });
 
-  const onChange = e => setForm(p => ({
-    ...p,
-    [e.target.name]: e.target.name === "membersCount" ? Number(e.target.value) : e.target.value
-  }));
+  const onChange = e => {
+    const { name, value } = e.target;
+    setForm(p => {
+      const next = { ...p, [name]: name === "maxMembers" ? Number(value) : value };
+      // Kada se promijeni sport, isprazni captain dropdown jer kandidati se mijenjaju
+      if (name === "sport") {
+        next.captainUserId = "";
+      }
+      return next;
+    });
+  };
+
+  // Kandidati za kapitena: CAPTAIN role, sport matches, jos nisu kapiten drugog tima
+  const captainCandidates = (users || []).filter(u => {
+    if (u.role !== "CAPTAIN") return false;
+    if (!form.sport) return false; // bez sporta — ne biramo
+    if (u.sport !== form.sport) return false;
+    // Već je kapiten nekog tima?
+    const alreadyCaptain = (teams || []).some(t => t.captainUserId === u.id);
+    if (alreadyCaptain) return false;
+    return true;
+  });
 
   const onSubmit = async e => {
     e.preventDefault();
     setMessage({ text: "", ok: true });
-    if (!form.name.trim() || !form.city.trim() || !form.captainName.trim()) {
-      setMessage({ text: "Unesite naziv tima, grad i ime kapitena.", ok: false });
+    if (!form.name.trim() || !form.city.trim()) {
+      setMessage({ text: "Unesite naziv tima i grad.", ok: false });
       return;
     }
-    if (!form.membersCount || Number(form.membersCount) < 1) {
-      setMessage({ text: "Broj članova mora biti najmanje 1.", ok: false });
+    if (!form.sport) {
+      setMessage({ text: "Sport je obavezan.", ok: false });
+      return;
+    }
+    if (!form.captainUserId) {
+      setMessage({ text: "Odaberite kapitena (sa odgovarajućim sportom).", ok: false });
+      return;
+    }
+    if (!form.maxMembers || Number(form.maxMembers) < 1) {
+      setMessage({ text: "Maksimalni broj članova mora biti najmanje 1.", ok: false });
       return;
     }
     setSubmitting(true);
@@ -83,12 +202,12 @@ function TeamModule() {
       await registerTeam({
         name: form.name.trim(),
         city: form.city.trim(),
-        captainName: form.captainName.trim(),
-        membersCount: Number(form.membersCount),
-        sport: form.sport || null
+        captainUserId: Number(form.captainUserId),
+        maxMembers: Number(form.maxMembers),
+        sport: form.sport
       });
       setMessage({ text: "Tim je uspješno kreiran.", ok: true });
-      setForm({ name: "", city: "", captainName: "", membersCount: 1, sport: "" });
+      setForm({ name: "", city: "", captainUserId: "", maxMembers: 11, sport: "" });
     } catch (err) {
       setMessage({ text: err.message || "Kreiranje tima nije uspjelo.", ok: false });
     } finally {
@@ -101,7 +220,7 @@ function TeamModule() {
       <div className="content-card">
         <div className="content-card-header">
           <h2 className="content-card-title">Novi tim</h2>
-          <p className="content-card-subtitle">Registruj novi fudbalski tim u sistemu</p>
+          <p className="content-card-subtitle">Registruj novi sportski tim u sistemu</p>
         </div>
         <form onSubmit={onSubmit} className="inline-form">
           <div className="form-row">
@@ -113,22 +232,42 @@ function TeamModule() {
               <label className="field-label">Grad</label>
               <input className="field-input" name="city" value={form.city} onChange={onChange} placeholder="Npr. Sarajevo" />
             </div>
-          </div>
-          <div className="form-row">
-            <div className="field field-grow">
-              <label className="field-label">Kapiten</label>
-              <input className="field-input" name="captainName" value={form.captainName} onChange={onChange} placeholder="Ime i prezime kapitena" />
-            </div>
-            <div className="field" style={{ width: 130 }}>
-              <label className="field-label">Broj članova</label>
-              <input className="field-input" type="number" min="1" name="membersCount" value={form.membersCount} onChange={onChange} />
-            </div>
             <div className="field">
-              <label className="field-label">Sport</label>
-              <select className="field-input" name="sport" value={form.sport} onChange={onChange}>
+              <label className="field-label">Sport <span style={{ color: "#fca5a5" }}>*</span></label>
+              <select className="field-input" name="sport" value={form.sport} onChange={onChange} required>
                 <option value="">Odaberi sport...</option>
                 {SPORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="field field-grow">
+              <label className="field-label">Kapiten <span style={{ color: "#fca5a5" }}>*</span></label>
+              <select
+                className="field-input"
+                name="captainUserId"
+                value={form.captainUserId}
+                onChange={onChange}
+                disabled={!form.sport}
+                required
+              >
+                <option value="">
+                  {!form.sport
+                    ? "Prvo odaberi sport..."
+                    : captainCandidates.length === 0
+                      ? "Nema raspoloživih kapitena za ovaj sport"
+                      : "— Odaberi kapitena —"}
+                </option>
+                {captainCandidates.map(u => (
+                  <option key={u.id} value={u.id}>
+                    {u.fullName} (@{u.username})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field" style={{ width: 170 }}>
+              <label className="field-label">Maks. članova <span style={{ color: "#fca5a5" }}>*</span></label>
+              <input className="field-input" type="number" min="1" name="maxMembers" value={form.maxMembers} onChange={onChange} />
             </div>
             <div className="field field-action">
               <label className="field-label">&nbsp;</label>
@@ -206,8 +345,13 @@ function TeamModule() {
                       <div className="slot-location">ID #{team.id}</div>
                     </td>
                     <td>{team.city}</td>
-                    <td>{team.captainName}</td>
-                    <td>{team.membersCount}</td>
+                    <td>{team.captainName || <span style={{ color: "var(--color-text-muted)" }}>—</span>}</td>
+                    <td>
+                      <strong>{team.membersCount ?? 0}</strong>
+                      {team.maxMembers != null && (
+                        <span style={{ color: "var(--color-text-muted)" }}> / {team.maxMembers}</span>
+                      )}
+                    </td>
                     <td>
                       {team.sport
                         ? (SPORT_OPTIONS.find(o => o.value === team.sport)?.label || team.sport)
@@ -219,11 +363,18 @@ function TeamModule() {
                       </span>
                     </td>
                     <td>
-                      <button
-                        className="btn btn-xs btn-secondary"
-                        type="button"
-                        onClick={() => openStats(team)}
-                      >Statistika</button>
+                      <div className="row-actions">
+                        <button
+                          className="btn btn-xs btn-secondary"
+                          type="button"
+                          onClick={() => openRoster(team)}
+                        >Igrači</button>
+                        <button
+                          className="btn btn-xs btn-secondary"
+                          type="button"
+                          onClick={() => openStats(team)}
+                        >Statistika</button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -287,6 +438,124 @@ function TeamModule() {
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" onClick={closeStats}>Zatvori</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {rosterTarget && (
+        <div className="modal-overlay" onClick={closeRoster}>
+          <div className="modal-dialog modal-dialog-wide" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">Igrači: {rosterTarget.name}</h3>
+              <button type="button" className="modal-close" onClick={closeRoster}>×</button>
+            </div>
+            <div className="modal-body">
+              <form onSubmit={submitAddMember} className="inline-form">
+                <div className="form-row">
+                  <div className="field field-grow">
+                    <label className="field-label">Korisnik</label>
+                    <select
+                      className="field-input"
+                      value={memberForm.userId}
+                      onChange={e => setMemberForm(p => ({ ...p, userId: e.target.value }))}
+                    >
+                      <option value="">
+                        {eligibleUsers.length === 0
+                          ? "Nema raspoloživih korisnika (player/captain)"
+                          : "— Odaberi korisnika —"}
+                      </option>
+                      {eligibleUsers.map(u => (
+                        <option key={u.id} value={u.id}>
+                          {u.fullName || u.username} · {u.role}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="field" style={{ width: 110 }}>
+                    <label className="field-label">Dres #</label>
+                    <input
+                      className="field-input"
+                      type="number"
+                      min="0"
+                      value={memberForm.jerseyNumber}
+                      onChange={e => setMemberForm(p => ({ ...p, jerseyNumber: e.target.value }))}
+                      placeholder="opc."
+                    />
+                  </div>
+                  <div className="field field-grow">
+                    <label className="field-label">Pozicija</label>
+                    <input
+                      className="field-input"
+                      value={memberForm.position}
+                      onChange={e => setMemberForm(p => ({ ...p, position: e.target.value }))}
+                      placeholder="npr. Napadač, Vezni..."
+                    />
+                  </div>
+                  <div className="field field-action">
+                    <label className="field-label">&nbsp;</label>
+                    <button className="btn btn-primary" type="submit" disabled={memberSubmitting || !memberForm.userId}>
+                      {memberSubmitting ? "Dodajem..." : "Dodaj"}
+                    </button>
+                  </div>
+                </div>
+              </form>
+
+              {rosterError && <div className="inline-error">{rosterError}</div>}
+
+              <div className="content-card-subtitle" style={{ marginTop: 8 }}>
+                {rosterMembers.length} igrača u rosteru
+              </div>
+
+              {rosterLoading ? (
+                <div className="loading-state">Učitavanje igrača...</div>
+              ) : rosterMembers.length === 0 ? (
+                <div className="empty-state-mini">Nema igrača u ovom timu.</div>
+              ) : (
+                <div className="slots-table-wrap">
+                  <table className="slots-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: 60 }}>#</th>
+                        <th>Igrač</th>
+                        <th>Korisničko ime</th>
+                        <th>Pozicija</th>
+                        <th>Akcije</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rosterMembers.map(m => (
+                        <tr key={m.membershipId}>
+                          <td>
+                            {m.jerseyNumber != null
+                              ? <strong style={{ color: "var(--gold-light, #c9a87c)" }}>{m.jerseyNumber}</strong>
+                              : "—"}
+                          </td>
+                          <td>
+                            <div className="slot-resource">{m.fullName || m.username}</div>
+                            <div className="slot-location">{m.email}</div>
+                          </td>
+                          <td>{m.username}</td>
+                          <td>{m.position || <span style={{ color: "var(--color-text-muted)" }}>—</span>}</td>
+                          <td>
+                            <button
+                              className="btn btn-xs btn-danger"
+                              type="button"
+                              disabled={removingMemberId === m.userId}
+                              onClick={() => handleRemoveMember(m.userId)}
+                            >
+                              {removingMemberId === m.userId ? "..." : "Ukloni"}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" onClick={closeRoster}>Zatvori</button>
             </div>
           </div>
         </div>

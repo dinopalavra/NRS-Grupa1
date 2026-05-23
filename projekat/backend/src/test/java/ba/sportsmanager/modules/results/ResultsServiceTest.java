@@ -9,10 +9,12 @@ import ba.sportsmanager.modules.leagues.LeagueService;
 import ba.sportsmanager.modules.leagues.LeagueStatus;
 import ba.sportsmanager.modules.notifications.NotificationService;
 import ba.sportsmanager.modules.teams.TeamEntity;
+import ba.sportsmanager.modules.teams.TeamMemberRepository;
 import ba.sportsmanager.modules.teams.TeamService;
 import ba.sportsmanager.modules.timeslots.SlotAvailabilityStatus;
 import ba.sportsmanager.modules.timeslots.TimeSlotEntity;
 import ba.sportsmanager.modules.timeslots.TimeSlotRepository;
+import ba.sportsmanager.modules.users.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +40,9 @@ class ResultsServiceTest {
     @Mock private TeamService teamService;
     @Mock private TimeSlotRepository timeSlotRepository;
     @Mock private NotificationService notificationService;
+    @Mock private GoalRepository goalRepository;
+    @Mock private UserRepository userRepository;
+    @Mock private TeamMemberRepository teamMemberRepository;
 
     @InjectMocks private ResultsService resultsService;
 
@@ -193,7 +198,7 @@ class ResultsServiceTest {
 
     @Test
     void recordResult_HomeWin_UpdatesStandingsCorrectly() {
-        RecordResultRequest request = new RecordResultRequest(3, 1);
+        RecordResultRequest request = new RecordResultRequest(3, 1, null);
 
         StandingEntity homeStanding = new StandingEntity();
         homeStanding.setLeague(mockLeague);
@@ -220,7 +225,7 @@ class ResultsServiceTest {
 
     @Test
     void recordResult_Draw_GivesOnePointEach() {
-        RecordResultRequest request = new RecordResultRequest(1, 1);
+        RecordResultRequest request = new RecordResultRequest(1, 1, null);
 
         StandingEntity homeStanding = new StandingEntity();
         homeStanding.setLeague(mockLeague);
@@ -245,7 +250,7 @@ class ResultsServiceTest {
 
     @Test
     void recordResult_AwayWin_UpdatesStandingsCorrectly() {
-        RecordResultRequest request = new RecordResultRequest(0, 2);
+        RecordResultRequest request = new RecordResultRequest(0, 2, null);
 
         StandingEntity homeStanding = new StandingEntity();
         homeStanding.setLeague(mockLeague);
@@ -296,7 +301,7 @@ class ResultsServiceTest {
         when(standingRepository.findByLeague_IdAndTeam_Id(1L, 2L)).thenReturn(Optional.of(awayStanding));
         when(matchRepository.save(any())).thenReturn(mockMatch);
 
-        resultsService.recordResult(1L, new RecordResultRequest(2, 2));
+        resultsService.recordResult(1L, new RecordResultRequest(2, 2, null));
 
         assertEquals(0, homeStanding.getWins());
         assertEquals(1, homeStanding.getDraws());
@@ -311,7 +316,7 @@ class ResultsServiceTest {
         when(matchRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> resultsService.recordResult(99L, new RecordResultRequest(1, 0)));
+                () -> resultsService.recordResult(99L, new RecordResultRequest(1, 0, null)));
     }
 
     @Test

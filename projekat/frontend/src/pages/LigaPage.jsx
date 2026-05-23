@@ -452,7 +452,14 @@ function TeamsTab({ leagueId, allTeams, league }) {
 /* ── Matches Tab ────────────────────────────────────────────── */
 
 function MatchesTab({ leagueId, leagueTeams, league }) {
-  const { getLeagueMatches, addMatch, submitResult, availableTimeSlots } = useAppContext();
+  const {
+    getLeagueMatches,
+    addMatch,
+    submitResult,
+    availableTimeSlots,
+    getTeamMembers,
+    getMatchGoals,
+  } = useAppContext();
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -461,6 +468,12 @@ function MatchesTab({ leagueId, leagueTeams, league }) {
   const [saving, setSaving] = useState(false);
   const [resultForm, setResultForm] = useState({ matchId: null, homeScore: "", awayScore: "" });
   const [submitting, setSubmitting] = useState(false);
+
+  // Strijelci: roster za dva tima utakmice koja se otvara za rezultat,
+  // i lista golova [{ playerUserId, teamId, minute }]
+  const [homeRoster, setHomeRoster] = useState([]);
+  const [awayRoster, setAwayRoster] = useState([]);
+  const [goalEntries, setGoalEntries] = useState([]);
 
   // Strogo filtriraj slobodne termine — moraju biti za sport lige.
   // Termini bez sporta (legacy) se NE prikazuju kako bi se izbjegao odabir
@@ -521,6 +534,52 @@ function MatchesTab({ leagueId, leagueTeams, league }) {
     }
   };
 
+  const openResultForm = async (match) => {
+    setResultForm({
+      matchId: match.id,
+      homeScore: match.homeScore ?? "",
+      awayScore: match.awayScore ?? "",
+    });
+    setError(null);
+    // Učitaj rostere oba tima + postojeće golove (ako utakmica već ima rezultat)
+    try {
+      const [home, away, existingGoals] = await Promise.all([
+        getTeamMembers(match.homeTeamId),
+        getTeamMembers(match.awayTeamId),
+        match.status === "COMPLETED" ? getMatchGoals(match.id) : Promise.resolve([]),
+      ]);
+      setHomeRoster(Array.isArray(home) ? home : []);
+      setAwayRoster(Array.isArray(away) ? away : []);
+      setGoalEntries(
+        (Array.isArray(existingGoals) ? existingGoals : []).map(g => ({
+          playerUserId: g.playerUserId,
+          teamId: g.teamId,
+          minute: g.minute ?? "",
+        }))
+      );
+    } catch (err) {
+      setHomeRoster([]); setAwayRoster([]); setGoalEntries([]);
+      setError(err.message || "Greška pri učitavanju rostera.");
+    }
+  };
+
+  const closeResultForm = () => {
+    setResultForm({ matchId: null, homeScore: "", awayScore: "" });
+    setHomeRoster([]); setAwayRoster([]); setGoalEntries([]);
+  };
+
+  const addGoalEntry = (teamId) => {
+    setGoalEntries(prev => [...prev, { playerUserId: "", teamId, minute: "" }]);
+  };
+
+  const updateGoalEntry = (index, field, value) => {
+    setGoalEntries(prev => prev.map((g, i) => i === index ? { ...g, [field]: value } : g));
+  };
+
+  const removeGoalEntry = (index) => {
+    setGoalEntries(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleResultSubmit = async (e) => {
     e.preventDefault();
     const hs = parseInt(resultForm.homeScore, 10);
@@ -529,11 +588,41 @@ function MatchesTab({ leagueId, leagueTeams, league }) {
       setError("Unesite ispravne rezultate (≥ 0).");
       return;
     }
+    // Validacija strijelaca (ako su uneseni): broj po timu mora biti = rezultat
+    const homeGoals = goalEntries.filter(g => g.teamId === currentMatch?.homeTeamId).length;
+    const awayGoals = goalEntries.filter(g => g.teamId === currentMatch?.awayTeamId).length;
+    const hasAnyGoals = goalEntries.length > 0;
+    if (hasAnyGoals) {
+      if (homeGoals !== hs) {
+        setError(`Broj strijelaca domaćeg (${homeGoals}) ne odgovara rezultatu (${hs}).`);
+        return;
+      }
+      if (awayGoals !== as) {
+        setError(`Broj strijelaca gostujućeg (${awayGoals}) ne odgovara rezultatu (${as}).`);
+        return;
+      }
+      // svaki gol mora imati izabranog igrača
+      if (goalEntries.some(g => !g.playerUserId)) {
+        setError("Svaki gol mora imati izabranog strijelca.");
+        return;
+      }
+    }
     setSubmitting(true);
     setError(null);
     try {
-      await submitResult(resultForm.matchId, { homeScore: hs, awayScore: as });
-      setResultForm({ matchId: null, homeScore: "", awayScore: "" });
+      const goalsPayload = hasAnyGoals
+        ? goalEntries.map(g => ({
+            playerUserId: Number(g.playerUserId),
+            teamId: Number(g.teamId),
+            minute: g.minute === "" || g.minute == null ? null : Number(g.minute),
+          }))
+        : null;
+      await submitResult(resultForm.matchId, {
+        homeScore: hs,
+        awayScore: as,
+        goals: goalsPayload,
+      });
+      closeResultForm();
       await load();
     } catch (err) {
       setError(err.message);
@@ -541,6 +630,9 @@ function MatchesTab({ leagueId, leagueTeams, league }) {
       setSubmitting(false);
     }
   };
+
+  // Trenutna utakmica koja je u modu unosa rezultata
+  const currentMatch = matches.find(m => m.id === resultForm.matchId);
 
   if (loading) return <div className="liga-tab-body liga-center"><Spinner /></div>;
 
@@ -605,9 +697,11 @@ function MatchesTab({ leagueId, leagueTeams, league }) {
         </form>
       )}
 
-      {resultForm.matchId && (
+      {resultForm.matchId && currentMatch && (
         <form className="liga-inline-form liga-result-form" onSubmit={handleResultSubmit}>
-          <h4 className="liga-result-form-title">Unesi rezultat</h4>
+          <h4 className="liga-result-form-title">
+            Unesi rezultat: {currentMatch.homeTeamName} vs {currentMatch.awayTeamName}
+          </h4>
           <div className="liga-result-inputs">
             <input
               type="number" min="0" className="liga-input liga-score-input"
@@ -621,11 +715,95 @@ function MatchesTab({ leagueId, leagueTeams, league }) {
               onChange={e => setResultForm(f => ({ ...f, awayScore: e.target.value }))}
             />
           </div>
+
+          {/* Strijelci sekcija — opcionalno */}
+          <div style={{ marginTop: 14, padding: "12px 0", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <h4 className="liga-result-form-title" style={{ margin: 0 }}>
+                Strijelci <span style={{ fontSize: "0.72rem", fontWeight: 400, color: "var(--color-text-muted, #9ca3af)", textTransform: "none" }}>(opcionalno — ako uneseš, mora odgovarati rezultatu)</span>
+              </h4>
+              <div style={{ display: "flex", gap: 6 }}>
+                <button
+                  type="button"
+                  className="btn-liga-sm btn-liga-ghost"
+                  onClick={() => addGoalEntry(currentMatch.homeTeamId)}
+                  disabled={homeRoster.length === 0}
+                  title={homeRoster.length === 0 ? "Domaći tim nema unesen roster" : ""}
+                >+ Gol domaćem</button>
+                <button
+                  type="button"
+                  className="btn-liga-sm btn-liga-ghost"
+                  onClick={() => addGoalEntry(currentMatch.awayTeamId)}
+                  disabled={awayRoster.length === 0}
+                  title={awayRoster.length === 0 ? "Gostujući tim nema unesen roster" : ""}
+                >+ Gol gostujućem</button>
+              </div>
+            </div>
+
+            {(homeRoster.length === 0 || awayRoster.length === 0) && (
+              <div className="inline-error" style={{ fontSize: "0.78rem", padding: "6px 10px" }}>
+                Da biste unijeli strijelce, oba tima moraju imati unesen roster u sekciji Timovi.
+              </div>
+            )}
+
+            {goalEntries.length === 0 ? (
+              <div style={{ fontSize: "0.78rem", color: "var(--color-text-muted, #9ca3af)", padding: "6px 0" }}>
+                Nema unesenih strijelaca. Rezultat će biti spremljen bez detalja.
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {goalEntries.map((g, i) => {
+                  const isHome = String(g.teamId) === String(currentMatch.homeTeamId);
+                  const roster = isHome ? homeRoster : awayRoster;
+                  const teamName = isHome ? currentMatch.homeTeamName : currentMatch.awayTeamName;
+                  return (
+                    <div key={i} style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                      <span style={{ fontSize: "0.72rem", color: isHome ? "#6ee7b7" : "#93c5fd", minWidth: 80 }}>
+                        {teamName}
+                      </span>
+                      <select
+                        className="liga-input liga-select"
+                        style={{ flex: 1 }}
+                        value={g.playerUserId}
+                        onChange={e => updateGoalEntry(i, "playerUserId", e.target.value)}
+                      >
+                        <option value="">— Strijelac —</option>
+                        {roster.map(m => (
+                          <option key={m.userId} value={m.userId}>
+                            {m.jerseyNumber != null ? `#${m.jerseyNumber} ` : ""}{m.fullName || m.username}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="number"
+                        min="0"
+                        max="200"
+                        placeholder="min"
+                        className="liga-input"
+                        style={{ width: 70 }}
+                        value={g.minute}
+                        onChange={e => updateGoalEntry(i, "minute", e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className="btn-liga-icon btn-liga-danger"
+                        onClick={() => removeGoalEntry(i)}
+                        title="Ukloni"
+                      >
+                        <IconX />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           <div className="liga-form-row">
             <button type="submit" className="btn-liga-sm btn-liga-primary" disabled={submitting}>
-              {submitting ? <Spinner /> : <><IconCheck /> Potvrdi</>}
+              {submitting ? <Spinner /> : <><IconCheck /> Potvrdi rezultat</>}
             </button>
-            <button type="button" className="btn-liga-sm btn-liga-ghost" onClick={() => setResultForm({ matchId: null, homeScore: "", awayScore: "" })}>Otkaži</button>
+            <button type="button" className="btn-liga-sm btn-liga-ghost" onClick={closeResultForm}>Otkaži</button>
           </div>
         </form>
       )}
@@ -661,7 +839,7 @@ function MatchesTab({ leagueId, leagueTeams, league }) {
                   type="button"
                   className="btn-liga-icon btn-liga-secondary"
                   title="Unesi rezultat"
-                  onClick={() => setResultForm({ matchId: m.id, homeScore: m.homeScore ?? "", awayScore: m.awayScore ?? "" })}
+                  onClick={() => openResultForm(m)}
                 >
                   <IconEdit />
                 </button>
@@ -756,12 +934,91 @@ function StandingsTab({ leagueId, league }) {
   );
 }
 
+/* ── Top Scorers Tab ────────────────────────────────────────── */
+
+function TopScorersTab({ leagueId }) {
+  const { getTopScorers } = useAppContext();
+  const [scorers, setScorers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getTopScorers(leagueId);
+      setScorers(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [leagueId, getTopScorers]);
+
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) return <div className="liga-tab-body liga-center"><Spinner /></div>;
+
+  return (
+    <div className="liga-tab-body">
+      <Alert type="error" message={error} onDismiss={() => setError(null)} />
+      {scorers.length === 0 ? (
+        <EmptyState
+          icon={<span style={{ fontSize: 28 }}>🥅</span>}
+          title="Nema unesenih strijelaca"
+          subtitle="Pri unosu rezultata utakmice unesite ko je dao golove."
+        />
+      ) : (
+        <div className="liga-table-wrapper">
+          <table className="liga-table">
+            <thead>
+              <tr>
+                <th className="liga-th liga-th--rank">#</th>
+                <th className="liga-th liga-th--team">Igrač</th>
+                <th className="liga-th liga-th--team">Tim</th>
+                <th className="liga-th liga-th--pts">Golovi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {scorers.map((s, i) => (
+                <tr key={`${s.playerUserId}-${s.teamId}`} className={`liga-tr ${i === 0 ? "liga-tr--first" : i < 3 ? "liga-tr--top" : ""}`}>
+                  <td className="liga-td liga-td--rank">
+                    {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
+                  </td>
+                  <td className="liga-td liga-td--team">
+                    <div className="liga-standing-team">
+                      <div className="liga-standing-avatar">
+                        {(s.playerFullName || s.playerUsername)?.[0]?.toUpperCase()}
+                      </div>
+                      <div>
+                        <div>{s.playerFullName || s.playerUsername}</div>
+                        {s.playerFullName && (
+                          <div style={{ fontSize: "0.72rem", color: "var(--color-text-muted, #9ca3af)" }}>
+                            @{s.playerUsername}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="liga-td liga-td--team">{s.teamName}</td>
+                  <td className="liga-td liga-td--pts"><strong>{s.goals}</strong></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ── Detail Panel ───────────────────────────────────────────── */
 
 const TABS = [
   { key: "timovi", label: "Timovi" },
   { key: "utakmice", label: "Utakmice" },
-  { key: "tabela", label: "Tabela" }
+  { key: "tabela", label: "Tabela" },
+  { key: "strijelci", label: "Strijelci" }
 ];
 
 function LeagueDetailPanel({ league, onBack }) {
@@ -808,6 +1065,9 @@ function LeagueDetailPanel({ league, onBack }) {
       )}
       {activeTab === "tabela" && (
         <StandingsTab leagueId={league.id} league={league} />
+      )}
+      {activeTab === "strijelci" && (
+        <TopScorersTab leagueId={league.id} />
       )}
     </div>
   );

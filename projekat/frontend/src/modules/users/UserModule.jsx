@@ -8,11 +8,24 @@ const ROLE_LABELS = {
   REFEREE_SCOREKEEPER: "Sudija / Zapisničar",
 };
 
+const SPORT_OPTIONS = [
+  { value: "FOOTBALL",   label: "⚽ Fudbal" },
+  { value: "BASKETBALL", label: "🏀 Košarka" },
+  { value: "VOLLEYBALL", label: "🏐 Odbojka" },
+  { value: "HANDBALL",   label: "🤾 Rukomet" },
+  { value: "FUTSAL",     label: "🥅 Futsal" },
+  { value: "TENNIS",     label: "🎾 Tenis" },
+  { value: "OTHER",      label: "🏅 Ostalo" },
+];
+
+const sportLabel = (sport) =>
+  SPORT_OPTIONS.find(o => o.value === sport)?.label || sport || "—";
+
 function UserModule() {
   const { users, registerUser, removeUser, loadUsers, loadingUsers, currentUser } = useAppContext();
 
   const [form, setForm] = useState({
-    fullName: "", email: "", username: "", password: "", role: "PLAYER"
+    fullName: "", email: "", username: "", password: "", role: "PLAYER", sport: ""
   });
   const [message, setMessage]   = useState({ text: "", ok: true });
   const [submitting, setSubmitting] = useState(false);
@@ -20,7 +33,19 @@ function UserModule() {
 
   useEffect(() => { loadUsers(); }, [loadUsers]);
 
-  const onChange = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
+  const onChange = e => {
+    const { name, value } = e.target;
+    setForm(p => {
+      const next = { ...p, [name]: value };
+      // Kada se odabere ADMIN, ukloni sport. Kada se odabere non-admin a sport je prazan, ne diramo
+      if (name === "role" && value === "ADMIN") {
+        next.sport = "";
+      }
+      return next;
+    });
+  };
+
+  const isAdminRole = form.role === "ADMIN";
 
   const onSubmit = async e => {
     e.preventDefault();
@@ -29,11 +54,18 @@ function UserModule() {
       setMessage({ text: "Unesite puno ime, email, username i lozinku.", ok: false });
       return;
     }
+    if (!isAdminRole && !form.sport) {
+      setMessage({ text: "Sport je obavezan za ulogu " + ROLE_LABELS[form.role] + ".", ok: false });
+      return;
+    }
     setSubmitting(true);
     try {
-      await registerUser(form);
+      await registerUser({
+        ...form,
+        sport: isAdminRole ? null : form.sport
+      });
       setMessage({ text: "Korisnik je uspješno kreiran.", ok: true });
-      setForm({ fullName: "", email: "", username: "", password: "", role: "PLAYER" });
+      setForm({ fullName: "", email: "", username: "", password: "", role: "PLAYER", sport: "" });
     } catch (err) {
       setMessage({ text: err.message || "Kreiranje korisnika nije uspjelo.", ok: false });
     } finally {
@@ -96,6 +128,15 @@ function UserModule() {
                 <option value="REFEREE_SCOREKEEPER">Sudija / Zapisničar</option>
               </select>
             </div>
+            {!isAdminRole && (
+              <div className="field">
+                <label className="field-label">Sport <span style={{ color: "#fca5a5" }}>*</span></label>
+                <select className="field-input" name="sport" value={form.sport} onChange={onChange} required>
+                  <option value="">Odaberi sport...</option>
+                  {SPORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              </div>
+            )}
             <div className="field field-action">
               <label className="field-label">&nbsp;</label>
               <button className="btn btn-primary" type="submit" disabled={submitting}>
@@ -138,6 +179,7 @@ function UserModule() {
                   <th>Email</th>
                   <th>Username</th>
                   <th>Uloga</th>
+                  <th>Sport</th>
                   <th>Status</th>
                   <th></th>
                 </tr>
@@ -160,6 +202,11 @@ function UserModule() {
                       }`}>
                         {ROLE_LABELS[user.role] || user.role}
                       </span>
+                    </td>
+                    <td>
+                      {user.role === "ADMIN"
+                        ? <span style={{ color: "var(--color-text-muted)" }}>—</span>
+                        : sportLabel(user.sport)}
                     </td>
                     <td>
                       <span className={`status-chip status-${user.active ? "available" : "blocked"}`}>

@@ -1,6 +1,7 @@
 package ba.sportsmanager.modules.teams;
 
 import ba.sportsmanager.common.SportType;
+import ba.sportsmanager.modules.users.UserEntity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -20,11 +21,25 @@ public class TeamEntity {
     @Column(nullable = false)
     private String city;
 
+    /**
+     * Stari prikazni naziv kapitena. Zadržan zbog backwards-compat;
+     * sad se automatski popunjava iz {@link #captain} kad je dostupan.
+     */
     @Column(name = "captainname", nullable = false)
     private String captainName;
 
+    /** Kapiten tima — pravi User entity (FK). */
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "captain_user_id")
+    private UserEntity captain;
+
+    /** Trenutni broj članova — automatski održavan iz team_members tabele. */
     @Column(name = "memberscount", nullable = false)
-    private Integer membersCount;
+    private Integer membersCount = 0;
+
+    /** Maksimalni dozvoljeni broj članova ovog tima. */
+    @Column(name = "maxmembers", nullable = false)
+    private Integer maxMembers = 11;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -74,6 +89,22 @@ public class TeamEntity {
 
     public void setMembersCount(Integer membersCount) {
         this.membersCount = membersCount;
+    }
+
+    public Integer getMaxMembers() {
+        return maxMembers;
+    }
+
+    public void setMaxMembers(Integer maxMembers) {
+        this.maxMembers = maxMembers;
+    }
+
+    public UserEntity getCaptain() {
+        return captain;
+    }
+
+    public void setCaptain(UserEntity captain) {
+        this.captain = captain;
     }
 
     public TeamStatus getStatus() {
