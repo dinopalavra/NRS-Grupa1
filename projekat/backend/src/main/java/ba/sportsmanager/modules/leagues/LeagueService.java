@@ -140,8 +140,10 @@ public class LeagueService {
                 team.getId(),
                 team.getName(),
                 team.getCity(),
-                team.getCaptainName(),
-                team.getMembersCount(),
+                team.getCaptain() != null ? team.getCaptain().getFullName() : team.getCaptainName(),
+                team.getCaptain() != null ? team.getCaptain().getId() : null,
+                team.getMembersCount() == null ? 0 : team.getMembersCount(),
+                team.getMaxMembers(),
                 team.getStatus(),
                 team.getSport()
         );

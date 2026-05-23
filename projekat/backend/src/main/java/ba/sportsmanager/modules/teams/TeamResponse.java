@@ -7,7 +7,9 @@ public record TeamResponse(
         String name,
         String city,
         String captainName,
+        Long captainUserId,
         Integer membersCount,
+        Integer maxMembers,
         TeamStatus status,
         SportType sport
 ) {

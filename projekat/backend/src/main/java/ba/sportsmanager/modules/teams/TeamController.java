@@ -30,4 +30,24 @@ public class TeamController {
                                       @RequestParam(value = "leagueId", required = false) Long leagueId) {
         return teamService.getTeamStats(id, leagueId);
     }
+
+    /* ── Team members (roster) ──────────────────────────────────────── */
+
+    @GetMapping("/{id}/members")
+    public List<TeamMemberResponse> getMembers(@PathVariable Long id) {
+        return teamService.getMembers(id);
+    }
+
+    @PostMapping("/{id}/members")
+    @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.CREATED)
+    public TeamMemberResponse addMember(@PathVariable Long id,
+                                        @Valid @RequestBody AddTeamMemberRequest request) {
+        return teamService.addMember(id, request);
+    }
+
+    @DeleteMapping("/{id}/members/{userId}")
+    @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
+    public void removeMember(@PathVariable Long id, @PathVariable Long userId) {
+        teamService.removeMember(id, userId);
+    }
 }

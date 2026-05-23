@@ -8,15 +8,19 @@ import ba.sportsmanager.modules.leagues.LeagueService;
 import ba.sportsmanager.modules.notifications.NotificationService;
 import ba.sportsmanager.modules.notifications.NotificationType;
 import ba.sportsmanager.modules.teams.TeamEntity;
+import ba.sportsmanager.modules.teams.TeamMemberRepository;
 import ba.sportsmanager.modules.teams.TeamService;
 import ba.sportsmanager.modules.timeslots.SlotAvailabilityStatus;
 import ba.sportsmanager.modules.timeslots.TimeSlotEntity;
 import ba.sportsmanager.modules.timeslots.TimeSlotRepository;
+import ba.sportsmanager.modules.users.UserEntity;
+import ba.sportsmanager.modules.users.UserRepository;
 import ba.sportsmanager.modules.users.UserRole;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,19 +33,28 @@ public class ResultsService {
     private final TeamService teamService;
     private final TimeSlotRepository timeSlotRepository;
     private final NotificationService notificationService;
+    private final GoalRepository goalRepository;
+    private final UserRepository userRepository;
+    private final TeamMemberRepository teamMemberRepository;
 
     public ResultsService(MatchRepository matchRepository,
                           StandingRepository standingRepository,
                           LeagueService leagueService,
                           TeamService teamService,
                           TimeSlotRepository timeSlotRepository,
-                          NotificationService notificationService) {
+                          NotificationService notificationService,
+                          GoalRepository goalRepository,
+                          UserRepository userRepository,
+                          TeamMemberRepository teamMemberRepository) {
         this.matchRepository = matchRepository;
         this.standingRepository = standingRepository;
         this.leagueService = leagueService;
         this.teamService = teamService;
         this.timeSlotRepository = timeSlotRepository;
         this.notificationService = notificationService;
+        this.goalRepository = goalRepository;
+        this.userRepository = userRepository;
+        this.teamMemberRepository = teamMemberRepository;
     }
 
     public List<MatchResponse> getMatches() {
@@ -167,6 +180,11 @@ public class ResultsService {
             undoStats(match);
         }
 
+        // Validacija golova ako su poslani: broj golova po timu mora odgovarati rezultatu
+        if (request.goals() != null && !request.goals().isEmpty()) {
+            validateGoalsMatchScore(match, request);
+        }
+
         match.setHomeScore(request.homeScore());
         match.setAwayScore(request.awayScore());
         match.setStatus(MatchStatus.COMPLETED);
@@ -181,6 +199,34 @@ public class ResultsService {
         standingRepository.save(homeStanding);
         standingRepository.save(awayStanding);
 
+        // Re-record strijelaca: prvo obriši stare, pa kreiraj nove (idempotentno)
+        goalRepository.deleteByMatch_Id(match.getId());
+        if (request.goals() != null) {
+            for (GoalEntry entry : request.goals()) {
+                UserEntity player = userRepository.findById(entry.playerUserId())
+                        .orElseThrow(() -> new ResourceNotFoundException(
+                                "Igrač nije pronađen: " + entry.playerUserId()));
+                TeamEntity team = entry.teamId().equals(match.getHomeTeam().getId())
+                        ? match.getHomeTeam()
+                        : entry.teamId().equals(match.getAwayTeam().getId())
+                            ? match.getAwayTeam()
+                            : null;
+                if (team == null) {
+                    throw new BadRequestException(
+                            "Tim " + entry.teamId() + " ne učestvuje u ovoj utakmici.");
+                }
+                // Strijelac mora biti aktualni član tima za koji se gol bilježi
+                boolean isOnRoster = teamMemberRepository
+                        .existsByTeam_IdAndUser_Id(team.getId(), player.getId());
+                if (!isOnRoster) {
+                    throw new BadRequestException(
+                            "Igrač " + (player.getFullName() != null ? player.getFullName() : player.getUsername())
+                                    + " nije član tima \"" + team.getName() + "\".");
+                }
+                goalRepository.save(new GoalEntity(match, player, team, entry.minute()));
+            }
+        }
+
         String msg = "Rezultat unesen: " + match.getHomeTeam().getName() + " "
                 + request.homeScore() + " - " + request.awayScore() + " "
                 + match.getAwayTeam().getName() + " (" + match.getLeague().getLeagueName() + ").";
@@ -188,6 +234,61 @@ public class ResultsService {
         notificationService.createForRole(UserRole.CAPTAIN, msg, NotificationType.MATCH_RESULT_RECORDED);
 
         return toMatchResponse(match);
+    }
+
+    public List<GoalResponse> getGoalsForMatch(Long matchId) {
+        matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Utakmica nije pronađena."));
+        return goalRepository.findByMatch_Id(matchId).stream()
+                .map(this::toGoalResponse)
+                .toList();
+    }
+
+    public List<TopScorerResponse> getTopScorers(Long leagueId) {
+        leagueService.getEntity(leagueId);
+        List<Object[]> rows = goalRepository.findTopScorersByLeague(leagueId);
+        List<TopScorerResponse> out = new ArrayList<>();
+        for (Object[] r : rows) {
+            out.add(new TopScorerResponse(
+                    ((Number) r[0]).longValue(),
+                    (String) r[1],
+                    (String) r[2],
+                    ((Number) r[3]).longValue(),
+                    (String) r[4],
+                    ((Number) r[5]).longValue()
+            ));
+        }
+        return out;
+    }
+
+    private void validateGoalsMatchScore(MatchEntity match, RecordResultRequest request) {
+        long homeGoals = request.goals().stream()
+                .filter(g -> g.teamId().equals(match.getHomeTeam().getId()))
+                .count();
+        long awayGoals = request.goals().stream()
+                .filter(g -> g.teamId().equals(match.getAwayTeam().getId()))
+                .count();
+        if (homeGoals != request.homeScore()) {
+            throw new BadRequestException("Broj strijelaca domaćeg tima (" + homeGoals
+                    + ") ne odgovara rezultatu (" + request.homeScore() + ").");
+        }
+        if (awayGoals != request.awayScore()) {
+            throw new BadRequestException("Broj strijelaca gostujućeg tima (" + awayGoals
+                    + ") ne odgovara rezultatu (" + request.awayScore() + ").");
+        }
+    }
+
+    private GoalResponse toGoalResponse(GoalEntity g) {
+        return new GoalResponse(
+                g.getId(),
+                g.getMatch().getId(),
+                g.getPlayer().getId(),
+                g.getPlayer().getUsername(),
+                g.getPlayer().getFullName(),
+                g.getTeam().getId(),
+                g.getTeam().getName(),
+                g.getMinute()
+        );
     }
 
     private void undoStats(MatchEntity match) {

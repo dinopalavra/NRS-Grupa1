@@ -42,4 +42,14 @@ public class ResultsController {
                                       @Valid @RequestBody RecordResultRequest request) {
         return resultsService.recordResult(matchId, request);
     }
+
+    @GetMapping("/matches/{matchId}/goals")
+    public List<GoalResponse> getGoalsForMatch(@PathVariable Long matchId) {
+        return resultsService.getGoalsForMatch(matchId);
+    }
+
+    @GetMapping("/leagues/{leagueId}/top-scorers")
+    public List<TopScorerResponse> getTopScorers(@PathVariable Long leagueId) {
+        return resultsService.getTopScorers(leagueId);
+    }
 }
