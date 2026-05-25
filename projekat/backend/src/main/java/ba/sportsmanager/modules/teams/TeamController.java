@@ -50,4 +50,13 @@ public class TeamController {
     public void removeMember(@PathVariable Long id, @PathVariable Long userId) {
         teamService.removeMember(id, userId);
     }
+
+    /**
+     * Vraća tim u kojem je odabrani korisnik član (PLAYER ili CAPTAIN).
+     * Vraća null ako korisnik nije ni u jednom timu.
+     */
+    @GetMapping("/by-user/{userId}")
+    public TeamMemberResponse getMembershipOfUser(@PathVariable Long userId) {
+        return teamService.getMembershipOfUser(userId);
+    }
 }

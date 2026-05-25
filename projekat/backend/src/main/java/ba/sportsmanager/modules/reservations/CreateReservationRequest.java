@@ -8,6 +8,7 @@ public record CreateReservationRequest(
         @NotNull Long slotId,
         @NotNull Long createdByUserId,
         String note,
-        SportType sport
+        SportType sport,
+        ReservationType type
 ) {
 }

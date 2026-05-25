@@ -219,6 +219,15 @@ public class TeamService {
         return toMemberResponse(saved);
     }
 
+    /**
+     * Vraća membership korisnika (tim u kojem je član) ili null ako nije ni u jednom.
+     */
+    public TeamMemberResponse getMembershipOfUser(Long userId) {
+        return teamMemberRepository.findByUser_Id(userId)
+                .map(this::toMemberResponse)
+                .orElse(null);
+    }
+
     @Transactional
     public void removeMember(Long teamId, Long userId) {
         TeamEntity team = getTeamEntity(teamId);

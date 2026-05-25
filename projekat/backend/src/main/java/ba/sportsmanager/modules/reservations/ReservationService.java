@@ -6,6 +6,8 @@ import ba.sportsmanager.exception.ResourceNotFoundException;
 import ba.sportsmanager.modules.notifications.NotificationService;
 import ba.sportsmanager.modules.notifications.NotificationType;
 import ba.sportsmanager.modules.teams.TeamEntity;
+import ba.sportsmanager.modules.teams.TeamMemberEntity;
+import ba.sportsmanager.modules.teams.TeamMemberRepository;
 import ba.sportsmanager.modules.teams.TeamService;
 import ba.sportsmanager.modules.timeslots.SlotAvailabilityStatus;
 import ba.sportsmanager.modules.timeslots.TimeSlotEntity;
@@ -27,19 +29,40 @@ public class ReservationService {
     private final TimeSlotService timeSlotService;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final TeamMemberRepository teamMemberRepository;
 
     public ReservationService(
             ReservationRepository reservationRepository,
             TeamService teamService,
             TimeSlotService timeSlotService,
             UserRepository userRepository,
-            NotificationService notificationService
+            NotificationService notificationService,
+            TeamMemberRepository teamMemberRepository
     ) {
         this.reservationRepository = reservationRepository;
         this.teamService = teamService;
         this.timeSlotService = timeSlotService;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
+        this.teamMemberRepository = teamMemberRepository;
+    }
+
+    /**
+     * Šalje notifikaciju svim članovima tima (svim igračima na rosteru).
+     * Koristi se za TRAINING rezervacije da svi članovi znaju.
+     */
+    private void notifyTeamMembers(ReservationEntity reservation, String message, NotificationType type) {
+        if (reservation.getTeam() == null) return;
+        List<TeamMemberEntity> members = teamMemberRepository
+                .findByTeam_IdOrderByJerseyNumberAscIdAsc(reservation.getTeam().getId());
+        for (TeamMemberEntity m : members) {
+            // Ne dupliraj notifikaciju kreatoru — on već dobija odvojenu poruku
+            if (reservation.getCreatedBy() != null
+                    && m.getUser().getId().equals(reservation.getCreatedBy().getId())) {
+                continue;
+            }
+            notificationService.createForUser(m.getUser().getId(), message, type);
+        }
     }
 
     public List<ReservationResponse> getAll() {
@@ -122,12 +145,21 @@ public class ReservationService {
         reservation.setStatus(ReservationStatus.PENDING);
         reservation.setNote(request.note() == null ? null : request.note().trim());
         reservation.setSport(request.sport());
+        reservation.setType(request.type() == null ? ReservationType.REGULAR : request.type());
 
         ReservationEntity saved = reservationRepository.save(reservation);
+        String slotInfo = slot.getResourceName() + " " + slot.getSlotDate();
 
-        String adminMsg = "Nova rezervacija (tim: " + team.getName() + ", termin: "
-                + slot.getResourceName() + " " + slot.getSlotDate() + ") čeka odobrenje.";
-        notificationService.createForRole(UserRole.ADMIN, adminMsg, NotificationType.RESERVATION_CREATED);
+        // Admini čekaju odobrenje
+        notificationService.createForRole(
+                UserRole.ADMIN,
+                "Nova rezervacija (tim: " + team.getName() + ", termin: " + slotInfo + ") čeka odobrenje.",
+                NotificationType.RESERVATION_CREATED);
+
+        // Svi članovi tima da znaju da je rezervacija kreirana
+        notifyTeamMembers(saved,
+                "Tim " + team.getName() + " ima novu rezervaciju (" + slotInfo + ") — čeka odobrenje.",
+                NotificationType.RESERVATION_CREATED);
 
         return toResponse(saved);
     }
@@ -147,10 +179,15 @@ public class ReservationService {
         timeSlotService.save(slot);
 
         ReservationEntity saved = reservationRepository.save(reservation);
+        String slotInfo = slot.getResourceName() + " " + slot.getSlotDate();
+
         notificationService.createForUser(
                 saved.getCreatedBy().getId(),
-                "Vaša rezervacija za " + slot.getResourceName() + " (" + slot.getSlotDate()
-                        + ") je odobrena.",
+                "Vaša rezervacija za " + slotInfo + " je odobrena.",
+                NotificationType.RESERVATION_APPROVED);
+
+        notifyTeamMembers(saved,
+                "Rezervacija tima " + saved.getTeam().getName() + " (" + slotInfo + ") je ODOBRENA.",
                 NotificationType.RESERVATION_APPROVED);
 
         return toResponse(saved);
@@ -171,10 +208,15 @@ public class ReservationService {
         timeSlotService.save(slot);
 
         ReservationEntity saved = reservationRepository.save(reservation);
+        String slotInfo = slot.getResourceName() + " " + slot.getSlotDate();
+
         notificationService.createForUser(
                 saved.getCreatedBy().getId(),
-                "Vaša rezervacija za " + slot.getResourceName() + " (" + slot.getSlotDate()
-                        + ") je odbijena.",
+                "Vaša rezervacija za " + slotInfo + " je odbijena.",
+                NotificationType.RESERVATION_REJECTED);
+
+        notifyTeamMembers(saved,
+                "Rezervacija tima " + saved.getTeam().getName() + " (" + slotInfo + ") je ODBIJENA.",
                 NotificationType.RESERVATION_REJECTED);
 
         return toResponse(saved);
@@ -202,10 +244,15 @@ public class ReservationService {
         timeSlotService.save(slot);
 
         ReservationEntity saved = reservationRepository.save(reservation);
+        String slotInfo = slot.getResourceName() + " " + slot.getSlotDate();
+
         notificationService.createForUser(
                 saved.getCreatedBy().getId(),
-                "Vaša rezervacija za " + slot.getResourceName() + " (" + slot.getSlotDate()
-                        + ") je otkazana.",
+                "Vaša rezervacija za " + slotInfo + " je otkazana.",
+                NotificationType.RESERVATION_CANCELLED);
+
+        notifyTeamMembers(saved,
+                "Rezervacija tima " + saved.getTeam().getName() + " (" + slotInfo + ") je OTKAZANA.",
                 NotificationType.RESERVATION_CANCELLED);
 
         return toResponse(saved);
@@ -286,10 +333,16 @@ public class ReservationService {
         }
 
         ReservationEntity saved = reservationRepository.save(reservation);
+        String newSlotInfo = newSlot.getResourceName() + " (" + newSlot.getSlotDate() + ")";
+
         notificationService.createForUser(
                 saved.getCreatedBy().getId(),
-                "Vaša rezervacija je premještena na " + newSlot.getResourceName()
-                        + " (" + newSlot.getSlotDate() + ").",
+                "Vaša rezervacija je premještena na " + newSlotInfo + ".",
+                NotificationType.RESERVATION_RESCHEDULED);
+
+        notifyTeamMembers(saved,
+                "Rezervacija tima " + saved.getTeam().getName()
+                        + " je PREMJEŠTENA na " + newSlotInfo + ".",
                 NotificationType.RESERVATION_RESCHEDULED);
 
         return toResponse(saved);
@@ -317,7 +370,8 @@ public class ReservationService {
                 reservation.getNote(),
                 reservation.getCreatedAt(),
                 reservation.getSport(),
-                reservation.getSlot().getLeagueMatchId()
+                reservation.getSlot().getLeagueMatchId(),
+                reservation.getType()
         );
     }
 }

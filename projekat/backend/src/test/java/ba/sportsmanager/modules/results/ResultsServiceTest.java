@@ -14,6 +14,7 @@ import ba.sportsmanager.modules.teams.TeamService;
 import ba.sportsmanager.modules.timeslots.SlotAvailabilityStatus;
 import ba.sportsmanager.modules.timeslots.TimeSlotEntity;
 import ba.sportsmanager.modules.timeslots.TimeSlotRepository;
+import ba.sportsmanager.modules.users.UserEntity;
 import ba.sportsmanager.modules.users.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -324,5 +326,204 @@ class ResultsServiceTest {
         when(leagueService.getEntity(99L)).thenThrow(new ResourceNotFoundException("Liga nije pronađena."));
 
         assertThrows(ResourceNotFoundException.class, () -> resultsService.getMatchesByLeague(99L));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Sprint 9: Strijelci utakmica (US9-2)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private UserEntity makePlayer(long id, String fullName) {
+        UserEntity u = new UserEntity();
+        ReflectionTestUtils.setField(u, "id", id);
+        u.setFullName(fullName);
+        u.setUsername("user" + id);
+        return u;
+    }
+
+    @Test
+    void recordResult_WithValidGoals_SavesGoalsAndDeletesOldOnes() {
+        UserEntity scorer = makePlayer(10L, "Strijelac Domaci");
+
+        RecordResultRequest req = new RecordResultRequest(
+                1, 0,
+                List.of(new GoalEntry(10L, 1L, 25))
+        );
+
+        StandingEntity homeStanding = new StandingEntity();
+        homeStanding.setLeague(mockLeague); homeStanding.setTeam(homeTeam);
+        StandingEntity awayStanding = new StandingEntity();
+        awayStanding.setLeague(mockLeague); awayStanding.setTeam(awayTeam);
+
+        when(matchRepository.findById(1L)).thenReturn(Optional.of(mockMatch));
+        when(standingRepository.findByLeague_IdAndTeam_Id(1L, 1L)).thenReturn(Optional.of(homeStanding));
+        when(standingRepository.findByLeague_IdAndTeam_Id(1L, 2L)).thenReturn(Optional.of(awayStanding));
+        when(matchRepository.save(any())).thenReturn(mockMatch);
+        when(userRepository.findById(10L)).thenReturn(Optional.of(scorer));
+        when(teamMemberRepository.existsByTeam_IdAndUser_Id(1L, 10L)).thenReturn(true);
+
+        resultsService.recordResult(1L, req);
+
+        verify(goalRepository).deleteByMatch_Id(1L);
+        verify(goalRepository).save(any(GoalEntity.class));
+    }
+
+    @Test
+    void recordResult_WhenGoalCountForHomeMismatch_ThrowsBadRequest() {
+        RecordResultRequest req = new RecordResultRequest(
+                2, 0,
+                List.of(new GoalEntry(10L, 1L, 25))   // samo 1 gol za domace, ali rezultat je 2
+        );
+
+        when(matchRepository.findById(1L)).thenReturn(Optional.of(mockMatch));
+
+        BadRequestException ex = assertThrows(BadRequestException.class,
+                () -> resultsService.recordResult(1L, req));
+        assertTrue(ex.getMessage().contains("doma"));
+    }
+
+    @Test
+    void recordResult_WhenGoalCountForAwayMismatch_ThrowsBadRequest() {
+        RecordResultRequest req = new RecordResultRequest(
+                0, 2,
+                List.of(new GoalEntry(20L, 2L, 33))   // samo 1 gol za goste, ali rezultat je 2
+        );
+
+        when(matchRepository.findById(1L)).thenReturn(Optional.of(mockMatch));
+
+        assertThrows(BadRequestException.class,
+                () -> resultsService.recordResult(1L, req));
+    }
+
+    @Test
+    void recordResult_WhenScorerNotOnRoster_ThrowsBadRequest() {
+        UserEntity scorer = makePlayer(10L, "Tudji Strijelac");
+
+        RecordResultRequest req = new RecordResultRequest(
+                1, 0,
+                List.of(new GoalEntry(10L, 1L, 25))
+        );
+
+        StandingEntity homeStanding = new StandingEntity();
+        homeStanding.setLeague(mockLeague); homeStanding.setTeam(homeTeam);
+        StandingEntity awayStanding = new StandingEntity();
+        awayStanding.setLeague(mockLeague); awayStanding.setTeam(awayTeam);
+
+        when(matchRepository.findById(1L)).thenReturn(Optional.of(mockMatch));
+        when(standingRepository.findByLeague_IdAndTeam_Id(1L, 1L)).thenReturn(Optional.of(homeStanding));
+        when(standingRepository.findByLeague_IdAndTeam_Id(1L, 2L)).thenReturn(Optional.of(awayStanding));
+        when(matchRepository.save(any())).thenReturn(mockMatch);
+        when(userRepository.findById(10L)).thenReturn(Optional.of(scorer));
+        when(teamMemberRepository.existsByTeam_IdAndUser_Id(1L, 10L)).thenReturn(false);
+
+        BadRequestException ex = assertThrows(BadRequestException.class,
+                () -> resultsService.recordResult(1L, req));
+        assertTrue(ex.getMessage().toLowerCase().contains("nije član"));
+        verify(goalRepository, never()).save(any(GoalEntity.class));
+    }
+
+    @Test
+    void recordResult_WhenGoalTeamNotInMatch_ThrowsBadRequest() {
+        // Goal upisan za team 999 koji ne učestvuje u utakmici.
+        // Frontend validacija (broj golova po timu = rezultat) puca prva
+        // jer team 999 nije ni homeTeam ni awayTeam, pa je broj golova za homeTeam = 0,
+        // a homeScore = 1 → BadRequestException.
+        RecordResultRequest req = new RecordResultRequest(
+                1, 0,
+                List.of(new GoalEntry(10L, 999L, null))
+        );
+
+        when(matchRepository.findById(1L)).thenReturn(Optional.of(mockMatch));
+
+        assertThrows(BadRequestException.class,
+                () -> resultsService.recordResult(1L, req));
+    }
+
+    @Test
+    void recordResult_WithEmptyGoalsList_StillWorksAndSkipsValidation() {
+        RecordResultRequest req = new RecordResultRequest(2, 1, null);
+
+        StandingEntity homeStanding = new StandingEntity();
+        homeStanding.setLeague(mockLeague); homeStanding.setTeam(homeTeam);
+        StandingEntity awayStanding = new StandingEntity();
+        awayStanding.setLeague(mockLeague); awayStanding.setTeam(awayTeam);
+
+        when(matchRepository.findById(1L)).thenReturn(Optional.of(mockMatch));
+        when(standingRepository.findByLeague_IdAndTeam_Id(1L, 1L)).thenReturn(Optional.of(homeStanding));
+        when(standingRepository.findByLeague_IdAndTeam_Id(1L, 2L)).thenReturn(Optional.of(awayStanding));
+        when(matchRepository.save(any())).thenReturn(mockMatch);
+
+        resultsService.recordResult(1L, req);
+
+        verify(goalRepository).deleteByMatch_Id(1L);
+        verify(goalRepository, never()).save(any(GoalEntity.class));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Sprint 9: Top scorers (US9-2)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Test
+    void getTopScorers_AggregatesAndMapsRows() {
+        Object[] row1 = new Object[]{ 10L, "Edin Dzeko", "edin", 1L, "Tim A", 5L };
+        Object[] row2 = new Object[]{ 20L, "Asmir Begovic", "asmir", 2L, "Tim B", 3L };
+
+        when(leagueService.getEntity(100L)).thenReturn(mockLeague);
+        when(goalRepository.findTopScorersByLeague(100L)).thenReturn(List.of(row1, row2));
+
+        List<TopScorerResponse> result = resultsService.getTopScorers(100L);
+
+        assertEquals(2, result.size());
+        assertEquals(10L, result.get(0).playerUserId());
+        assertEquals("Edin Dzeko", result.get(0).playerFullName());
+        assertEquals(5L, result.get(0).goals());
+        assertEquals(20L, result.get(1).playerUserId());
+        assertEquals(3L, result.get(1).goals());
+    }
+
+    @Test
+    void getTopScorers_WhenLeagueNotFound_ThrowsResourceNotFound() {
+        when(leagueService.getEntity(999L))
+                .thenThrow(new ResourceNotFoundException("Liga nije pronađena."));
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> resultsService.getTopScorers(999L));
+    }
+
+    @Test
+    void getTopScorers_WhenNoGoals_ReturnsEmptyList() {
+        when(leagueService.getEntity(100L)).thenReturn(mockLeague);
+        when(goalRepository.findTopScorersByLeague(100L)).thenReturn(List.of());
+
+        assertTrue(resultsService.getTopScorers(100L).isEmpty());
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Sprint 9: getGoalsForMatch
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Test
+    void getGoalsForMatch_ReturnsMappedList() {
+        UserEntity scorer = makePlayer(10L, "Strijelac");
+        GoalEntity g = new GoalEntity(mockMatch, scorer, homeTeam, 25);
+        ReflectionTestUtils.setField(g, "id", 7L);
+
+        when(matchRepository.findById(1L)).thenReturn(Optional.of(mockMatch));
+        when(goalRepository.findByMatch_Id(1L)).thenReturn(List.of(g));
+
+        List<GoalResponse> result = resultsService.getGoalsForMatch(1L);
+
+        assertEquals(1, result.size());
+        assertEquals(7L, result.get(0).id());
+        assertEquals(10L, result.get(0).playerUserId());
+        assertEquals(1L, result.get(0).teamId());
+        assertEquals(25, result.get(0).minute());
+    }
+
+    @Test
+    void getGoalsForMatch_WhenMatchNotFound_ThrowsResourceNotFound() {
+        when(matchRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> resultsService.getGoalsForMatch(999L));
     }
 }

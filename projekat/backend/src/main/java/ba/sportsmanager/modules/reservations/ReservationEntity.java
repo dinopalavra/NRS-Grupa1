@@ -43,6 +43,14 @@ public class ReservationEntity {
     @Column(name = "sport")
     private SportType sport;
 
+    /**
+     * Tip rezervacije — REGULAR ili TRAINING.
+     * Default je REGULAR; za stare zapise iz baze također će biti REGULAR.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "reservation_type", nullable = false, length = 20)
+    private ReservationType type = ReservationType.REGULAR;
+
     public ReservationEntity() {
     }
 
@@ -100,5 +108,13 @@ public class ReservationEntity {
 
     public void setSport(SportType sport) {
         this.sport = sport;
+    }
+
+    public ReservationType getType() {
+        return type == null ? ReservationType.REGULAR : type;
+    }
+
+    public void setType(ReservationType type) {
+        this.type = type == null ? ReservationType.REGULAR : type;
     }
 }

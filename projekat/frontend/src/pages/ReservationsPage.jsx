@@ -36,10 +36,26 @@ function ReservationsPage() {
     rescheduleReservation,
   } = useAppContext();
 
+  const { myMembership } = useAppContext();
+
   const isAdmin   = selectedRole === "ADMIN";
-  const canCreate = selectedRole === "ADMIN" || selectedRole === "CAPTAIN";
+  const isCaptain = selectedRole === "CAPTAIN";
+  const isPlayer  = selectedRole === "PLAYER";
+  const canCreate = isAdmin || isCaptain;
 
   const currentUserId = currentUser?.userId ?? currentUser?.id ?? null;
+
+  // Timovi koje korisnik može koristiti za rezervaciju:
+  //  - ADMIN: svi
+  //  - CAPTAIN: samo tim(ovi) gdje je on kapiten
+  //  - ostali: nijedan (i tako ne mogu kreirati)
+  const myTeams = useMemo(() => {
+    if (isAdmin) return teams;
+    if (isCaptain) return teams.filter(t => t.captainUserId === currentUserId);
+    return [];
+  }, [teams, isAdmin, isCaptain, currentUserId]);
+
+  const captainHasNoTeam = isCaptain && myTeams.length === 0;
 
   const [filter,     setFilter]     = useState("all");
   const [form,       setForm]       = useState({ teamId: "", slotId: "", note: "", sport: "" });
@@ -54,19 +70,27 @@ function ReservationsPage() {
 
   useEffect(() => {
     setForm(prev => ({
-      teamId: prev.teamId || String(teams[0]?.id || ""),
+      teamId: prev.teamId || String(myTeams[0]?.id || ""),
       slotId: prev.slotId || String(availableTimeSlots[0]?.id || ""),
       note:   prev.note || "",
       sport:  prev.sport || "",
     }));
-  }, [teams, availableTimeSlots]);
+  }, [myTeams, availableTimeSlots]);
+
+  // Skup timId-ova koji "tiču" trenutnog korisnika (kapiten = njegovi timovi)
+  const myTeamIds = useMemo(() => new Set(myTeams.map(t => t.id)), [myTeams]);
 
   const visibleReservations = useMemo(() => {
-    if (!isAdmin && !canCreate) {
-      return reservations.filter(r => r.createdByUserId === currentUserId);
+    if (isAdmin) return reservations;
+    if (isCaptain) return reservations.filter(r => myTeamIds.has(r.teamId));
+    if (isPlayer) {
+      // Igrač vidi rezervacije svog tima (membership), ne samo vlastite kreacije
+      if (!myMembership) return [];
+      return reservations.filter(r => r.teamId === myMembership.teamId);
     }
-    return reservations;
-  }, [reservations, isAdmin, canCreate, currentUserId]);
+    // Fallback: samo vlastite kreacije
+    return reservations.filter(r => r.createdByUserId === currentUserId);
+  }, [reservations, isAdmin, isCaptain, isPlayer, currentUserId, myTeamIds, myMembership]);
 
   const filtered = useMemo(() => {
     const base = filter === "all" ? visibleReservations : visibleReservations.filter(r => r.status === filter);
@@ -107,12 +131,15 @@ function ReservationsPage() {
     try {
       await addReservation({ ...form, sport: form.sport || null });
       setForm({
-        teamId: String(teams[0]?.id || ""),
+        teamId: String(myTeams[0]?.id || ""),
         slotId: String(availableTimeSlots[0]?.id || ""),
         note:   "",
         sport:  "",
       });
-      setMessage({ text: "Rezervacija je uspješno kreirana i čeka odobrenje.", ok: true });
+      setMessage({
+        text: "Rezervacija je uspješno kreirana. Čeka odobrenje admina, a članovi tima su obaviješteni.",
+        ok: true,
+      });
     } catch (err) {
       setMessage({ text: err.message || "Greška pri kreiranju rezervacije.", ok: false });
     } finally {
@@ -198,11 +225,28 @@ function ReservationsPage() {
 
       <div className="page-body">
 
-        {canCreate && (
+        {canCreate && captainHasNoTeam && (
+          <div className="content-card">
+            <div className="empty-state">
+              <div className="empty-state-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+              </div>
+              <p>Niste dodijeljeni nijednom timu kao kapiten. Kontaktirajte administratora da vam dodijeli tim, pa onda možete kreirati rezervacije.</p>
+            </div>
+          </div>
+        )}
+
+        {canCreate && !captainHasNoTeam && (
           <div className="content-card">
             <div className="content-card-header">
               <h2 className="content-card-title">Nova rezervacija</h2>
-              <p className="content-card-subtitle">Rezervišite slobodan termin za odabrani tim</p>
+              <p className="content-card-subtitle">
+                {isCaptain
+                  ? `Rezervišite slobodan termin za vaš tim — svi članovi tima biće obaviješteni.`
+                  : "Rezervišite slobodan termin za odabrani tim — svi članovi tima biće obaviješteni."}
+              </p>
             </div>
             <form onSubmit={onSubmit} className="inline-form">
               <div className="form-row">
@@ -217,7 +261,7 @@ function ReservationsPage() {
                   <label className="field-label">Tim</label>
                   <select className="field-input" name="teamId" value={form.teamId} onChange={onChange}>
                     <option value="">— Odaberi tim —</option>
-                    {teams.filter(t => !form.sport || !t.sport || t.sport === form.sport).map(t => (
+                    {myTeams.filter(t => !form.sport || !t.sport || t.sport === form.sport).map(t => (
                       <option key={t.id} value={t.id}>{t.name}</option>
                     ))}
                   </select>
