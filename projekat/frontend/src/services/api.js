@@ -214,6 +214,10 @@ export function removeTeamMember(teamId, userId, token) {
   });
 }
 
+export function fetchMembershipOfUser(userId, token) {
+  return request(`/api/teams/by-user/${userId}`, { token });
+}
+
 /* ── Goals & Top Scorers ──────────────────────────────────── */
 
 export function fetchMatchGoals(matchId, token) {

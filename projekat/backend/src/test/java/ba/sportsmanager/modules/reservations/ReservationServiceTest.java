@@ -6,6 +6,8 @@ import ba.sportsmanager.exception.ResourceNotFoundException;
 import ba.sportsmanager.modules.notifications.NotificationService;
 import ba.sportsmanager.modules.notifications.NotificationType;
 import ba.sportsmanager.modules.teams.TeamEntity;
+import ba.sportsmanager.modules.teams.TeamMemberEntity;
+import ba.sportsmanager.modules.teams.TeamMemberRepository;
 import ba.sportsmanager.modules.teams.TeamService;
 import ba.sportsmanager.modules.timeslots.SlotAvailabilityStatus;
 import ba.sportsmanager.modules.timeslots.TimeSlotEntity;
@@ -42,6 +44,7 @@ class ReservationServiceTest {
     @Mock private TimeSlotService timeSlotService;
     @Mock private UserRepository userRepository;
     @Mock private NotificationService notificationService;
+    @Mock private TeamMemberRepository teamMemberRepository;
 
     @InjectMocks private ReservationService reservationService;
 
@@ -52,7 +55,7 @@ class ReservationServiceTest {
 
     @BeforeEach
     void setUp() {
-        validRequest = new CreateReservationRequest(1L, 1L, 1L, "Note", null);
+        validRequest = new CreateReservationRequest(1L, 1L, 1L, "Note", null, null);
 
         mockTeam = new TeamEntity();
         ReflectionTestUtils.setField(mockTeam, "id", 1L);
@@ -286,6 +289,79 @@ class ReservationServiceTest {
         assertEquals(1, result.size());
         assertEquals(7L, result.get(0).id());
         assertEquals(1L, result.get(0).slotId());
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Sprint 9: Notifikacije svim članovima tima (US9-6)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private TeamMemberEntity makeMember(long userId, String username) {
+        UserEntity u = new UserEntity();
+        ReflectionTestUtils.setField(u, "id", userId);
+        u.setUsername(username);
+        u.setFullName(username);
+        TeamMemberEntity m = new TeamMemberEntity(mockTeam, u, null, null);
+        ReflectionTestUtils.setField(m, "id", userId * 10);
+        return m;
+    }
+
+    @Test
+    void create_NotifiesAllTeamMembersExceptCreator() {
+        TeamMemberEntity m1 = makeMember(2L, "player2");
+        TeamMemberEntity m2 = makeMember(3L, "player3");
+        TeamMemberEntity creatorMember = makeMember(1L, "amel");  // == mockUser.id
+
+        when(teamService.getTeamEntity(1L)).thenReturn(mockTeam);
+        when(timeSlotService.getEntity(1L)).thenReturn(mockSlot);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(reservationRepository.existsBySlot_IdAndStatusIn(eq(1L), any())).thenReturn(false);
+        when(reservationRepository.existsOverlappingActiveReservation(
+                anyString(), anyString(), any(), any(), any(), anyLong(), anyCollection()))
+                .thenReturn(false);
+        when(reservationRepository.save(any(ReservationEntity.class))).thenAnswer(i -> {
+            ReservationEntity e = i.getArgument(0);
+            ReflectionTestUtils.setField(e, "id", 100L);
+            return e;
+        });
+        when(teamMemberRepository.findByTeam_IdOrderByJerseyNumberAscIdAsc(1L))
+                .thenReturn(List.of(m1, m2, creatorMember));
+
+        reservationService.create(validRequest);
+
+        // Notifikuje player2 i player3 (NE kreatora user 1)
+        verify(notificationService).createForUser(eq(2L), anyString(), eq(NotificationType.RESERVATION_CREATED));
+        verify(notificationService).createForUser(eq(3L), anyString(), eq(NotificationType.RESERVATION_CREATED));
+        verify(notificationService, never()).createForUser(eq(1L), anyString(), eq(NotificationType.RESERVATION_CREATED));
+    }
+
+    @Test
+    void approve_NotifiesTeamMembers() {
+        ReservationEntity reservation = pendingReservation(50L);
+        TeamMemberEntity m1 = makeMember(5L, "player5");
+
+        when(reservationRepository.findById(50L)).thenReturn(Optional.of(reservation));
+        when(reservationRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+        when(teamMemberRepository.findByTeam_IdOrderByJerseyNumberAscIdAsc(1L))
+                .thenReturn(List.of(m1));
+
+        reservationService.approve(50L);
+
+        verify(notificationService).createForUser(eq(5L), anyString(), eq(NotificationType.RESERVATION_APPROVED));
+    }
+
+    @Test
+    void cancel_NotifiesTeamMembers() {
+        ReservationEntity reservation = pendingReservation(60L);
+        TeamMemberEntity m1 = makeMember(7L, "player7");
+
+        when(reservationRepository.findById(60L)).thenReturn(Optional.of(reservation));
+        when(reservationRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+        when(teamMemberRepository.findByTeam_IdOrderByJerseyNumberAscIdAsc(1L))
+                .thenReturn(List.of(m1));
+
+        reservationService.cancel(60L);
+
+        verify(notificationService).createForUser(eq(7L), anyString(), eq(NotificationType.RESERVATION_CANCELLED));
     }
 
     // helper

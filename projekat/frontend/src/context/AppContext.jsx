@@ -37,6 +37,7 @@ import {
   fetchTeamMembers as apiFetchTeamMembers,
   addTeamMember as apiAddTeamMember,
   removeTeamMember as apiRemoveTeamMember,
+  fetchMembershipOfUser as apiFetchMembershipOfUser,
   fetchMatchGoals as apiFetchMatchGoals,
   fetchTopScorers as apiFetchTopScorers,
   fetchNotifications as apiFetchNotifications,
@@ -77,6 +78,7 @@ export function AppProvider({ children }) {
   const [leagues, setLeagues] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [myMembership, setMyMembership] = useState(null);
 
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingTeams, setLoadingTeams] = useState(false);
@@ -166,6 +168,20 @@ export function AppProvider({ children }) {
     } finally { setLoadingReservations(false); }
   }, [auth?.token]);
 
+  const loadMyMembership = useCallback(async () => {
+    if (!auth?.token) { setMyMembership(null); return null; }
+    const uid = resolveCurrentUserId(auth);
+    if (!uid) { setMyMembership(null); return null; }
+    try {
+      const data = await apiFetchMembershipOfUser(uid, auth.token);
+      setMyMembership(data || null);
+      return data;
+    } catch {
+      setMyMembership(null);
+      return null;
+    }
+  }, [auth]);
+
   const loadNotifications = useCallback(async () => {
     if (!auth?.token) { setNotifications([]); setUnreadCount(0); return []; }
     const uid = resolveCurrentUserId(auth);
@@ -206,6 +222,7 @@ export function AppProvider({ children }) {
       loadReservations();
       loadLeagues();
       loadNotifications();
+      loadMyMembership();
     } else {
       setUsers([]);
       setTeams([]);
@@ -215,8 +232,9 @@ export function AppProvider({ children }) {
       setLeagues([]);
       setNotifications([]);
       setUnreadCount(0);
+      setMyMembership(null);
     }
-  }, [auth?.token, loadUsers, loadTeams, loadTimeSlots, loadAvailableSlots, loadReservations, loadLeagues, loadNotifications]);
+  }, [auth?.token, loadUsers, loadTeams, loadTimeSlots, loadAvailableSlots, loadReservations, loadLeagues, loadNotifications, loadMyMembership]);
 
   useEffect(() => {
     if (!auth?.token) return undefined;
@@ -518,6 +536,8 @@ export function AppProvider({ children }) {
       loadNotifications,
       markNotificationRead,
       markAllNotificationsRead,
+      myMembership,
+      loadMyMembership,
       getTeamStats,
       getTeamMembers,
       addTeamMember,
@@ -550,6 +570,7 @@ export function AppProvider({ children }) {
       leagues,
       notifications,
       unreadCount,
+      myMembership,
       loadingUsers,
       loadingTeams,
       loadingTimeSlots,

@@ -94,6 +94,9 @@ function EmptyState({ icon, title, subtitle }) {
 /* ── League List Panel ──────────────────────────────────────── */
 
 function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeague, onDeleteLeague }) {
+  const { selectedRole } = useAppContext();
+  const isAdmin = selectedRole === "ADMIN";
+
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ leagueName: "", season: "", sport: "" });
   const [saving, setSaving] = useState(false);
@@ -155,12 +158,14 @@ function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeagu
         <h2 className="liga-panel-title">
           <IconTrophy /> Liga
         </h2>
-        <button type="button" className="btn-liga-sm btn-liga-primary" onClick={() => setShowForm(v => !v)}>
-          <IconPlus /> Nova
-        </button>
+        {isAdmin && (
+          <button type="button" className="btn-liga-sm btn-liga-primary" onClick={() => setShowForm(v => !v)}>
+            <IconPlus /> Nova
+          </button>
+        )}
       </div>
 
-      {showForm && (
+      {isAdmin && showForm && (
         <form className="liga-inline-form" onSubmit={handleCreate}>
           <Alert type="error" message={error} onDismiss={() => setError(null)} />
           <div className="liga-field">
@@ -269,14 +274,16 @@ function LeagueListPanel({ leagues, loading, selectedId, onSelect, onCreateLeagu
                 </span>
                 <IconChevron right />
               </button>
-              <button
-                type="button"
-                className="btn-liga-icon btn-liga-danger liga-list-delete"
-                title="Obriši ligu"
-                onClick={(e) => { e.stopPropagation(); setDeleteTarget(lg); }}
-              >
-                <IconX />
-              </button>
+              {isAdmin && (
+                <button
+                  type="button"
+                  className="btn-liga-icon btn-liga-danger liga-list-delete"
+                  title="Obriši ligu"
+                  onClick={(e) => { e.stopPropagation(); setDeleteTarget(lg); }}
+                >
+                  <IconX />
+                </button>
+              )}
             </li>
           ))}
         </ul>
@@ -336,7 +343,8 @@ function Tabs({ tabs, active, onChange }) {
 /* ── Teams Tab ──────────────────────────────────────────────── */
 
 function TeamsTab({ leagueId, allTeams, league }) {
-  const { getLeagueTeams, addTeamToLeague, removeTeamFromLeague } = useAppContext();
+  const { getLeagueTeams, addTeamToLeague, removeTeamFromLeague, selectedRole } = useAppContext();
+  const isAdmin = selectedRole === "ADMIN";
   const [leagueTeams, setLeagueTeams] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -399,30 +407,36 @@ function TeamsTab({ leagueId, allTeams, league }) {
     <div className="liga-tab-body">
       <Alert type="error" message={error} onDismiss={() => setError(null)} />
 
-      <div className="liga-add-row">
-        <select
-          className="liga-input liga-select"
-          value={selectedTeamId}
-          onChange={e => setSelectedTeamId(e.target.value)}
-          disabled={availableToAdd.length === 0}
-        >
-          <option value="">{availableToAdd.length === 0 ? "Svi timovi su u ligi" : "Odaberite tim..."}</option>
-          {availableToAdd.map(t => (
-            <option key={t.id} value={t.id}>{t.name} — {t.city}</option>
-          ))}
-        </select>
-        <button
-          type="button"
-          className="btn-liga-sm btn-liga-primary"
-          onClick={handleAdd}
-          disabled={!selectedTeamId || adding}
-        >
-          {adding ? <Spinner /> : <><IconPlus /> Dodaj</>}
-        </button>
-      </div>
+      {isAdmin && (
+        <div className="liga-add-row">
+          <select
+            className="liga-input liga-select"
+            value={selectedTeamId}
+            onChange={e => setSelectedTeamId(e.target.value)}
+            disabled={availableToAdd.length === 0}
+          >
+            <option value="">{availableToAdd.length === 0 ? "Svi timovi su u ligi" : "Odaberite tim..."}</option>
+            {availableToAdd.map(t => (
+              <option key={t.id} value={t.id}>{t.name} — {t.city}</option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className="btn-liga-sm btn-liga-primary"
+            onClick={handleAdd}
+            disabled={!selectedTeamId || adding}
+          >
+            {adding ? <Spinner /> : <><IconPlus /> Dodaj</>}
+          </button>
+        </div>
+      )}
 
       {leagueTeams.length === 0 ? (
-        <EmptyState icon={<span style={{fontSize:28}}>🏟️</span>} title="Nema timova u ligi" subtitle="Dodajte timove iznad." />
+        <EmptyState
+          icon={<span style={{fontSize:28}}>🏟️</span>}
+          title="Nema timova u ligi"
+          subtitle={isAdmin ? "Dodajte timove iznad." : "Admin još nije dodao timove."}
+        />
       ) : (
         <ul className="liga-teams-list">
           {leagueTeams.map(t => (
@@ -432,15 +446,17 @@ function TeamsTab({ leagueId, allTeams, league }) {
                 <div className="liga-team-name">{t.name}</div>
                 <div className="liga-team-sub">{t.city} · {t.captainName}</div>
               </div>
-              <button
-                type="button"
-                className="btn-liga-icon btn-liga-danger"
-                onClick={() => handleRemove(t.id)}
-                disabled={removing === t.id}
-                title="Ukloni iz lige"
-              >
-                {removing === t.id ? <Spinner /> : <IconX />}
-              </button>
+              {isAdmin && (
+                <button
+                  type="button"
+                  className="btn-liga-icon btn-liga-danger"
+                  onClick={() => handleRemove(t.id)}
+                  disabled={removing === t.id}
+                  title="Ukloni iz lige"
+                >
+                  {removing === t.id ? <Spinner /> : <IconX />}
+                </button>
+              )}
             </li>
           ))}
         </ul>
@@ -459,7 +475,12 @@ function MatchesTab({ leagueId, leagueTeams, league }) {
     availableTimeSlots,
     getTeamMembers,
     getMatchGoals,
+    selectedRole,
   } = useAppContext();
+  const isAdmin   = selectedRole === "ADMIN";
+  const isReferee = selectedRole === "REFEREE_SCOREKEEPER";
+  const canScheduleMatch = isAdmin;
+  const canRecordResult  = isAdmin || isReferee;
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -640,13 +661,15 @@ function MatchesTab({ leagueId, leagueTeams, league }) {
     <div className="liga-tab-body">
       <Alert type="error" message={error} onDismiss={() => setError(null)} />
 
-      <div className="liga-section-actions">
-        <button type="button" className="btn-liga-sm btn-liga-primary" onClick={() => setShowForm(v => !v)}>
-          <IconPlus /> Zakaži utakmicu
-        </button>
-      </div>
+      {canScheduleMatch && (
+        <div className="liga-section-actions">
+          <button type="button" className="btn-liga-sm btn-liga-primary" onClick={() => setShowForm(v => !v)}>
+            <IconPlus /> Zakaži utakmicu
+          </button>
+        </div>
+      )}
 
-      {showForm && (
+      {canScheduleMatch && showForm && (
         <form className="liga-inline-form" onSubmit={handleCreateMatch}>
           <div className="liga-form-grid">
             <div className="liga-field">
@@ -697,7 +720,7 @@ function MatchesTab({ leagueId, leagueTeams, league }) {
         </form>
       )}
 
-      {resultForm.matchId && currentMatch && (
+      {canRecordResult && resultForm.matchId && currentMatch && (
         <form className="liga-inline-form liga-result-form" onSubmit={handleResultSubmit}>
           <h4 className="liga-result-form-title">
             Unesi rezultat: {currentMatch.homeTeamName} vs {currentMatch.awayTeamName}
@@ -835,14 +858,16 @@ function MatchesTab({ leagueId, leagueTeams, league }) {
                 <span className={`liga-match-status liga-match-status--${m.status?.toLowerCase()}`}>
                   {m.status === "COMPLETED" ? "Završeno" : "Zakazano"}
                 </span>
-                <button
-                  type="button"
-                  className="btn-liga-icon btn-liga-secondary"
-                  title="Unesi rezultat"
-                  onClick={() => openResultForm(m)}
-                >
-                  <IconEdit />
-                </button>
+                {canRecordResult && (
+                  <button
+                    type="button"
+                    className="btn-liga-icon btn-liga-secondary"
+                    title="Unesi rezultat"
+                    onClick={() => openResultForm(m)}
+                  >
+                    <IconEdit />
+                  </button>
+                )}
               </div>
             </li>
           ))}

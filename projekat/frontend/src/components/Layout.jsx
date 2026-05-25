@@ -87,8 +87,8 @@ const Logo = () => (
 const ALL_NAV = [
   { key: "dashboard",    label: "Dashboard",   Icon: IconGrid,     roles: null },
   { key: "users",        label: "Korisnici",   Icon: IconUsers,    roles: ["ADMIN"] },
-  { key: "teams",        label: "Timovi",      Icon: IconShield,   roles: ["ADMIN", "CAPTAIN"] },
-  { key: "timeslots",    label: "Termini",     Icon: IconClock,    roles: null },
+  { key: "teams",        label: "Timovi",      Icon: IconShield,   roles: ["ADMIN", "CAPTAIN", "PLAYER"] },
+  { key: "timeslots",    label: "Termini",     Icon: IconClock,    roles: ["ADMIN", "CAPTAIN"] },
   { key: "reservations", label: "Rezervacije", Icon: IconCalendar, roles: null },
   { key: "liga",         label: "Liga",        Icon: IconTrophy,   roles: null },
   { key: "profile",      label: "Profil",      Icon: IconUser,     roles: null },
