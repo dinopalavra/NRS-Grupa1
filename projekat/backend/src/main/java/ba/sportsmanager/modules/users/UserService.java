@@ -5,8 +5,11 @@ import ba.sportsmanager.exception.BadRequestException;
 import ba.sportsmanager.exception.ResourceNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -14,15 +17,18 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     public UserService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            JwtService jwtService
+            JwtService jwtService,
+            PasswordResetTokenRepository passwordResetTokenRepository
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
     }
 
     public List<UserResponse> getAllUsers() {
@@ -128,6 +134,35 @@ public class UserService {
 
         user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
+    }
+
+    @Transactional
+    public String generateResetToken(String email) {
+        userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("Korisnik s ovim emailom nije pronađen."));
+        passwordResetTokenRepository.deleteByEmail(email);
+        String token = UUID.randomUUID().toString();
+        PasswordResetTokenEntity prt = new PasswordResetTokenEntity();
+        prt.setToken(token);
+        prt.setEmail(email);
+        prt.setExpiresAt(LocalDateTime.now().plusHours(1));
+        passwordResetTokenRepository.save(prt);
+        return token;
+    }
+
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        PasswordResetTokenEntity prt = passwordResetTokenRepository.findByToken(token)
+            .orElseThrow(() -> new BadRequestException("Nevažeći ili istekli token."));
+        if (prt.isUsed() || prt.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Token je istekao ili već iskorišten.");
+        }
+        UserEntity user = userRepository.findByEmail(prt.getEmail())
+            .orElseThrow(() -> new ResourceNotFoundException("Korisnik nije pronađen."));
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        prt.setUsed(true);
+        passwordResetTokenRepository.save(prt);
     }
 
     private UserResponse toResponse(UserEntity user) {

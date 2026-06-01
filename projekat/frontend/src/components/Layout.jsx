@@ -52,6 +52,17 @@ const IconUser = ({ className = "nav-icon" }) => (
   </svg>
 );
 
+const IconCalendar2 = ({ className = "nav-icon" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2"/>
+    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+    <line x1="3" y1="10" x2="21" y2="10"/>
+    <line x1="8" y1="14" x2="8" y2="14"/><line x1="12" y1="14" x2="12" y2="14"/>
+    <line x1="16" y1="14" x2="16" y2="14"/>
+    <line x1="8" y1="18" x2="8" y2="18"/><line x1="12" y1="18" x2="12" y2="18"/>
+  </svg>
+);
+
 const IconLogOut = () => (
   <svg style={{ width: 15, height: 15 }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
@@ -85,13 +96,14 @@ const Logo = () => (
 /* ── Nav config ─────────────────────────────────────────────── */
 
 const ALL_NAV = [
-  { key: "dashboard",    label: "Dashboard",   Icon: IconGrid,     roles: null },
-  { key: "users",        label: "Korisnici",   Icon: IconUsers,    roles: ["ADMIN"] },
-  { key: "teams",        label: "Timovi",      Icon: IconShield,   roles: ["ADMIN", "CAPTAIN", "PLAYER"] },
-  { key: "timeslots",    label: "Termini",     Icon: IconClock,    roles: ["ADMIN", "CAPTAIN"] },
-  { key: "reservations", label: "Rezervacije", Icon: IconCalendar, roles: null },
-  { key: "liga",         label: "Liga",        Icon: IconTrophy,   roles: null },
-  { key: "profile",      label: "Profil",      Icon: IconUser,     roles: null },
+  { key: "dashboard",    label: "Dashboard",   Icon: IconGrid,      roles: null },
+  { key: "users",        label: "Korisnici",   Icon: IconUsers,     roles: ["ADMIN"] },
+  { key: "teams",        label: "Timovi",      Icon: IconShield,    roles: ["ADMIN", "CAPTAIN", "PLAYER"] },
+  { key: "timeslots",    label: "Termini",     Icon: IconClock,     roles: ["ADMIN", "CAPTAIN"] },
+  { key: "reservations", label: "Rezervacije", Icon: IconCalendar,  roles: null },
+  { key: "liga",         label: "Liga",        Icon: IconTrophy,    roles: null },
+  { key: "calendar",     label: "Kalendar",    Icon: IconCalendar2, roles: null },
+  { key: "profile",      label: "Profil",      Icon: IconUser,      roles: null },
 ];
 
 function getNavItems(role) {
@@ -200,5 +212,5 @@ function Layout({ children }) {
   );
 }
 
-export { IconUsers, IconShield, IconClock, IconCalendar, IconGrid, IconTrophy, IconUser };
+export { IconUsers, IconShield, IconClock, IconCalendar, IconCalendar2, IconGrid, IconTrophy, IconUser };
 export default Layout;

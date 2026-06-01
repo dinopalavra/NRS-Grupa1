@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useAppContext } from "../context/AppContext.jsx";
+import { exportScheduleCsv, exportStandingsCsv } from "../services/api.js";
 
 const SPORT_ICONS = {
   FOOTBALL: "⚽", BASKETBALL: "🏀", VOLLEYBALL: "🏐",
@@ -906,6 +907,14 @@ function StandingsTab({ leagueId, league }) {
 
   return (
     <div className="liga-tab-body">
+      <div style={{ display: 'flex', gap: 8, padding: '12px 18px 0' }}>
+        <button className="btn-liga-sm btn-liga-ghost" onClick={() => exportScheduleCsv(leagueId)}>
+          📥 Raspored CSV
+        </button>
+        <button className="btn-liga-sm btn-liga-ghost" onClick={() => exportStandingsCsv(leagueId)}>
+          📥 Tabela CSV
+        </button>
+      </div>
       <Alert type="error" message={error} onDismiss={() => setError(null)} />
       {standings.length === 0 ? (
         <EmptyState icon={<span style={{fontSize:28}}>📊</span>} title="Tabela je prazna" subtitle="Unesite rezultate utakmica." />

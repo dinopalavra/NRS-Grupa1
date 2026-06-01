@@ -45,6 +45,14 @@ export function loginUser(payload) {
   return request("/api/auth/login", { method: "POST", body: payload });
 }
 
+export function forgotPassword(email) {
+  return request("/api/auth/forgot-password", { method: "POST", body: { email } });
+}
+
+export function resetPassword(token, newPassword) {
+  return request("/api/auth/reset-password", { method: "POST", body: { token, newPassword } });
+}
+
 /* ── Users ────────────────────────────────────────────────── */
 
 export function fetchUsers(token) {
@@ -226,6 +234,22 @@ export function fetchMatchGoals(matchId, token) {
 
 export function fetchTopScorers(leagueId, token) {
   return request(`/api/results/leagues/${leagueId}/top-scorers`, { token });
+}
+
+/* ── CSV Export ───────────────────────────────────────────── */
+
+export function exportScheduleCsv(leagueId) {
+  const a = document.createElement("a");
+  a.href = `${API_BASE_URL}/api/results/leagues/${leagueId}/schedule.csv`;
+  a.download = "raspored.csv";
+  a.click();
+}
+
+export function exportStandingsCsv(leagueId) {
+  const a = document.createElement("a");
+  a.href = `${API_BASE_URL}/api/results/leagues/${leagueId}/standings.csv`;
+  a.download = "tabela.csv";
+  a.click();
 }
 
 /* ── Notifications ────────────────────────────────────────── */

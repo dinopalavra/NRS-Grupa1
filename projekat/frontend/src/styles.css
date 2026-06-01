@@ -413,6 +413,12 @@ button, input, select, textarea { font: inherit; }
     url('https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=1920&q=85&fit=crop&auto=format');
 }
 
+.layout-bg--calendar {
+  background-image:
+    linear-gradient(rgba(6,16,10,0.70), rgba(6,16,10,0.70)),
+    url('https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=1920&q=85&fit=crop&auto=format');
+}
+
 /* ============================================================
    AUTH SHELL (Login page)
    ============================================================ */
