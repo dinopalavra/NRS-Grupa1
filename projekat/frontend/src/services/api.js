@@ -129,6 +129,22 @@ export function rescheduleReservation(id, payload, token) {
   });
 }
 
+export function createRecurringReservation(payload, token) {
+  return request("/api/reservations/recurring", { method: "POST", body: payload, token });
+}
+
+export function fetchReservationComments(resId, token) {
+  return request(`/api/reservations/${resId}/comments`, { token });
+}
+
+export function addReservationComment(resId, content, token) {
+  return request(`/api/reservations/${resId}/comments`, {
+    method: "POST",
+    body: { content },
+    token
+  });
+}
+
 /* ── Leagues ──────────────────────────────────────────────── */
 
 export function fetchLeagues(token) {

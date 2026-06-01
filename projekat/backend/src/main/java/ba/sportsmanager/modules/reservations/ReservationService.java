@@ -11,6 +11,7 @@ import ba.sportsmanager.modules.teams.TeamMemberRepository;
 import ba.sportsmanager.modules.teams.TeamService;
 import ba.sportsmanager.modules.timeslots.SlotAvailabilityStatus;
 import ba.sportsmanager.modules.timeslots.TimeSlotEntity;
+import ba.sportsmanager.modules.timeslots.TimeSlotRepository;
 import ba.sportsmanager.modules.timeslots.TimeSlotService;
 import ba.sportsmanager.modules.users.UserEntity;
 import ba.sportsmanager.modules.users.UserRepository;
@@ -18,6 +19,7 @@ import ba.sportsmanager.modules.users.UserRole;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -27,24 +29,30 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final TeamService teamService;
     private final TimeSlotService timeSlotService;
+    private final TimeSlotRepository timeSlotRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
     private final TeamMemberRepository teamMemberRepository;
+    private final ReservationCommentRepository commentRepository;
 
     public ReservationService(
             ReservationRepository reservationRepository,
             TeamService teamService,
             TimeSlotService timeSlotService,
+            TimeSlotRepository timeSlotRepository,
             UserRepository userRepository,
             NotificationService notificationService,
-            TeamMemberRepository teamMemberRepository
+            TeamMemberRepository teamMemberRepository,
+            ReservationCommentRepository commentRepository
     ) {
         this.reservationRepository = reservationRepository;
         this.teamService = teamService;
         this.timeSlotService = timeSlotService;
+        this.timeSlotRepository = timeSlotRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
         this.teamMemberRepository = teamMemberRepository;
+        this.commentRepository = commentRepository;
     }
 
     /**
@@ -346,6 +354,63 @@ public class ReservationService {
                 NotificationType.RESERVATION_RESCHEDULED);
 
         return toResponse(saved);
+    }
+
+    @Transactional
+    public List<ReservationResponse> createRecurring(CreateRecurringReservationRequest req) {
+        TimeSlotEntity firstSlot = timeSlotService.getEntity(req.slotId());
+        List<ReservationResponse> created = new ArrayList<>();
+
+        CreateReservationRequest first = new CreateReservationRequest(
+                req.teamId(), req.slotId(), req.createdByUserId(), req.note(), req.sport(), null);
+        created.add(create(first));
+
+        for (int i = 1; i < req.occurrences(); i++) {
+            java.time.LocalDate targetDate = firstSlot.getSlotDate().plusWeeks((long) i * req.intervalWeeks());
+            timeSlotRepository.findByLocationAndResourceNameAndSlotDateAndStartTime(
+                    firstSlot.getLocation(), firstSlot.getResourceName(),
+                    targetDate, firstSlot.getStartTime()
+            ).ifPresent(slot -> {
+                if (slot.getAvailabilityStatus() == SlotAvailabilityStatus.AVAILABLE) {
+                    try {
+                        CreateReservationRequest r = new CreateReservationRequest(
+                                req.teamId(), slot.getId(), req.createdByUserId(), req.note(), req.sport(), null);
+                        created.add(create(r));
+                    } catch (Exception ignored) {
+                        // slot not available, skip
+                    }
+                }
+            });
+        }
+        return created;
+    }
+
+    public List<ReservationCommentResponse> getComments(Long reservationId) {
+        return commentRepository.findByReservation_IdOrderByCreatedAtAsc(reservationId)
+                .stream().map(this::toCommentResponse).toList();
+    }
+
+    @Transactional
+    public ReservationCommentResponse addComment(Long reservationId, String content, String username) {
+        ReservationEntity res = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Rezervacija nije pronađena."));
+        UserEntity author = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Korisnik nije pronađen."));
+        ReservationCommentEntity comment = new ReservationCommentEntity();
+        comment.setReservation(res);
+        comment.setAuthor(author);
+        comment.setContent(content);
+        return toCommentResponse(commentRepository.save(comment));
+    }
+
+    private ReservationCommentResponse toCommentResponse(ReservationCommentEntity c) {
+        return new ReservationCommentResponse(
+                c.getId(), c.getReservation().getId(),
+                c.getAuthor().getId(),
+                c.getAuthor().getFullName() != null ? c.getAuthor().getFullName() : c.getAuthor().getUsername(),
+                c.getAuthor().getUsername(),
+                c.getContent(), c.getCreatedAt()
+        );
     }
 
     private ReservationEntity getEntity(Long id) {

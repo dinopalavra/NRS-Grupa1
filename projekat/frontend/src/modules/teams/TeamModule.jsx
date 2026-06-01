@@ -54,6 +54,7 @@ function TeamModule() {
   const [memberForm, setMemberForm] = useState({ userId: "", jerseyNumber: "", position: "" });
   const [memberSubmitting, setMemberSubmitting] = useState(false);
   const [removingMemberId, setRemovingMemberId] = useState(null);
+  const [playerSearch, setPlayerSearch] = useState("");
 
   const loadRoster = async (teamId) => {
     setRosterLoading(true);
@@ -73,6 +74,7 @@ function TeamModule() {
     setRosterMembers([]);
     setMemberForm({ userId: "", jerseyNumber: "", position: "" });
     setRosterError("");
+    setPlayerSearch("");
     loadRoster(team.id);
   };
 
@@ -81,6 +83,7 @@ function TeamModule() {
     setRosterMembers([]);
     setMemberForm({ userId: "", jerseyNumber: "", position: "" });
     setRosterError("");
+    setPlayerSearch("");
   };
 
   const submitAddMember = async (e) => {
@@ -127,6 +130,12 @@ function TeamModule() {
     if (rosterTarget?.sport && u.sport && rosterTarget.sport !== u.sport) return false;
     return true;
   });
+  const filteredEligibleUsers = playerSearch.trim()
+    ? eligibleUsers.filter(u =>
+        (u.fullName || "").toLowerCase().includes(playerSearch.toLowerCase()) ||
+        (u.username || "").toLowerCase().includes(playerSearch.toLowerCase())
+      )
+    : eligibleUsers;
 
   useEffect(() => { loadTeams(); }, [loadTeams]);
 
@@ -492,17 +501,24 @@ function TeamModule() {
                   <div className="form-row">
                     <div className="field field-grow">
                       <label className="field-label">Korisnik</label>
+                      <input
+                        className="field-input"
+                        placeholder="Pretraži igrača..."
+                        value={playerSearch}
+                        onChange={e => { setPlayerSearch(e.target.value); setMemberForm(p => ({ ...p, userId: "" })); }}
+                        style={{ marginBottom: 4 }}
+                      />
                       <select
                         className="field-input"
                         value={memberForm.userId}
                         onChange={e => setMemberForm(p => ({ ...p, userId: e.target.value }))}
                       >
                         <option value="">
-                          {eligibleUsers.length === 0
-                            ? "Nema raspoloživih korisnika (player/captain)"
+                          {filteredEligibleUsers.length === 0
+                            ? (playerSearch ? "Nema rezultata pretrage" : "Nema raspoloživih korisnika (player/captain)")
                             : "— Odaberi korisnika —"}
                         </option>
-                        {eligibleUsers.map(u => (
+                        {filteredEligibleUsers.map(u => (
                           <option key={u.id} value={u.id}>
                             {u.fullName || u.username} · {u.role}
                           </option>

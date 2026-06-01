@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useAppContext } from "../context/AppContext.jsx";
 import { formatDate, formatTime, statusLabel } from "../utils/format.js";
+import { fetchReservationComments, addReservationComment } from "../services/api.js";
 
 const SPORT_OPTIONS = [
   { value: "FOOTBALL",   label: "⚽ Fudbal" },
@@ -27,9 +28,11 @@ function ReservationsPage() {
     availableTimeSlots,
     selectedRole,
     currentUser,
+    auth,
     loadingReservations,
     loadingTimeSlots,
     addReservation,
+    addRecurringReservation,
     approveReservation,
     rejectReservation,
     cancelReservation,
@@ -58,9 +61,15 @@ function ReservationsPage() {
   const captainHasNoTeam = isCaptain && myTeams.length === 0;
 
   const [filter,     setFilter]     = useState("all");
-  const [form,       setForm]       = useState({ teamId: "", slotId: "", note: "", sport: "" });
+  const [form,       setForm]       = useState({ teamId: "", slotId: "", note: "", sport: "", recurring: false, intervalWeeks: 1, occurrences: 2 });
   const [message,    setMessage]    = useState({ text: "", ok: true });
   const [submitting, setSubmitting] = useState(false);
+
+  // Comments state
+  const [expandedRow, setExpandedRow] = useState(null);
+  const [commentsMap, setCommentsMap] = useState({});
+  const [commentInput, setCommentInput] = useState({});
+  const [commentSubmitting, setCommentSubmitting] = useState({});
 
   const [rescheduleTarget,   setRescheduleTarget]   = useState(null);
   const [rescheduleSlotId,   setRescheduleSlotId]   = useState("");
@@ -129,21 +138,58 @@ function ReservationsPage() {
     setSubmitting(true);
     setMessage({ text: "", ok: true });
     try {
-      await addReservation({ ...form, sport: form.sport || null });
-      setForm({
-        teamId: String(myTeams[0]?.id || ""),
-        slotId: String(availableTimeSlots[0]?.id || ""),
-        note:   "",
-        sport:  "",
-      });
-      setMessage({
-        text: "Rezervacija je uspješno kreirana. Čeka odobrenje admina, a članovi tima su obaviješteni.",
-        ok: true,
-      });
+      if (form.recurring) {
+        const result = await addRecurringReservation({
+          ...form,
+          sport: form.sport || null,
+          intervalWeeks: Number(form.intervalWeeks),
+          occurrences: Number(form.occurrences)
+        });
+        const count = Array.isArray(result) ? result.length : 1;
+        setForm({ teamId: String(myTeams[0]?.id || ""), slotId: String(availableTimeSlots[0]?.id || ""), note: "", sport: "", recurring: false, intervalWeeks: 1, occurrences: 2 });
+        setMessage({ text: `Kreirano ${count} rezervacija. Čekaju odobrenje admina.`, ok: true });
+      } else {
+        await addReservation({ ...form, sport: form.sport || null });
+        setForm({ teamId: String(myTeams[0]?.id || ""), slotId: String(availableTimeSlots[0]?.id || ""), note: "", sport: "", recurring: false, intervalWeeks: 1, occurrences: 2 });
+        setMessage({ text: "Rezervacija je uspješno kreirana. Čeka odobrenje admina, a članovi tima su obaviješteni.", ok: true });
+      }
     } catch (err) {
       setMessage({ text: err.message || "Greška pri kreiranju rezervacije.", ok: false });
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const loadComments = async (resId) => {
+    try {
+      const data = await fetchReservationComments(resId, auth?.token);
+      setCommentsMap(prev => ({ ...prev, [resId]: Array.isArray(data) ? data : [] }));
+    } catch {
+      setCommentsMap(prev => ({ ...prev, [resId]: [] }));
+    }
+  };
+
+  const toggleComments = async (resId) => {
+    if (expandedRow === resId) {
+      setExpandedRow(null);
+    } else {
+      setExpandedRow(resId);
+      if (!commentsMap[resId]) {
+        await loadComments(resId);
+      }
+    }
+  };
+
+  const submitComment = async (resId) => {
+    const text = (commentInput[resId] || "").trim();
+    if (!text) return;
+    setCommentSubmitting(prev => ({ ...prev, [resId]: true }));
+    try {
+      await addReservationComment(resId, text, auth?.token);
+      setCommentInput(prev => ({ ...prev, [resId]: "" }));
+      await loadComments(resId);
+    } catch { /* ignore */ } finally {
+      setCommentSubmitting(prev => ({ ...prev, [resId]: false }));
     }
   };
 
@@ -304,6 +350,16 @@ function ReservationsPage() {
                   <label className="field-label">Napomena <span className="field-optional">(opcionalno)</span></label>
                   <input className="field-input" name="note" placeholder="Kratka napomena..." value={form.note} onChange={onChange} />
                 </div>
+                <div className="field" style={{ justifyContent: "center", alignSelf: "flex-end", paddingBottom: 6 }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", color: "var(--color-text, #e5e7eb)", fontSize: "0.9rem" }}>
+                    <input
+                      type="checkbox"
+                      checked={form.recurring}
+                      onChange={e => setForm(p => ({ ...p, recurring: e.target.checked }))}
+                    />
+                    Ponavljajuća
+                  </label>
+                </div>
                 <div className="field field-action">
                   <label className="field-label">&nbsp;</label>
                   <button className="btn btn-primary" type="submit" disabled={submitting || !availableTimeSlots.length}>
@@ -311,6 +367,32 @@ function ReservationsPage() {
                   </button>
                 </div>
               </div>
+              {form.recurring && (
+                <div className="form-row">
+                  <div className="field field-grow">
+                    <label className="field-label">Interval</label>
+                    <select
+                      className="field-input"
+                      value={form.intervalWeeks}
+                      onChange={e => setForm(p => ({ ...p, intervalWeeks: Number(e.target.value) }))}
+                    >
+                      <option value={1}>Svake sedmice</option>
+                      <option value={2}>Svake dvije sedmice</option>
+                    </select>
+                  </div>
+                  <div className="field field-grow">
+                    <label className="field-label">Broj ponavljanja (1–12)</label>
+                    <input
+                      className="field-input"
+                      type="number"
+                      min={1}
+                      max={12}
+                      value={form.occurrences}
+                      onChange={e => setForm(p => ({ ...p, occurrences: Number(e.target.value) }))}
+                    />
+                  </div>
+                </div>
+              )}
               {message.text && (
                 <div className={message.ok ? "inline-success" : "inline-error"}>{message.text}</div>
               )}
@@ -370,6 +452,7 @@ function ReservationsPage() {
                     <th>Sport</th>
                     <th>Kreirao</th>
                     <th>Status</th>
+                    <th>Komentari</th>
                     <th>Akcije</th>
                   </tr>
                 </thead>
@@ -381,9 +464,12 @@ function ReservationsPage() {
                     const isLeagueLinked = Boolean(r.linkedMatchId);
                     const canCancel      = isActive && !isLeagueLinked && (isAdmin || isOwn);
                     const canReschedule  = isActive && !isLeagueLinked && (isAdmin || isOwn);
+                    const isExpanded     = expandedRow === r.id;
+                    const comments       = commentsMap[r.id] || [];
 
                     return (
-                      <tr key={r.id}>
+                      <React.Fragment key={r.id}>
+                      <tr>
                         <td>
                           <div className="slot-resource">{r.resourceName || "—"}</div>
                           <div className="slot-location">{r.location || "—"} · {formatTime(r.startTime)}–{formatTime(r.endTime)}</div>
@@ -409,6 +495,15 @@ function ReservationsPage() {
                               Liga
                             </span>
                           )}
+                        </td>
+                        <td>
+                          <button
+                            className="btn btn-xs btn-secondary"
+                            type="button"
+                            onClick={() => toggleComments(r.id)}
+                          >
+                            {isExpanded ? "Zatvori" : `Komentari${commentsMap[r.id] ? ` (${comments.length})` : ""}`}
+                          </button>
                         </td>
                         <td>
                           <div className="row-actions">
@@ -442,6 +537,47 @@ function ReservationsPage() {
                           </div>
                         </td>
                       </tr>
+                      {isExpanded && (
+                        <tr>
+                          <td colSpan={8} style={{ padding: "12px 18px", background: "rgba(255,255,255,0.03)" }}>
+                            <div style={{ marginBottom: 8, fontWeight: 600, fontSize: "0.85rem", color: "var(--color-text-muted)" }}>Komentari</div>
+                            {comments.length === 0 ? (
+                              <div style={{ fontSize: "0.82rem", color: "var(--color-text-muted)", marginBottom: 8 }}>Nema komentara.</div>
+                            ) : (
+                              <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 10 }}>
+                                {comments.map(c => (
+                                  <div key={c.id} style={{ fontSize: "0.82rem", borderLeft: "2px solid rgba(255,255,255,0.15)", paddingLeft: 10 }}>
+                                    <strong>{c.authorName || c.authorUsername}</strong>
+                                    <span style={{ color: "var(--color-text-muted)", marginLeft: 8, fontSize: "0.76rem" }}>
+                                      {c.createdAt ? new Date(c.createdAt).toLocaleString("bs") : ""}
+                                    </span>
+                                    <div>{c.content}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            <div style={{ display: "flex", gap: 8 }}>
+                              <input
+                                className="field-input"
+                                style={{ flex: 1, fontSize: "0.82rem" }}
+                                placeholder="Dodaj komentar..."
+                                value={commentInput[r.id] || ""}
+                                onChange={e => setCommentInput(prev => ({ ...prev, [r.id]: e.target.value }))}
+                                onKeyDown={e => { if (e.key === "Enter") submitComment(r.id); }}
+                              />
+                              <button
+                                className="btn btn-xs btn-primary"
+                                type="button"
+                                disabled={commentSubmitting[r.id] || !(commentInput[r.id] || "").trim()}
+                                onClick={() => submitComment(r.id)}
+                              >
+                                {commentSubmitting[r.id] ? "..." : "Pošalji"}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                      </React.Fragment>
                     );
                   })}
                 </tbody>

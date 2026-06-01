@@ -8,6 +8,7 @@ import {
 } from "react";
 import {
   createReservation as apiCreateReservation,
+  createRecurringReservation as apiCreateRecurringReservation,
   createTeam,
   createTimeSlot as apiCreateTimeSlot,
   createUser,
@@ -302,6 +303,24 @@ export function AppProvider({ children }) {
     return created;
   };
 
+  const addRecurringReservation = async (payload) => {
+    if (!auth?.token) throw new Error("Niste prijavljeni.");
+    const createdByUserId = resolveCurrentUserId(auth);
+    if (!createdByUserId) throw new Error("Nedostaje userId u prijavljenom korisniku.");
+    const body = {
+      teamId: Number(payload.teamId),
+      slotId: Number(payload.slotId),
+      createdByUserId: Number(createdByUserId),
+      note: payload.note?.trim() || null,
+      sport: payload.sport || null,
+      intervalWeeks: Number(payload.intervalWeeks),
+      occurrences: Number(payload.occurrences)
+    };
+    const created = await apiCreateRecurringReservation(body, auth.token);
+    await Promise.all([loadReservations(), loadTimeSlots(), loadAvailableSlots(), loadNotifications()]);
+    return created;
+  };
+
   const addReservation = async (payload) => {
     if (!auth?.token) throw new Error("Niste prijavljeni.");
     const createdByUserId = resolveCurrentUserId(auth);
@@ -527,6 +546,7 @@ export function AppProvider({ children }) {
       registerTeam,
       createNewTimeSlot,
       addReservation,
+      addRecurringReservation,
       approveReservation,
       rejectReservation,
       cancelReservation,
