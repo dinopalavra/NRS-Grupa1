@@ -2,6 +2,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useAppContext } from "../context/AppContext.jsx";
 import { formatDate, formatTime, statusLabel } from "../utils/format.js";
 import { fetchReservationComments, addReservationComment } from "../services/api.js";
+import Pagination from "../components/Pagination.jsx";
+
+const PAGE_SIZE = 10;
 
 const SPORT_OPTIONS = [
   { value: "FOOTBALL",   label: "⚽ Fudbal" },
@@ -61,6 +64,7 @@ function ReservationsPage() {
   const captainHasNoTeam = isCaptain && myTeams.length === 0;
 
   const [filter,     setFilter]     = useState("all");
+  const [page,       setPage]       = useState(1);
   const [form,       setForm]       = useState({ teamId: "", slotId: "", note: "", sport: "", recurring: false, intervalWeeks: 1, occurrences: 2 });
   const [message,    setMessage]    = useState({ text: "", ok: true });
   const [submitting, setSubmitting] = useState(false);
@@ -108,6 +112,11 @@ function ReservationsPage() {
       return a.startTime < b.startTime ? -1 : 1;
     });
   }, [filter, visibleReservations]);
+
+  const paginated = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filtered.slice(start, start + PAGE_SIZE);
+  }, [filtered, page]);
 
   const counts = useMemo(() => ({
     pending:   visibleReservations.filter(r => r.status === "PENDING").length,
@@ -417,7 +426,7 @@ function ReservationsPage() {
                   key={f.value}
                   type="button"
                   className={`filter-chip ${filter === f.value ? "filter-chip-active" : ""}`}
-                  onClick={() => setFilter(f.value)}
+                  onClick={() => { setFilter(f.value); setPage(1); }}
                 >
                   {f.label}
                   {f.value !== "all" && counts[f.value.toLowerCase()] > 0 && (
@@ -442,6 +451,12 @@ function ReservationsPage() {
               </p>
             </div>
           ) : (
+            <>
+            {filtered.length > PAGE_SIZE && (
+              <p className="pagination-info">
+                Prikazano {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–{Math.min(page * PAGE_SIZE, filtered.length)} od {filtered.length} rezervacija
+              </p>
+            )}
             <div className="slots-table-wrap">
               <table className="slots-table">
                 <thead>
@@ -457,7 +472,7 @@ function ReservationsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map(r => {
+                  {paginated.map(r => {
                     const isPending      = r.status === "PENDING";
                     const isActive       = r.status === "PENDING" || r.status === "APPROVED";
                     const isOwn          = r.createdByUserId === currentUserId;
@@ -583,6 +598,8 @@ function ReservationsPage() {
                 </tbody>
               </table>
             </div>
+            <Pagination total={filtered.length} page={page} pageSize={PAGE_SIZE} onChange={setPage} />
+            </>
           )}
         </div>
 
