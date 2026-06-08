@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useAppContext } from "../../context/AppContext.jsx";
+import Pagination from "../../components/Pagination.jsx";
+
+const PAGE_SIZE = 10;
 
 const SPORT_OPTIONS = [
   { value: "FOOTBALL",   label: "⚽ Fudbal" },
@@ -39,6 +42,7 @@ function TeamModule() {
 
   const [search, setSearch] = useState("");
   const [sportFilter, setSportFilter] = useState("");
+  const [page, setPage] = useState(1);
 
   const [statsTarget, setStatsTarget] = useState(null);
   const [statsData, setStatsData]     = useState(null);
@@ -183,6 +187,11 @@ function TeamModule() {
     if (sportFilter && t.sport !== sportFilter) return false;
     return true;
   });
+
+  const paginatedTeams = useMemo(
+    () => filteredTeams.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [filteredTeams, page]
+  );
 
   const onChange = e => {
     const { name, value } = e.target;
@@ -343,14 +352,14 @@ function TeamModule() {
                 className="field-input"
                 placeholder="🔍 Pretraga (naziv, grad, kapiten)..."
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={e => { setSearch(e.target.value); setPage(1); }}
               />
             </div>
             <div className="field" style={{ width: 200 }}>
               <select
                 className="field-input"
                 value={sportFilter}
-                onChange={e => setSportFilter(e.target.value)}
+                onChange={e => { setSportFilter(e.target.value); setPage(1); }}
               >
                 <option value="">Svi sportovi</option>
                 {SPORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -369,21 +378,27 @@ function TeamModule() {
             <p>{teams.length === 0 ? "Nema timova za prikaz." : "Nema timova koji odgovaraju filteru."}</p>
           </div>
         ) : (
-          <div className="slots-table-wrap">
-            <table className="slots-table">
-              <thead>
-                <tr>
-                  <th>Tim</th>
-                  <th>Grad</th>
-                  <th>Kapiten</th>
-                  <th>Članova</th>
-                  <th>Sport</th>
-                  <th>Status</th>
-                  <th>Akcije</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredTeams.map(team => (
+          <>
+            {filteredTeams.length > PAGE_SIZE && (
+              <div className="pagination-info">
+                Prikazano {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filteredTeams.length)} od {filteredTeams.length} timova
+              </div>
+            )}
+            <div className="slots-table-wrap">
+              <table className="slots-table">
+                <thead>
+                  <tr>
+                    <th>Tim</th>
+                    <th>Grad</th>
+                    <th>Kapiten</th>
+                    <th>Članova</th>
+                    <th>Sport</th>
+                    <th>Status</th>
+                    <th>Akcije</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedTeams.map(team => (
                   <tr key={team.id}>
                     <td>
                       <div className="slot-resource">{team.name}</div>
@@ -422,10 +437,12 @@ function TeamModule() {
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <Pagination total={filteredTeams.length} page={page} pageSize={PAGE_SIZE} onChange={setPage} />
+          </>
         )}
       </div>
 
