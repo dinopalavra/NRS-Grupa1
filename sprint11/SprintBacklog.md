@@ -37,14 +37,13 @@ Finalizirati i ispolirati platformu — uvesti paginaciju na stranicama s dugač
 | US11-2 | Kao korisnik, želim da duge liste termina budu podijeljene na stranice uz pretragu i filtriranje, kako bih brzo pronašao željeni termin. | Završeno | Paginacija po 15 stavki; reset stranice pri promjeni pretrage, sporta ili datuma |
 | US11-3 | Kao administrator, želim pretraživati korisnike po imenu ili korisničkom imenu i filtrirati ih po ulozi, kako bih brzo pronašao određenog korisnika u sistemu. | Završeno | Search input + role dropdown filter + paginacija po 10 stavki na stranici Korisnici |
 | US11-4 | Kao korisnik koji se registruje, želim da padajuće liste za odabir uloge i sporta budu vizualno usklađene s ostatkom stranice, kako bih imao konzistentan doživljaj. | Završeno | Dodata zlatna strelica i dark color-scheme na `select.input` klasu; opcije imaju tamnu pozadinu |
-| US11-5 | Kao korisnik koji pristupa sistemu s mobilnog uređaja, želim da kalendar, tabele i liga kartice budu čitljivi i upotrebljivi na malom ekranu, kako bih mogao koristiti sistem bez horizontalnog overflow-a. | Završeno | CalendarPage migrirana na CSS klase s responzivnim breakpointima; tabele dobivaju kompaktniji padding; liga match kartice ne prelaze rubove; filter čipovi horizontalno skrolaju |
 
 ---
 
 ## Pregled realizacije
 
-- Ukupno user storyja: 5
-- Završeno: 5
+- Ukupno user storyja: 4
+- Završeno: 4
 - Djelimično završeno: 0
 - Nezavršeno: 0
 
