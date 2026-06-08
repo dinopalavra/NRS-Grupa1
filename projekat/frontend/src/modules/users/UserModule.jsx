@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useAppContext } from "../../context/AppContext.jsx";
+import Pagination from "../../components/Pagination.jsx";
+
+const PAGE_SIZE = 10;
 
 const ROLE_LABELS = {
   ADMIN: "Administrator",
@@ -30,8 +33,28 @@ function UserModule() {
   const [message, setMessage]   = useState({ text: "", ok: true });
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
+  const [page, setPage] = useState(1);
 
   useEffect(() => { loadUsers(); }, [loadUsers]);
+
+  const filteredUsers = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return users.filter(u => {
+      if (roleFilter && u.role !== roleFilter) return false;
+      if (q) {
+        const hay = `${u.fullName || ""} ${u.username} ${u.email || ""}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [users, search, roleFilter]);
+
+  const paginatedUsers = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filteredUsers.slice(start, start + PAGE_SIZE);
+  }, [filteredUsers, page]);
 
   const onChange = e => {
     const { name, value } = e.target;
@@ -154,23 +177,66 @@ function UserModule() {
         <div className="content-card-header content-card-header-row">
           <div>
             <h2 className="content-card-title">Lista korisnika</h2>
-            <p className="content-card-subtitle">{users.length} korisnika registrovano u sistemu</p>
+            <p className="content-card-subtitle">
+              {filteredUsers.length !== users.length
+                ? `${filteredUsers.length} od ${users.length} korisnika`
+                : `${users.length} korisnika registrovano u sistemu`}
+            </p>
           </div>
           <button className="btn btn-secondary" type="button" onClick={loadUsers}>
             Osvježi
           </button>
         </div>
 
+        <div className="form-row" style={{ padding: "0 0 16px 0", gap: 12 }}>
+          <div className="field field-grow">
+            <input
+              className="field-input"
+              placeholder="🔍 Pretraga po imenu, usernameu ili emailu..."
+              value={search}
+              onChange={e => { setSearch(e.target.value); setPage(1); }}
+            />
+          </div>
+          <div className="field" style={{ width: 200 }}>
+            <select
+              className="field-input"
+              value={roleFilter}
+              onChange={e => { setRoleFilter(e.target.value); setPage(1); }}
+            >
+              <option value="">Sve uloge</option>
+              <option value="ADMIN">Administrator</option>
+              <option value="CAPTAIN">Kapiten</option>
+              <option value="PLAYER">Igrač</option>
+              <option value="REFEREE_SCOREKEEPER">Sudija / Zapisničar</option>
+            </select>
+          </div>
+          {(search || roleFilter) && (
+            <div className="field field-action">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => { setSearch(""); setRoleFilter(""); setPage(1); }}
+              >Resetuj</button>
+            </div>
+          )}
+        </div>
+
         {loadingUsers ? (
           <div className="loading-state">Učitavanje korisnika...</div>
-        ) : users.length === 0 ? (
+        ) : filteredUsers.length === 0 ? (
           <div className="empty-state">
             <div className="empty-state-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
             </div>
-            <p>Nema korisnika za prikaz.</p>
+            <p>{users.length === 0 ? "Nema korisnika za prikaz." : "Nema korisnika za odabrani filter."}</p>
           </div>
         ) : (
+          <>
+          {filteredUsers.length > PAGE_SIZE && (
+            <p className="pagination-info">
+              Prikazano {Math.min((page - 1) * PAGE_SIZE + 1, filteredUsers.length)}–{Math.min(page * PAGE_SIZE, filteredUsers.length)} od {filteredUsers.length} korisnika
+            </p>
+          )}
           <div className="slots-table-wrap">
             <table className="slots-table">
               <thead>
@@ -185,7 +251,7 @@ function UserModule() {
                 </tr>
               </thead>
               <tbody>
-                {users.map(user => (
+                {paginatedUsers.map(user => (
                   <tr key={user.id}>
                     <td>
                       <div className="slot-resource">{user.fullName || "—"}</div>
@@ -227,6 +293,8 @@ function UserModule() {
               </tbody>
             </table>
           </div>
+          <Pagination total={filteredUsers.length} page={page} pageSize={PAGE_SIZE} onChange={setPage} />
+          </>
         )}
       </div>
     </>

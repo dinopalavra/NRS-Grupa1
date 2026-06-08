@@ -78,53 +78,30 @@ function CalendarPage() {
           </button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid rgba(201,168,124,0.1)' }}>
+        <div className="cal-header-row">
           {DAYS.map(d => (
-            <div key={d} style={{ padding: '10px 0', textAlign: 'center', fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--gold)', borderRight: '1px solid rgba(201,168,124,0.06)' }}>
-              {d}
-            </div>
+            <div key={d} className="cal-day-label">{d}</div>
           ))}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+        <div className="cal-grid">
           {cells.map((day, i) => {
-            if (!day) return <div key={`e-${i}`} style={{ minHeight: 80, borderRight: '1px solid rgba(201,168,124,0.06)', borderBottom: '1px solid rgba(201,168,124,0.06)', background: 'rgba(0,0,0,0.04)' }} />;
+            if (!day) return <div key={`e-${i}`} className="cal-cell cal-cell--empty" />;
             const isToday = year === today.getFullYear() && month === today.getMonth() && day === today.getDate();
             const isSelected = selected === day;
             const events = eventsByDay[day] || [];
             return (
               <div
                 key={day}
+                className={`cal-cell${isSelected ? ' cal-cell--selected' : ''}${isToday ? ' cal-cell--today' : ''}`}
                 onClick={() => setSelected(isSelected ? null : day)}
-                style={{
-                  minHeight: 80,
-                  borderRight: '1px solid rgba(201,168,124,0.06)',
-                  borderBottom: '1px solid rgba(201,168,124,0.06)',
-                  padding: '8px 6px',
-                  cursor: 'pointer',
-                  background: isSelected ? 'rgba(201,168,124,0.1)' : isToday ? 'rgba(201,168,124,0.06)' : 'transparent',
-                  transition: 'background 0.15s',
-                }}
               >
-                <div style={{
-                  width: 28, height: 28, borderRadius: '50%',
-                  background: isToday ? 'var(--gold)' : 'transparent',
-                  color: isToday ? 'var(--dark-900)' : 'var(--cream)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.82rem', fontWeight: isToday ? 700 : 400, marginBottom: 4,
-                }}>
+                <div className={`cal-day-num${isToday ? ' cal-day-num--today' : ''}`}>
                   {day}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   {events.slice(0, 2).map((ev, j) => (
-                    <div key={j} style={{
-                      fontSize: '0.65rem',
-                      padding: '1px 5px',
-                      borderRadius: 3,
-                      background: ev.type === 'match' ? 'rgba(201,168,124,0.18)' : 'rgba(52,211,153,0.15)',
-                      color: ev.type === 'match' ? 'var(--gold-light)' : '#6ee7b7',
-                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                    }}>
+                    <div key={j} className={`cal-event-chip cal-event-chip--${ev.type}`}>
                       {ev.label}
                     </div>
                   ))}

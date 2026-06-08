@@ -1,6 +1,9 @@
 import React, { useMemo, useState } from "react";
 import { useAppContext } from "../context/AppContext.jsx";
 import { formatDate, formatTime, statusLabel } from "../utils/format.js";
+import Pagination from "../components/Pagination.jsx";
+
+const PAGE_SIZE = 15;
 
 const FILTERS = [
   { value: "all",       label: "Svi termini" },
@@ -35,6 +38,7 @@ function TimeSlotsPage() {
   const [filter, setFilter]   = useState("all");
   const [search, setSearch]   = useState("");
   const [dateFilter, setDateFilter] = useState("");
+  const [page, setPage]       = useState(1);
   const [message, setMessage] = useState({ text: "", ok: true });
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -66,6 +70,11 @@ function TimeSlotsPage() {
       return a.startTime < b.startTime ? -1 : 1;
     });
   }, [timeSlots, filter, search, dateFilter, sportFilter]);
+
+  const paginated = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filtered.slice(start, start + PAGE_SIZE);
+  }, [filtered, page]);
 
   const onChange = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -187,7 +196,7 @@ function TimeSlotsPage() {
                   key={f.value}
                   type="button"
                   className={`filter-chip ${filter === f.value ? "filter-chip-active" : ""}`}
-                  onClick={() => setFilter(f.value)}
+                  onClick={() => { setFilter(f.value); setPage(1); }}
                 >
                   {f.label}
                   {f.value !== "all" && <span className="filter-chip-count">{stats[f.value] ?? 0}</span>}
@@ -202,14 +211,14 @@ function TimeSlotsPage() {
                 className="field-input"
                 placeholder="🔍 Pretraga po nazivu resursa ili lokaciji..."
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={e => { setSearch(e.target.value); setPage(1); }}
               />
             </div>
             <div className="field" style={{ width: 180 }}>
               <select
                 className="field-input"
                 value={sportFilter}
-                onChange={e => setSportFilter(e.target.value)}
+                onChange={e => { setSportFilter(e.target.value); setPage(1); }}
               >
                 <option value="">Svi sportovi</option>
                 {SPORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -220,7 +229,7 @@ function TimeSlotsPage() {
                 className="field-input"
                 type="date"
                 value={dateFilter}
-                onChange={e => setDateFilter(e.target.value)}
+                onChange={e => { setDateFilter(e.target.value); setPage(1); }}
               />
             </div>
             {(search || dateFilter || sportFilter) && (
@@ -228,7 +237,7 @@ function TimeSlotsPage() {
                 <button
                   type="button"
                   className="btn btn-secondary"
-                  onClick={() => { setSearch(""); setDateFilter(""); setSportFilter(""); }}
+                  onClick={() => { setSearch(""); setDateFilter(""); setSportFilter(""); setPage(1); }}
                 >Resetuj</button>
               </div>
             )}
@@ -244,6 +253,12 @@ function TimeSlotsPage() {
               <p>Nema termina za odabrani filter.</p>
             </div>
           ) : (
+            <>
+            {filtered.length > PAGE_SIZE && (
+              <p className="pagination-info">
+                Prikazano {Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)}–{Math.min(page * PAGE_SIZE, filtered.length)} od {filtered.length} termina
+              </p>
+            )}
             <div className="slots-table-wrap">
               <table className="slots-table">
                 <thead>
@@ -256,7 +271,7 @@ function TimeSlotsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map(slot => (
+                  {paginated.map(slot => (
                     <tr key={slot.id}>
                       <td>
                         <div className="slot-resource">{slot.resourceName || "—"}</div>
@@ -284,6 +299,8 @@ function TimeSlotsPage() {
                 </tbody>
               </table>
             </div>
+            <Pagination total={filtered.length} page={page} pageSize={PAGE_SIZE} onChange={setPage} />
+            </>
           )}
         </div>
 

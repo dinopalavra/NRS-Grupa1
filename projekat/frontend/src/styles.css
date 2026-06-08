@@ -2132,10 +2132,32 @@ select.liga-select {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .notif-dropdown { width: calc(100vw - 32px); right: -8px; max-width: 360px; }
 
-  .slots-table thead th:nth-child(n+4),
-  .slots-table tbody td:nth-child(n+4) { display: none; }
-  .slots-table thead th:nth-last-child(-n+2),
-  .slots-table tbody td:nth-last-child(-n+2) { display: table-cell; }
+  /* Tables — compact padding + horizontal scroll, no column hiding */
+  .slots-table th, .data-table th { padding: 10px 10px; font-size: 0.58rem; }
+  .slots-table td, .data-table td { padding: 10px 10px; font-size: 0.8rem; }
+  .slot-resource { font-size: 0.8rem; }
+  .slot-location { font-size: 0.72rem; }
+
+  /* Liga match cards */
+  .liga-match-teams { gap: 6px; padding: 12px 12px 8px; }
+  .liga-match-team { font-size: 0.8rem; white-space: normal; word-break: break-word; }
+  .liga-match-footer { flex-wrap: wrap; gap: 6px; }
+
+  /* Liga table compact */
+  .liga-th, .liga-td { padding: 8px 8px !important; font-size: 0.78rem; }
+  .liga-th--rank, .liga-td--rank { padding: 8px 6px !important; }
+
+  /* Filter chips scrollable */
+  .filter-chips { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
+  .filter-chip { flex-shrink: 0; }
+
+  /* Dashboard stat cards compact */
+  .dash-stat { padding: 14px 16px; gap: 12px; }
+  .dash-stat-icon { width: 38px; height: 38px; }
+  .dash-stat-val { font-size: 1.8rem; }
+
+  /* Form search rows stack on mobile */
+  .form-row { flex-direction: column; }
 }
 
 @media (max-width: 520px) {
@@ -2145,5 +2167,190 @@ select.liga-select {
   .liga-search-row { flex-direction: column; }
   .liga-search-row .liga-select { flex: 1; }
   .modal-dialog { margin: 12px; }
+
+  /* Very small screens — further compaction */
+  .slots-table th, .data-table th { padding: 8px 8px; }
+  .slots-table td, .data-table td { padding: 8px 8px; font-size: 0.75rem; }
+
+  /* Calendar cells compact */
+  .cal-cell { min-height: 52px !important; padding: 4px 3px !important; }
+  .cal-day-num { width: 22px !important; height: 22px !important; font-size: 0.7rem !important; margin-bottom: 2px !important; }
+  .cal-event-chip { font-size: 0.58rem !important; padding: 1px 3px !important; }
+
+  /* Page hero compact */
+  .page-hero { gap: 12px; }
+  .page-hero-stats { gap: 6px; }
+
+  /* Auth card full width */
+  .auth-card { padding: 24px 16px; }
+  .auth-title { font-size: 1.4rem; }
+
+  /* Dashboard cards */
+  .dash-card { padding: 20px 16px; }
+  .dash-stat-val { font-size: 1.6rem; }
+}
+
+/* ============================================================
+   CALENDAR
+   ============================================================ */
+
+.cal-header-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid rgba(201,168,124,0.1);
+}
+
+.cal-day-label {
+  padding: 10px 0;
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border-right: 1px solid rgba(201,168,124,0.06);
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.cal-cell {
+  min-height: 80px;
+  border-right: 1px solid rgba(201,168,124,0.06);
+  border-bottom: 1px solid rgba(201,168,124,0.06);
+  padding: 8px 6px;
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.15s;
+}
+
+.cal-cell--empty {
+  background: rgba(0,0,0,0.04);
+  cursor: default;
+}
+
+.cal-cell--selected { background: rgba(201,168,124,0.1); }
+.cal-cell--today    { background: rgba(201,168,124,0.06); }
+.cal-cell:hover:not(.cal-cell--empty) { background: rgba(201,168,124,0.05); }
+
+.cal-day-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--cream);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 400;
+  margin-bottom: 4px;
+}
+
+.cal-day-num--today {
+  background: var(--gold);
+  color: var(--dark-900);
+  font-weight: 700;
+}
+
+.cal-event-chip {
+  font-size: 0.65rem;
+  padding: 1px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cal-event-chip--match {
+  background: rgba(201,168,124,0.18);
+  color: var(--gold-light);
+}
+
+.cal-event-chip--reservation {
+  background: rgba(52,211,153,0.15);
+  color: #6ee7b7;
+}
+
+/* ============================================================
+   AUTH SELECT FIX — custom arrow + dark dropdown
+   ============================================================ */
+
+select.input {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c9a87c' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  color-scheme: dark;
+}
+
+select.input option {
+  background: var(--dark-700);
+  color: var(--cream);
+}
+
+/* ============================================================
+   PAGINATION
+   ============================================================ */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 16px 0 8px;
+  flex-wrap: wrap;
+}
+
+.pagination-btn {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid rgba(201,168,124,0.2);
+  border-radius: var(--radius-md);
+  background: rgba(242,236,226,0.03);
+  color: var(--cream-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color var(--tr), background var(--tr), color var(--tr);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--cream);
+  background: rgba(201,168,124,0.08);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pagination-btn-active {
+  border-color: var(--gold) !important;
+  background: rgba(201,168,124,0.15) !important;
+  color: var(--gold) !important;
+  font-weight: 600;
+}
+
+.pagination-ellipsis {
+  min-width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cream-muted);
+  font-size: 0.85rem;
+}
+
+.pagination-info {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--cream-muted);
+  padding-bottom: 4px;
 }
 
