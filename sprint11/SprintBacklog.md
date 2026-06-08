@@ -8,7 +8,7 @@
 
 ## Sprint cilj
 
-Finalizirati i ispolirati platformu — uvesti paginaciju na stranicama s dugačkim listama, poboljšati pretragu i filtriranje u modulu korisnika, ispraviti vizualne nedosljednosti u dizajnu te osigurati uredan responzivni prikaz na mobilnim uređajima kroz sve stranice aplikacije.
+Finalizirati i ispolirati platformu — uvesti paginaciju na stranicama s dugačkim listama, poboljšati pretragu i filtriranje u modulu korisnika, ispraviti vizualne nedosljednosti u dizajnu.
 
 ---
 
@@ -17,14 +17,12 @@ Finalizirati i ispolirati platformu — uvesti paginaciju na stranicama s dugač
 - Paginacija na stranicama Rezervacije, Termini i Korisnici
 - Pretraga i filtriranje po ulozi na stranici Korisnici
 - Popravka dizajna padajućih lista na Login stranici (uloga i sport)
-- Responzivni prikaz: kalendar, tabele, liga kartice i filter čipovi na mobilnim ekranima
 
 ---
 
 ## Rizici i zavisnosti
 
 - Paginacija je implementirana na klijentskoj strani — pri velikom broju stavki nema server-side optimizacije (prihvatljivo za akademsku skalu)
-- Responzivne promjene ne smiju narušiti izgled na desktop rezolucijama
 - Kalendarski prikaz koristi inline stilove — za responzivnost potrebno migrirati na CSS klase
 
 ---
@@ -49,4 +47,4 @@ Finalizirati i ispolirati platformu — uvesti paginaciju na stranicama s dugač
 
 ## Komentar
 
-Sprint 11 je finalni sprint projekta. Fokus je bio isključivo na polish-u i UX poboljšanjima — nema novih poslovnih funkcionalnosti, već se zaokružuje korisnički doživljaj kroz paginaciju dugih lista, poboljšanu pretragu i ispravan prikaz na mobilnim uređajima. Sistem je u potpunosti spreman za finalnu odbranu.
+Sprint 11 je finalni sprint projekta. Fokus je bio isključivo na polish-u i UX poboljšanjima — nema novih poslovnih funkcionalnosti, već se zaokružuje korisnički doživljaj kroz paginaciju dugih lista i poboljšanu pretragu. Sistem je u potpunosti spreman za finalnu odbranu.
